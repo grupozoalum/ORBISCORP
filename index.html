@@ -7,11 +7,8 @@
 <title>OrbisCORP — Seguridad Industrial Profesional</title>
 <meta name="description" content="Distribuidores autorizados de equipo de Seguridad Industrial. Asesoría STPS, Protección Civil. Lo que usted necesita, cuando lo necesita.">
 
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-
-<!-- PrimeFlex -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeflex@3.3.1/primeflex.min.css">
 
 <style>
@@ -44,6 +41,7 @@
   --shadow:       0 4px 16px rgba(47,59,162,0.10), 0 2px 6px rgba(47,59,162,0.06);
   --shadow-lg:    0 12px 40px rgba(47,59,162,0.14), 0 4px 12px rgba(47,59,162,0.08);
   --nav-h:        68px;
+  --toolbar-h:    0px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,6 +53,8 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  padding-top: var(--toolbar-h);
+  transition: padding-top 0.25s ease;
 }
 img { max-width: 100%; height: auto; display: block; }
 a { text-decoration: none; color: inherit; }
@@ -70,10 +70,7 @@ a { text-decoration: none; color: inherit; }
   transition: opacity 0.5s, visibility 0.5s;
 }
 #loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
-.loader-logo {
-  font-family: var(--font-display); font-size: 2.4rem; letter-spacing: 0.08em;
-  color: #fff;
-}
+.loader-logo { font-family: var(--font-display); font-size: 2.4rem; letter-spacing: 0.08em; color: #fff; }
 .loader-logo span { color: var(--safety); }
 .loader-bar { width: 160px; height: 2px; background: rgba(255,255,255,0.15); border-radius: 1px; overflow: hidden; }
 .loader-fill { height: 100%; background: var(--safety); border-radius: 1px; animation: loaderFill 1.4s ease forwards; }
@@ -90,9 +87,21 @@ a { text-decoration: none; color: inherit; }
 .dock-id { display: flex; align-items: center; gap: 8px; }
 .dock-pulse { width: 7px; height: 7px; background: var(--safety); border-radius: 50%; animation: pulse 2s infinite; }
 .dock-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; color: var(--safety); text-transform: uppercase; }
-.save-status { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); padding: 3px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; }
-.save-status.saving { color: var(--safety); border-color: var(--safety); }
-.save-status.saved { color: var(--success); border-color: var(--success); }
+
+/* Save status */
+#save-status-wrap {
+  display: flex; align-items: center; gap: 4px;
+  padding: 2px 7px; border: 1px solid rgba(255,255,255,0.1); border-radius: 3px;
+}
+.save-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); transition: background 0.3s; flex-shrink: 0; }
+#save-status-wrap.saving { border-color: var(--safety); }
+#save-status-wrap.saving .save-dot { background: var(--safety); animation: pulse 1s infinite; }
+#save-status-wrap.saved { border-color: var(--success); }
+#save-status-wrap.saved .save-dot { background: var(--success); }
+#save-status-wrap.error { border-color: var(--danger); }
+#save-status-wrap.error .save-dot { background: var(--danger); }
+#save-txt { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em; color: rgba(255,255,255,0.4); white-space: nowrap; }
+
 .dock-actions { display: flex; align-items: center; gap: 6px; }
 .dock-btn {
   font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
@@ -148,10 +157,15 @@ nav.scrolled { box-shadow: var(--shadow); }
 .nav-cta {
   background: var(--orbis); color: #fff; border: none;
   padding: 9px 20px; border-radius: var(--r); font-size: 0.875rem; font-weight: 600;
-  cursor: pointer; transition: all 0.2s; min-height: 40px; text-decoration: none; display: inline-flex; align-items: center;
+  cursor: pointer; transition: all 0.2s; min-height: 40px; text-decoration: none;
+  display: inline-flex; align-items: center;
 }
 .nav-cta:hover { background: var(--orbis-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
-.hamburger { display: none; flex-direction: column; gap: 5px; width: 38px; height: 38px; align-items: center; justify-content: center; background: transparent; border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; }
+.hamburger {
+  display: none; flex-direction: column; gap: 5px; width: 38px; height: 38px;
+  align-items: center; justify-content: center; background: transparent;
+  border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer;
+}
 .hamburger span { display: block; width: 18px; height: 1.5px; background: var(--text); transition: all 0.25s; }
 .mobile-drawer {
   display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 199;
@@ -161,7 +175,11 @@ nav.scrolled { box-shadow: var(--shadow); }
 .mobile-drawer.open { display: flex; }
 .mobile-drawer a { font-size: 1.1rem; font-weight: 500; color: var(--text-2); padding: 12px 0; border-bottom: 1px solid var(--border); transition: color 0.15s; }
 .mobile-drawer a:hover { color: var(--orbis); }
-#nav-admin-badge { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; color: var(--safety-dark); background: var(--safety-light); border: 1px solid var(--safety); border-radius: 3px; padding: 3px 8px; display: none; }
+#nav-admin-badge {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+  color: var(--safety-dark); background: var(--safety-light);
+  border: 1px solid var(--safety); border-radius: 3px; padding: 3px 8px; display: none;
+}
 
 /* ── HERO ── */
 #hero {
@@ -169,21 +187,13 @@ nav.scrolled { box-shadow: var(--shadow); }
   background: linear-gradient(135deg, var(--orbis-deep) 0%, var(--orbis) 60%, var(--orbis-mid) 100%);
   min-height: 88vh; display: flex; align-items: center;
 }
-.hero-pattern {
-  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
-}
+.hero-pattern { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .hero-pattern::before {
-  content: '';
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size: 50px 50px;
 }
-.hero-diag {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 80px; background: var(--bg); clip-path: polygon(0 100%, 100% 0, 100% 100%);
-}
+.hero-diag { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: var(--bg); clip-path: polygon(0 100%, 100% 0, 100% 100%); }
 .hero-inner { max-width: 1280px; margin: 0 auto; padding: 80px 24px 120px; position: relative; z-index: 1; }
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
@@ -217,11 +227,6 @@ nav.scrolled { box-shadow: var(--shadow); }
 .hero-stat { text-align: left; }
 .hero-stat-num { font-family: var(--font-display); font-size: 1.8rem; color: var(--safety); line-height: 1; margin-bottom: 4px; }
 .hero-stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; }
-.hero-visual {
-  position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
-  width: 40%; max-width: 480px; opacity: 0.15;
-  display: none;
-}
 
 /* ── SECTIONS ── */
 .section { padding: 88px 24px; }
@@ -248,17 +253,10 @@ nav.scrolled { box-shadow: var(--shadow); }
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
   padding: 28px; transition: all 0.25s; position: relative; overflow: hidden;
 }
-.service-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: var(--orbis); transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
-}
+.service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--orbis); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
 .service-card:hover { box-shadow: var(--shadow); border-color: var(--orbis-mid); transform: translateY(-3px); }
 .service-card:hover::before { transform: scaleX(1); }
-.service-icon {
-  width: 52px; height: 52px; background: var(--orbis-light); border-radius: var(--r);
-  display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
-  font-size: 1.5rem; color: var(--orbis);
-}
+.service-icon { width: 52px; height: 52px; background: var(--orbis-light); border-radius: var(--r); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 1.5rem; color: var(--orbis); }
 .service-title { font-weight: 700; font-size: 1.1rem; color: var(--text); margin-bottom: 10px; }
 .service-desc { font-size: 0.9rem; color: var(--text-2); line-height: 1.7; font-weight: 300; }
 
@@ -277,7 +275,7 @@ nav.scrolled { box-shadow: var(--shadow); }
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
   overflow: hidden; transition: all 0.25s; position: relative; display: flex; flex-direction: column;
 }
-.product-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border); }
+.product-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
 .product-img {
   aspect-ratio: 4/3; background: var(--orbis-light);
   display: flex; align-items: center; justify-content: center;
@@ -304,9 +302,7 @@ body.admin-mode .admin-img-trigger { display: flex; }
 .product-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
 .product-name { font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 6px; }
 .product-desc { font-size: 0.85rem; color: var(--text-2); line-height: 1.6; flex: 1; margin-bottom: 14px; font-weight: 300; }
-.product-price {
-  font-family: var(--font-display); font-size: 1.4rem; color: var(--orbis); margin-bottom: 14px; line-height: 1;
-}
+.product-price { font-family: var(--font-display); font-size: 1.4rem; color: var(--orbis); margin-bottom: 14px; line-height: 1; }
 .product-price span { font-size: 0.85rem; color: var(--text-3); font-family: var(--font-body); font-weight: 400; }
 .btn-add {
   width: 100%; background: var(--safety); color: var(--text); font-weight: 700;
@@ -329,10 +325,7 @@ body.admin-mode .product-admin-bar { display: flex; }
 .padmin-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
 
 /* ── CARRITO SIDEBAR ── */
-.cart-overlay {
-  position: fixed; inset: 0; background: rgba(26,31,60,0.5); z-index: 400;
-  opacity: 0; visibility: hidden; transition: all 0.3s; backdrop-filter: blur(4px);
-}
+.cart-overlay { position: fixed; inset: 0; background: rgba(26,31,60,0.5); z-index: 400; opacity: 0; visibility: hidden; transition: all 0.3s; backdrop-filter: blur(4px); }
 .cart-overlay.open { opacity: 1; visibility: visible; }
 .cart-sidebar {
   position: fixed; top: 0; right: 0; bottom: 0; width: 380px; max-width: 95vw;
@@ -342,11 +335,7 @@ body.admin-mode .product-admin-bar { display: flex; }
   box-shadow: -8px 0 40px rgba(47,59,162,0.15);
 }
 .cart-sidebar.open { transform: translateX(0); }
-.cart-head {
-  padding: 20px 24px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  background: var(--orbis-deep);
-}
+.cart-head { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--orbis-deep); }
 .cart-title { font-family: var(--font-display); font-size: 1.1rem; color: #fff; letter-spacing: 0.04em; }
 .cart-close { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: var(--r-sm); cursor: pointer; font-size: 1rem; transition: all 0.15s; }
 .cart-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
@@ -377,16 +366,11 @@ body.admin-mode .product-admin-bar { display: flex; }
   cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .btn-checkout:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
-.btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── NOSOTROS ── */
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
 .about-img-wrap { position: relative; }
-.about-img-box {
-  background: var(--orbis); border-radius: var(--r-xl); overflow: hidden;
-  aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
-}
-.about-deco { position: absolute; bottom: -20px; right: -20px; width: 140px; height: 140px; border-radius: var(--r-xl); background: var(--safety); opacity: 0.15; }
+.about-img-box { background: var(--orbis); border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
 .values-list { display: flex; flex-direction: column; gap: 12px; }
 .value-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); }
 .value-icon { width: 36px; height: 36px; background: var(--orbis-light); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; color: var(--orbis); font-size: 1rem; flex-shrink: 0; }
@@ -464,7 +448,7 @@ footer { background: var(--orbis-deep); border-top: 3px solid var(--safety); pad
 .modal-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
 .modal-body { padding: 24px; }
 .mfield { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-.mfield label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
+.mfield label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); display: block; }
 .mfield input, .mfield select, .mfield textarea {
   background: var(--surface2); border: 1px solid var(--border); color: var(--text);
   font-family: var(--font-body); font-size: 0.9rem; padding: 10px 12px;
@@ -481,7 +465,6 @@ footer { background: var(--orbis-deep); border-top: 3px solid var(--safety); pad
 .msave-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .mcancel-btn { background: transparent; color: var(--text-2); border: 1px solid var(--border); font-size: 0.875rem; border-radius: var(--r); padding: 11px 18px; cursor: pointer; transition: all 0.15s; min-height: 44px; }
 .mcancel-btn:hover { border-color: var(--text-2); }
-/* img upload */
 .prod-upload-area { border: 1.5px dashed var(--border); border-radius: var(--r); padding: 20px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s; background: var(--surface2); }
 .prod-upload-area:hover { border-color: var(--orbis); background: var(--orbis-light); }
 .prod-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
@@ -497,11 +480,10 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .reveal.in { opacity: 1; transform: translateY(0); }
 .stagger > *:nth-child(1) { transition-delay: 0.04s !important; }
-.stagger > *:nth-child(2) { transition-delay: 0.1s !important; }
+.stagger > *:nth-child(2) { transition-delay: 0.10s !important; }
 .stagger > *:nth-child(3) { transition-delay: 0.16s !important; }
 .stagger > *:nth-child(4) { transition-delay: 0.22s !important; }
 
-/* ── UTILITIES ── */
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
 /* ── RESPONSIVE ── */
@@ -537,7 +519,10 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
   <div class="dock-id">
     <div class="dock-pulse"></div>
     <span class="dock-label">Admin Mode</span>
-    <span class="save-status" id="save-status">Listo</span>
+    <div id="save-status-wrap">
+      <div class="save-dot"></div>
+      <span id="save-txt">Listo</span>
+    </div>
   </div>
   <div class="dock-actions">
     <button class="dock-btn primary" onclick="openProductModal(null)">+ Producto</button>
@@ -594,7 +579,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
       <div class="mfield"><label>Imagen del Producto</label>
         <div class="prod-upload-area" id="pm-upload">
           <img class="prod-preview" id="pm-preview" alt="Preview">
-          <div class="prod-upload-hint" id="pm-upload-hint">↑ Arrastra o haz clic para subir imagen<br>JPG, PNG, WebP</div>
+          <div class="prod-upload-hint" id="pm-upload-hint">↑ Arrastra o haz clic para subir imagen · JPG, PNG, WebP</div>
           <input type="file" accept="image/*" id="pm-img-file" onchange="pmImgSelect(this)">
         </div>
       </div>
@@ -626,15 +611,12 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
       <span class="cart-subtotal-val" id="cart-total">$0.00</span>
     </div>
     <p class="cart-note">Precio orientativo. El vendedor confirmará el precio final.</p>
-    <button class="btn-checkout" id="btn-checkout" onclick="checkoutWhatsApp()">
+    <button class="btn-checkout" onclick="checkoutWhatsApp()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       Pedir por WhatsApp
     </button>
   </div>
 </div>
-
-<!-- ═══ VUE APP ROOT ═══ -->
-<div id="app">
 
 <!-- NAV -->
 <nav id="main-nav" role="navigation" aria-label="Navegación principal">
@@ -660,7 +642,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
       <span id="nav-admin-badge">◈ Admin</span>
       <button class="btn-cart" onclick="openCart()" aria-label="Abrir carrito">
         🛒 Carrito
-        <span class="cart-badge" id="cart-badge" v-show="cartCount > 0" :key="cartCount">{{ cartCount }}</span>
+        <span class="cart-badge" id="cart-badge" style="display:none">0</span>
       </button>
       <a href="#contacto" class="nav-cta">Cotizar →</a>
       <button class="hamburger" id="ham-btn" aria-label="Menú" aria-expanded="false" onclick="toggleDrawer()">
@@ -694,7 +676,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
       Distribuidores autorizados de equipo de Seguridad e Higiene Industrial. Asesoría STPS y Protección Civil. Lo que usted necesita, cuando lo necesita.
     </p>
     <div class="hero-actions">
-      <a href="#catalogo" class="btn-hero-primary">Ver Catálogo → </a>
+      <a href="#catalogo" class="btn-hero-primary">Ver Catálogo →</a>
       <a href="#contacto" class="btn-hero-secondary">Solicitar Asesoría</a>
     </div>
     <div class="hero-stats">
@@ -716,7 +698,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
 </section>
 
 <!-- TRUST BAR -->
-<div class="trust-bar" aria-label="Certificaciones y socios">
+<div class="trust-bar" aria-label="Socios comerciales">
   <div class="trust-inner">
     <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>3M</strong> Distribuidor Autorizado</span></div>
     <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Honeywell</strong> Partner Oficial</span></div>
@@ -765,7 +747,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
     <div class="section-label">Catálogo de Productos</div>
     <h2 class="section-heading reveal">Todo en un solo lugar,<br><em>disponible para ti</em></h2>
     <p class="section-sub reveal">Encuentra el equipo de seguridad, herramientas y materiales que necesitas de marcas líderes a precios competitivos.</p>
-    <div class="filter-bar reveal">
+    <div class="filter-bar reveal" role="group" aria-label="Filtrar productos">
       <button class="flt-btn active" data-cat="Todos" onclick="filterCat(this)">Todos</button>
       <button class="flt-btn" data-cat="Seguridad" onclick="filterCat(this)">Seguridad</button>
       <button class="flt-btn" data-cat="Abrasivos" onclick="filterCat(this)">Abrasivos</button>
@@ -793,7 +775,6 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
             <text x="200" y="296" text-anchor="middle" font-family="monospace" font-size="14" fill="rgba(255,255,255,0.3)" letter-spacing="6">ORBISCORP</text>
           </svg>
         </div>
-        <div class="about-deco"></div>
       </div>
       <div>
         <div class="section-label">¿Quiénes somos?</div>
@@ -801,18 +782,9 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
         <p class="reveal" style="font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:18px;font-weight:300" data-field="about.p1" contenteditable="false">Orbiscorp SA de CV es una empresa comercializadora con capital 100% mexicano, fundada en el año 2000. Somos distribuidores autorizados de las marcas líderes en seguridad industrial del mercado.</p>
         <p class="reveal" style="font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:32px;font-weight:300" data-field="about.p2" contenteditable="false">Nuestro objetivo es brindar un servicio integral: no solo en el abastecimiento de productos, sino capacitando a su personal para aprovecharlos al máximo.</p>
         <div class="values-list reveal stagger">
-          <div class="value-item">
-            <div class="value-icon">⚡</div>
-            <div><div class="value-title">Misión</div><div class="value-desc">Satisfacer a nuestros clientes cubriendo sus necesidades a tiempo, con calidad y asesoría experta a precios competitivos.</div></div>
-          </div>
-          <div class="value-item">
-            <div class="value-icon">🎯</div>
-            <div><div class="value-title">Visión</div><div class="value-desc">Ser la empresa más completa e innovadora en servicios para todos los mercados en que participamos.</div></div>
-          </div>
-          <div class="value-item">
-            <div class="value-icon">🤝</div>
-            <div><div class="value-title">Valores</div><div class="value-desc">Honestidad · Actitud de servicio · Respeto · Mejora continua · Liderazgo.</div></div>
-          </div>
+          <div class="value-item"><div class="value-icon">⚡</div><div><div class="value-title">Misión</div><div class="value-desc">Satisfacer a nuestros clientes cubriendo sus necesidades a tiempo, con calidad y asesoría experta a precios competitivos.</div></div></div>
+          <div class="value-item"><div class="value-icon">🎯</div><div><div class="value-title">Visión</div><div class="value-desc">Ser la empresa más completa e innovadora en servicios para todos los mercados en que participamos.</div></div></div>
+          <div class="value-item"><div class="value-icon">🤝</div><div><div class="value-title">Valores</div><div class="value-desc">Honestidad · Actitud de servicio · Respeto · Mejora continua · Liderazgo.</div></div></div>
         </div>
       </div>
     </div>
@@ -828,22 +800,10 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
         <h2 class="contact-info-title" data-field="contact.heading" contenteditable="false">¿Tienes una duda?<br>Contáctanos</h2>
         <p class="contact-info-desc" data-field="contact.desc" contenteditable="false">Recuerde, en OrbisCORP estamos para servirle. Si no encontró lo que buscaba, podemos ayudarle. Solo basta con que nos llame o envíe un correo.</p>
         <div class="contact-data">
-          <div class="cdata-item">
-            <div class="cdata-icon">📍</div>
-            <div><div class="cdata-label">Sucursal Principal</div><div class="cdata-val" data-field="contact.dir" contenteditable="false">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</div></div>
-          </div>
-          <div class="cdata-item">
-            <div class="cdata-icon">📞</div>
-            <div><div class="cdata-label">Teléfono</div><div class="cdata-val"><a href="tel:+527711450476" style="color:inherit">+52 771 145 0476</a></div></div>
-          </div>
-          <div class="cdata-item">
-            <div class="cdata-icon">✉️</div>
-            <div><div class="cdata-label">Correo Electrónico</div><div class="cdata-val"><a href="mailto:ventas@orbiscorp.com.mx" style="color:inherit">ventas@orbiscorp.com.mx</a></div></div>
-          </div>
-          <div class="cdata-item">
-            <div class="cdata-icon">🕐</div>
-            <div><div class="cdata-label">Horario de Atención</div><div class="cdata-val" data-field="contact.horario" contenteditable="false">Lun – Vie · 08:00 – 18:00</div></div>
-          </div>
+          <div class="cdata-item"><div class="cdata-icon">📍</div><div><div class="cdata-label">Sucursal Principal</div><div class="cdata-val" data-field="contact.dir" contenteditable="false">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</div></div></div>
+          <div class="cdata-item"><div class="cdata-icon">📞</div><div><div class="cdata-label">Teléfono</div><div class="cdata-val"><a href="tel:+527711450476" style="color:inherit">+52 771 145 0476</a></div></div></div>
+          <div class="cdata-item"><div class="cdata-icon">✉️</div><div><div class="cdata-label">Correo Electrónico</div><div class="cdata-val"><a href="mailto:ventas@orbiscorp.com.mx" style="color:inherit">ventas@orbiscorp.com.mx</a></div></div></div>
+          <div class="cdata-item"><div class="cdata-icon">🕐</div><div><div class="cdata-label">Horario de Atención</div><div class="cdata-val" data-field="contact.horario" contenteditable="false">Lun – Vie · 08:00 – 18:00</div></div></div>
         </div>
       </div>
       <div class="contact-form reveal">
@@ -877,9 +837,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
           </div>
           <div class="fgrp"><label for="f-msg">Mensaje</label><textarea id="f-msg" name="mensaje" placeholder="¿En qué podemos ayudarle?"></textarea></div>
           <div class="form-err" id="form-err">⚠ Completa los campos obligatorios.</div>
-          <button type="submit" class="btn-submit" id="btn-sub">
-            <span id="sub-txt">Enviar Mensaje</span>
-          </button>
+          <button type="submit" class="btn-submit" id="btn-sub"><span id="sub-txt">Enviar Mensaje</span></button>
         </form>
       </div>
     </div>
@@ -935,52 +893,66 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
   </div>
 </footer>
 
-</div><!-- #app -->
-
-<!-- Firebase SDK -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     FIREBASE CMS — Lógica clonada de RID INDUSTRIAS v6.1
+     Colecciones: web_content/orbiscorp · productos_orbis · leads_orbiscorp
+     VISIBILIDAD PÚBLICA: onSnapshot + getDocs no requieren auth en Firestore
+     ESCRITURA PROTEGIDA: updateDoc / addDoc / deleteDoc solo si isAdmin === true
+     ═══════════════════════════════════════════════════════════════════ -->
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { initializeApp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import {
-  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
-  browserSessionPersistence, setPersistence
+  getAuth, signInWithEmailAndPassword, signOut,
+  onAuthStateChanged, browserSessionPersistence, setPersistence
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import {
   getFirestore, doc, onSnapshot, updateDoc, setDoc, getDoc,
-  collection, addDoc, deleteDoc, serverTimestamp, query, orderBy, getDocs
+  collection, addDoc, deleteDoc, serverTimestamp,
+  query, orderBy, getDocs, limit
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import {
   getStorage, ref as stRef, uploadBytes, getDownloadURL
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
+/* ── CONFIG ── */
 const FB = {
-  apiKey: "AIzaSyAnq1OZavOTquMPyLs_etqA0qystCd7rMI",
-  authDomain: "oracles-99bc3.firebaseapp.com",
-  projectId: "oracles-99bc3",
-  storageBucket: "oracles-99bc3.firebasestorage.app",
+  apiKey:            "AIzaSyAnq1OZavOTquMPyLs_etqA0qystCd7rMI",
+  authDomain:        "oracles-99bc3.firebaseapp.com",
+  projectId:         "oracles-99bc3",
+  storageBucket:     "oracles-99bc3.firebasestorage.app",
   messagingSenderId: "785165056789",
-  appId: "1:785165056789:web:72f69d4226a8b4d70d871c"
+  appId:             "1:785165056789:web:72f69d4226a8b4d70d871c"
 };
 
-const app = initializeApp(FB);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app     = initializeApp(FB);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
 const storage = getStorage(app);
+
+/*
+ * setPersistence ANTES de onAuthStateChanged — igual que RID v6.1.
+ * Garantiza que la sesión admin sobreviva un F5 (browserSessionPersistence
+ * la mantiene mientras la pestaña viva; cambia a localPersistence si quieres
+ * que persista entre pestañas).
+ */
 await setPersistence(auth, browserSessionPersistence);
 
-const CONTENT_REF = doc(db, 'web_content', 'orbiscorp');
-const LEADS_COL = collection(db, 'leads_orbiscorp');
-const PRODS_COL = collection(db, 'productos_orbis');
+/* ── REFS ── */
+const CREF      = doc(db, 'web_content', 'orbiscorp');
+const LEADS     = collection(db, 'leads_orbiscorp');
+const PRODUCTOS = collection(db, 'productos_orbis');
 
 /* ── DEFAULT CONTENT ── */
-const DEFAULT_CONTENT = {
+const DEFAULT = {
   hero: {
     title: "Seguridad Industrial\nque protege lo\nque más importa",
-    desc: "Distribuidores autorizados de equipo de Seguridad e Higiene Industrial. Asesoría STPS y Protección Civil. Lo que usted necesita, cuando lo necesita.",
+    desc:  "Distribuidores autorizados de equipo de Seguridad e Higiene Industrial. Asesoría STPS y Protección Civil. Lo que usted necesita, cuando lo necesita.",
     statA: "25+", statB: "15+", statC: "500+"
   },
   svc: {
     heading: "Consultoría integral en Seguridad Industrial",
-    sub: "Más que distribuidores: somos su aliado estratégico en seguridad."
+    sub:     "Más que distribuidores: somos su aliado estratégico en seguridad."
   },
   about: {
     heading: "Empresa 100% mexicana desde el 2000",
@@ -989,143 +961,239 @@ const DEFAULT_CONTENT = {
   },
   contact: {
     heading: "¿Tienes una duda? Contáctanos",
-    desc: "Estamos para servirle. Si no encontró lo que buscaba, podemos ayudarle.",
-    dir: "Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.",
+    desc:    "Estamos para servirle. Si no encontró lo que buscaba, podemos ayudarle.",
+    dir:     "Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.",
     horario: "Lun – Vie · 08:00 – 18:00"
   }
 };
 
+/* ── DEFAULT PRODUCTOS (semilla si la colección está vacía) ── */
 const DEFAULT_PRODUCTS = [
-  { sku:"ORB-SEG-001", nombre:"Casco de Seguridad MSA V-Guard", categoria:"Seguridad", desc:"Casco fabricado en polietileno de alto impacto. Clase E, resistente a dieléctrico. Ala completa.", precio:189, imageUrl:"" },
-  { sku:"ORB-SEG-002", nombre:"Respirador 3M Serie 6000", categoria:"Seguridad", desc:"Respirador de media cara reutilizable. Compatible con filtros para vapores orgánicos, polvos y neblinas.", precio:420, imageUrl:"" },
-  { sku:"ORB-SEG-003", nombre:"Guantes de Protección Ansell", categoria:"Seguridad", desc:"Guantes de nitrilo para protección química. Resistentes a cortes nivel 2. Talla S a XL.", precio:95, imageUrl:"" },
-  { sku:"ORB-SEG-004", nombre:"Lentes de Seguridad Honeywell", categoria:"Seguridad", desc:"Gafas de protección con lente policarbonato. Protección UV 99%. Ligeras y cómodas.", precio:75, imageUrl:"" },
-  { sku:"ORB-ABR-001", nombre:"Disco de Corte Austromex 4½\"", categoria:"Abrasivos", desc:"Disco de corte para metales ferrosos. Grano A46RBF. Velocidad máxima 13,300 RPM.", precio:28, imageUrl:"" },
-  { sku:"ORB-ABR-002", nombre:"Disco de Desbaste Duramax 7\"", categoria:"Abrasivos", desc:"Disco de desbaste para acero y fundición. Espesor 6mm. Máxima durabilidad.", precio:65, imageUrl:"" },
-  { sku:"ORB-SOL-001", nombre:"Electrodo CINASA 6013 3.2mm", categoria:"Soldadura", desc:"Electrodo para soldadura de acero al carbono. Caja 5kg. Arco suave y fácil de usar. Certificado.", precio:185, imageUrl:"" },
-  { sku:"ORB-HER-001", nombre:"Amoladora Bosch GWS 6-115", categoria:"Herramientas", desc:"Amoladora angular profesional 680W, disco 4½\". Motor duradero con protección contra sobrecarga.", precio:890, imageUrl:"" },
-  { sku:"ORB-HER-002", nombre:"Taladro Bosch GSB 13 RE", categoria:"Herramientas", desc:"Taladro percutor de 600W. Velocidad variable 0-2800 RPM. Maletín incluido.", precio:1250, imageUrl:"" },
-  { sku:"ORB-FER-001", nombre:"Pala Truper Cuadrada #2", categoria:"Ferretería", desc:"Pala cuadrada con mango de madera. Hoja de acero templado. Longitud total 120cm.", precio:185, imageUrl:"" }
+  { sku:"ORB-SEG-001", nombre:"Casco de Seguridad MSA V-Guard",  categoria:"Seguridad",    desc:"Casco fabricado en polietileno de alto impacto. Clase E, resistente a dieléctrico. Ala completa.", precio:189,  imageUrl:"" },
+  { sku:"ORB-SEG-002", nombre:"Respirador 3M Serie 6000",         categoria:"Seguridad",    desc:"Respirador de media cara reutilizable. Compatible con filtros para vapores orgánicos, polvos y neblinas.", precio:420, imageUrl:"" },
+  { sku:"ORB-SEG-003", nombre:"Guantes de Protección Ansell",     categoria:"Seguridad",    desc:"Guantes de nitrilo para protección química. Resistentes a cortes nivel 2. Talla S a XL.", precio:95,   imageUrl:"" },
+  { sku:"ORB-SEG-004", nombre:"Lentes de Seguridad Honeywell",    categoria:"Seguridad",    desc:"Gafas de protección con lente policarbonato. Protección UV 99%. Ligeras y cómodas.", precio:75,   imageUrl:"" },
+  { sku:"ORB-ABR-001", nombre:"Disco de Corte Austromex 4½\"",    categoria:"Abrasivos",    desc:"Disco de corte para metales ferrosos. Grano A46RBF. Velocidad máxima 13,300 RPM.", precio:28,   imageUrl:"" },
+  { sku:"ORB-ABR-002", nombre:"Disco de Desbaste Duramax 7\"",    categoria:"Abrasivos",    desc:"Disco de desbaste para acero y fundición. Espesor 6mm. Máxima durabilidad.", precio:65,   imageUrl:"" },
+  { sku:"ORB-SOL-001", nombre:"Electrodo CINASA 6013 3.2mm",      categoria:"Soldadura",    desc:"Electrodo para soldadura de acero al carbono. Caja 5kg. Arco suave y fácil de usar.", precio:185,  imageUrl:"" },
+  { sku:"ORB-HER-001", nombre:"Amoladora Bosch GWS 6-115",        categoria:"Herramientas", desc:"Amoladora angular profesional 680W, disco 4½\". Motor duradero con protección contra sobrecarga.", precio:890,  imageUrl:"" },
+  { sku:"ORB-HER-002", nombre:"Taladro Bosch GSB 13 RE",          categoria:"Herramientas", desc:"Taladro percutor de 600W. Velocidad variable 0-2800 RPM. Maletín incluido.", precio:1250, imageUrl:"" },
+  { sku:"ORB-FER-001", nombre:"Pala Truper Cuadrada #2",          categoria:"Ferretería",   desc:"Pala cuadrada con mango de madera. Hoja de acero templado. Longitud total 120cm.", precio:185,  imageUrl:"" }
 ];
 
 /* ── STATE ── */
-let contentData = null;
-let isAdmin = false;
-let allProducts = [];
-let cart = [];
+let data       = null;
+let isAdmin    = false;
+let allP       = [];       // todos los productos en memoria
+let cart       = [];
 let currentCat = 'Todos';
-let pmImgFile = null, pmImgUrl = '';
-let unsaved = 0;
+let pmImgFile  = null;
+let pmImgUrl   = '';
+let unsaved    = 0;
 
-/* ── CART (Global) ── */
-window.cartCount = 0;
-window.cartItems = [];
-
-/* ── INIT ── */
+/* ══════════════════════════════════════════════════════════════
+   INIT — estructura 1:1 de RID v6.1:
+   1. getDoc para verificar existencia del documento de contenido
+   2. setDoc si no existe (solo lo llama la primera vez)
+   3. onSnapshot en CREF → reactivo para todos los usuarios
+   4. loadProducts() llamado de forma INDEPENDIENTE (no encadenado)
+      → un error en los textos NO bloquea el inventario
+   5. hideLoader se llama en el onSnapshot (cuando llega la primera data)
+══════════════════════════════════════════════════════════════ */
 async function init() {
+  /*
+   * Intento inicial de escritura solo si el doc no existe.
+   * Si el usuario es público y las reglas solo permiten lectura,
+   * este setDoc fallará silenciosamente — no es un problema porque
+   * el doc ya existirá en producción.
+   */
   try {
-    const snap = await getDoc(CONTENT_REF);
-    if (!snap.exists()) await setDoc(CONTENT_REF, DEFAULT_CONTENT);
-    onSnapshot(CONTENT_REF, s => {
-      contentData = s.exists() ? s.data() : DEFAULT_CONTENT;
-      renderContent(contentData);
-    }, () => { contentData = DEFAULT_CONTENT; renderContent(DEFAULT_CONTENT); });
-    await loadProducts();
-  } catch(e) {
-    contentData = DEFAULT_CONTENT;
-    renderContent(DEFAULT_CONTENT);
-  } finally {
-    hideLoader();
-    initReveal();
-    initNav();
-  }
+    const snap = await getDoc(CREF);
+    if (!snap.exists()) await setDoc(CREF, DEFAULT);
+  } catch (_) { /* reglas de escritura pueden bloquear esto en público — OK */ }
+
+  /*
+   * onSnapshot funciona sin autenticación siempre que las Firestore Rules
+   * permitan read: allow read: if true;  en esa colección.
+   * El listener es reactivo: cualquier cambio del admin se refleja
+   * instantáneamente en todos los visitantes.
+   */
+  onSnapshot(
+    CREF,
+    snap => {
+      data = snap.exists() ? snap.data() : DEFAULT;
+      renderAll(data);
+      hideLoader();
+    },
+    err => {
+      /*
+       * Si el read falla (reglas muy restrictivas o sin conexión),
+       * usamos los defaults en memoria para que la página no quede en blanco.
+       */
+      console.warn('[ORBISCORP] onSnapshot error:', err);
+      data = DEFAULT;
+      renderAll(DEFAULT);
+      hideLoader();
+    }
+  );
+
+  /* loadProducts se llama INDEPENDIENTEMENTE — igual que loadProys() en RID */
+  loadProducts();
 }
 
 function hideLoader() {
-  setTimeout(() => document.getElementById('loader').classList.add('done'), 1200);
+  const l = document.getElementById('loader');
+  if (!l) return;
+  l.classList.add('done');
+  setTimeout(() => { l.style.display = 'none'; }, 700);
 }
 
-/* ── CONTENT RENDER ── */
+/* ══════════════════════════════════════════════════════════════
+   RENDER CONTENT — aplica data a los [data-field] del DOM
+══════════════════════════════════════════════════════════════ */
 function tx(sel, val) {
   const el = document.querySelector(sel);
+  /* No sobreescribir si el admin está editando el campo en este momento */
   if (el && document.activeElement !== el) el.textContent = val || '';
 }
-function renderContent(d) {
+
+function renderAll(d) {
   if (!d) return;
   if (d.hero) {
-    tx('[data-field="hero.title"]', d.hero.title);
-    tx('[data-field="hero.desc"]', d.hero.desc);
-    tx('[data-field="hero.statA"]', d.hero.statA);
-    tx('[data-field="hero.statB"]', d.hero.statB);
-    tx('[data-field="hero.statC"]', d.hero.statC);
+    tx('[data-field="hero.title"]',  d.hero.title);
+    tx('[data-field="hero.desc"]',   d.hero.desc);
+    tx('[data-field="hero.statA"]',  d.hero.statA);
+    tx('[data-field="hero.statB"]',  d.hero.statB);
+    tx('[data-field="hero.statC"]',  d.hero.statC);
   }
   if (d.svc) {
     tx('[data-field="svc.heading"]', d.svc.heading);
-    tx('[data-field="svc.sub"]', d.svc.sub);
+    tx('[data-field="svc.sub"]',     d.svc.sub);
   }
   if (d.about) {
     tx('[data-field="about.heading"]', d.about.heading);
-    tx('[data-field="about.p1"]', d.about.p1);
-    tx('[data-field="about.p2"]', d.about.p2);
+    tx('[data-field="about.p1"]',      d.about.p1);
+    tx('[data-field="about.p2"]',      d.about.p2);
   }
   if (d.contact) {
     tx('[data-field="contact.heading"]', d.contact.heading);
-    tx('[data-field="contact.desc"]', d.contact.desc);
-    tx('[data-field="contact.dir"]', d.contact.dir);
+    tx('[data-field="contact.desc"]',    d.contact.desc);
+    tx('[data-field="contact.dir"]',     d.contact.dir);
     tx('[data-field="contact.horario"]', d.contact.horario);
   }
+  /* Re-activar campos editables si ya somos admin */
   if (isAdmin) activateFields();
 }
 
-/* ── PRODUCTS ── */
+/* ══════════════════════════════════════════════════════════════
+   LOAD PRODUCTS — clonado de loadProys() de RID v6.1
+
+   Comportamiento:
+   ① getDocs con orderBy('creadoEn', 'desc')
+   ② Si la consulta ordenada falla por índice faltante → intento
+      fallback con consulta simple (sin orderBy)
+   ③ Si la colección está vacía → siembra defaults con addDoc
+   ④ El catch NUNCA borra allP si ya tiene datos; solo usa memoria
+   ⑤ Visibilidad pública: getDocs funciona sin auth si las reglas
+      tienen  allow read: if true;
+══════════════════════════════════════════════════════════════ */
 async function loadProducts() {
   try {
-    const q = query(PRODS_COL, orderBy('creadoEn', 'desc'));
+    /* Consulta principal ordenada */
+    const q    = query(PRODUCTOS, orderBy('creadoEn', 'desc'));
     const snap = await getDocs(q);
-    
-    if (snap.empty) {
-       console.warn("La base de datos está vacía.");
-       allProducts = DEFAULT_PRODUCTS.map((p, i) => ({ id: String(i), ...p }));
-    } else {
-       allProducts = [];
-       snap.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
+
+    allP = [];
+    snap.forEach(d => allP.push({ id: d.id, ...d.data() }));
+
+    /* Siembra solo si la colección está realmente vacía */
+    if (allP.length === 0) {
+      for (const p of DEFAULT_PRODUCTS) {
+        const r = await addDoc(PRODUCTOS, { ...p, creadoEn: serverTimestamp() });
+        allP.push({ id: r.id, ...p });
+      }
     }
-  } catch(e) {
-    console.error("ERROR REAL DE FIRESTORE:", e); // Esto te dirá si falta el índice
-    // Solo mostramos defaults si hay un error crítico
-    allProducts = DEFAULT_PRODUCTS.map((p, i) => ({ id: String(i), ...p }));
+
+  } catch (errOrdered) {
+    /*
+     * La consulta ordenada puede fallar si el índice compuesto no existe
+     * todavía en Firestore (error code 'failed-precondition') o si las
+     * reglas de seguridad bloquean la lectura para usuarios no autenticados.
+     *
+     * ESTRATEGIA (misma que RID):
+     *   a) Si allP ya tiene datos de una carga anterior → no tocar nada.
+     *   b) Si allP está vacío → intentar consulta simple (sin orderBy).
+     *   c) Si todo falla → usar defaults EN MEMORIA (no escribe en Firestore).
+     */
+    console.warn('[ORBISCORP] loadProducts ordenado falló:', errOrdered.code, errOrdered.message);
+
+    if (allP.length === 0) {
+      try {
+        /* Fallback: consulta sin orderBy — no requiere índice */
+        const snapSimple = await getDocs(PRODUCTOS);
+        snapSimple.forEach(d => allP.push({ id: d.id, ...d.data() }));
+      } catch (errSimple) {
+        console.warn('[ORBISCORP] loadProducts fallback también falló:', errSimple.message);
+        /* Último recurso: mostrar defaults en memoria sin escribir en la DB */
+        if (allP.length === 0) {
+          allP = DEFAULT_PRODUCTS.map((p, i) => ({ id: `local-${i}`, ...p }));
+        }
+      }
+    }
   }
+
+  /* Renderizar independientemente del camino que tomamos */
   renderProducts();
 }
 
-function renderProducts(cat = currentCat) {
-  currentCat = cat;
-  const grid = document.getElementById('products-grid');
+/* ══════════════════════════════════════════════════════════════
+   RENDER PRODUCTS
+══════════════════════════════════════════════════════════════ */
+function renderProducts(cat) {
+  if (cat !== undefined) currentCat = cat;
+  const grid  = document.getElementById('products-grid');
   const empty = document.getElementById('products-empty');
   if (!grid) return;
-  const filtered = cat === 'Todos' ? allProducts : allProducts.filter(p => p.categoria === cat);
+
+  const filtered = currentCat === 'Todos'
+    ? allP
+    : allP.filter(p => p.categoria === currentCat);
+
   grid.innerHTML = '';
-  if (!filtered.length) { empty.style.display = 'block'; return; }
+
+  if (!filtered.length) {
+    empty.style.display = 'block';
+    return;
+  }
   empty.style.display = 'none';
+
   filtered.forEach(p => {
     const inCart = cart.find(c => c.id === p.id);
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.dataset.id = p.id;
+    const card   = document.createElement('div');
+    card.className   = 'product-card';
+    card.dataset.id  = p.id;
+    card.dataset.cat = p.categoria || '';
     card.innerHTML = `
       <div class="product-img">
-        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.nombre}" loading="lazy">` : `<div class="product-img-placeholder">🛡️</div>`}
-        <span class="product-cat-badge">${p.categoria}</span>
+        ${p.imageUrl
+          ? `<img src="${p.imageUrl}" alt="${p.nombre || ''}" loading="lazy">`
+          : `<div class="product-img-placeholder">🛡️</div>`}
+        <span class="product-cat-badge">${p.categoria || ''}</span>
         <div class="admin-img-trigger" onclick="triggerProdImgUp('${p.id}')">
           <div class="admin-img-trigger-label">Cambiar imagen</div>
-          <input type="file" class="admin-img-input" accept="image/*" id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')">
+          <input type="file" class="admin-img-input" accept="image/*"
+                 id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')">
         </div>
       </div>
       <div class="product-body">
-        <div class="product-name">${p.nombre}</div>
+        <div class="product-name">${p.nombre || ''}</div>
         <div class="product-desc">${p.desc || ''}</div>
-        <div class="product-price">$${Number(p.precio).toFixed(2)} <span>MXN / unidad</span></div>
-        <button class="btn-add ${inCart ? 'added' : ''}" onclick="addToCart('${p.id}')">
+        <div class="product-price">
+          $${Number(p.precio || 0).toFixed(2)}
+          <span>MXN / unidad</span>
+        </div>
+        <button class="btn-add ${inCart ? 'added' : ''}"
+                onclick="addToCart('${p.id}')">
           ${inCart ? '✓ En el carrito' : '+ Añadir al carrito'}
         </button>
       </div>
@@ -1143,15 +1211,21 @@ window.filterCat = function(btn) {
   renderProducts(btn.dataset.cat);
 };
 
-/* ── CART ── */
+/* ══════════════════════════════════════════════════════════════
+   CART
+══════════════════════════════════════════════════════════════ */
 function updateCartUI() {
-  const badge = document.getElementById('cart-badge');
+  const badge    = document.getElementById('cart-badge');
   const cartBody = document.getElementById('cart-body');
   const cartFoot = document.getElementById('cart-foot');
-  const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
-  const count = cart.reduce((s, i) => s + i.qty, 0);
-  if (badge) badge.textContent = count;
-  window.cartCount = count;
+  const total    = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const count    = cart.reduce((s, i) => s + i.qty, 0);
+
+  if (badge) {
+    badge.textContent   = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+
   if (cart.length === 0) {
     cartBody.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p class="cart-empty-text">Tu carrito está vacío.<br>Explora nuestro catálogo.</p></div>`;
     if (cartFoot) cartFoot.style.display = 'none';
@@ -1159,18 +1233,20 @@ function updateCartUI() {
     cartBody.innerHTML = cart.map(item => `
       <div class="cart-item">
         <div class="cart-item-img">
-          ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.nombre}">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem">🛡️</div>`}
+          ${item.imageUrl
+            ? `<img src="${item.imageUrl}" alt="${item.nombre}">`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem">🛡️</div>`}
         </div>
         <div class="cart-item-info">
           <div class="cart-item-name">${item.nombre}</div>
           <div class="cart-item-price">$${(item.precio * item.qty).toFixed(2)} MXN</div>
           <div class="cart-item-qty">
-            <button class="qty-btn" onclick="changeQty('${item.id}', -1)" aria-label="Disminuir">−</button>
+            <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
             <span class="qty-val">${item.qty}</span>
-            <button class="qty-btn" onclick="changeQty('${item.id}', 1)" aria-label="Aumentar">+</button>
+            <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Eliminar del carrito">✕</button>
+        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Quitar">✕</button>
       </div>`).join('');
     if (cartFoot) {
       cartFoot.style.display = 'block';
@@ -1180,7 +1256,7 @@ function updateCartUI() {
 }
 
 window.addToCart = function(id) {
-  const prod = allProducts.find(p => p.id === id);
+  const prod = allP.find(p => p.id === id);
   if (!prod) return;
   const existing = cart.find(c => c.id === id);
   if (existing) { existing.qty++; } else { cart.push({ ...prod, qty: 1 }); }
@@ -1190,8 +1266,7 @@ window.addToCart = function(id) {
 };
 window.removeFromCart = function(id) {
   cart = cart.filter(c => c.id !== id);
-  updateCartUI();
-  renderProducts();
+  updateCartUI(); renderProducts();
 };
 window.changeQty = function(id, delta) {
   const item = cart.find(c => c.id === id);
@@ -1212,48 +1287,48 @@ window.closeCart = function() {
   document.body.style.overflow = '';
 };
 
-/* ── WHATSAPP CHECKOUT ── */
+/* WhatsApp checkout */
 const WA_NUMBER = '527712175423';
 window.checkoutWhatsApp = function() {
   if (!cart.length) return;
   const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
-  let msg = '🛡️ *Hola, OrbisCORP — Pedido desde la Web*\n\n';
-  msg += '*Productos solicitados:*\n';
+  let msg = '🛡️ *Hola, OrbisCORP — Pedido desde la Web*\n\n*Productos solicitados:*\n';
   cart.forEach(item => {
-    msg += `  • ${item.nombre} (${item.sku}) — Cant: ${item.qty} — $${(item.precio * item.qty).toFixed(2)} MXN\n`;
+    msg += `  • ${item.nombre} (${item.sku || ''}) — Cant: ${item.qty} — $${(item.precio * item.qty).toFixed(2)} MXN\n`;
   });
-  msg += `\n*Total estimado:* $${total.toFixed(2)} MXN\n`;
-  msg += '\n¿Me pueden confirmar disponibilidad y precio final?';
-  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  msg += `\n*Total estimado:* $${total.toFixed(2)} MXN\n\n¿Me pueden confirmar disponibilidad y precio final?`;
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
-/* ── PRODUCT MODAL ── */
+/* ══════════════════════════════════════════════════════════════
+   PRODUCT MODAL — solo admin puede abrir / guardar
+══════════════════════════════════════════════════════════════ */
 window.openProductModal = function(id) {
   if (!isAdmin) return;
   pmImgFile = null; pmImgUrl = '';
   document.getElementById('pm-err').classList.remove('show');
   const titleEl = document.getElementById('pm-title-el');
+
   if (id) {
-    const p = allProducts.find(x => x.id === id);
+    const p = allP.find(x => x.id === id);
     if (!p) return;
     titleEl.textContent = '◈ Editar Producto';
-    document.getElementById('pm-id').value = id;
-    document.getElementById('pm-nombre').value = p.nombre || '';
-    document.getElementById('pm-cat').value = p.categoria || '';
-    document.getElementById('pm-desc').value = p.desc || '';
-    document.getElementById('pm-precio').value = p.precio || '';
-    document.getElementById('pm-sku').value = p.sku || '';
+    document.getElementById('pm-id').value      = id;
+    document.getElementById('pm-nombre').value  = p.nombre || '';
+    document.getElementById('pm-cat').value     = p.categoria || '';
+    document.getElementById('pm-desc').value    = p.desc || '';
+    document.getElementById('pm-precio').value  = p.precio || '';
+    document.getElementById('pm-sku').value     = p.sku || '';
     pmImgUrl = p.imageUrl || '';
     const pv = document.getElementById('pm-preview');
     const ph = document.getElementById('pm-upload-hint');
     if (pmImgUrl) { pv.src = pmImgUrl; pv.style.display = 'block'; ph.style.display = 'none'; }
-    else { pv.style.display = 'none'; ph.style.display = ''; }
+    else          { pv.style.display = 'none'; ph.style.display = ''; }
   } else {
     titleEl.textContent = '◈ Nuevo Producto';
     ['pm-id','pm-nombre','pm-desc','pm-precio','pm-sku'].forEach(f => document.getElementById(f).value = '');
     document.getElementById('pm-cat').value = '';
-    document.getElementById('pm-preview').style.display = 'none';
+    document.getElementById('pm-preview').style.display    = 'none';
     document.getElementById('pm-upload-hint').style.display = '';
   }
   document.getElementById('prod-modal').classList.add('open');
@@ -1274,37 +1349,41 @@ window.pmImgSelect = function(input) {
 };
 
 window.saveProducto = async function() {
-  const errEl = document.getElementById('pm-err');
+  if (!isAdmin) return;
+  const errEl   = document.getElementById('pm-err');
   const saveBtn = document.getElementById('pm-save');
   errEl.classList.remove('show');
+
   const nombre = document.getElementById('pm-nombre').value.trim();
-  const cat = document.getElementById('pm-cat').value;
+  const cat    = document.getElementById('pm-cat').value;
   const precio = parseFloat(document.getElementById('pm-precio').value);
   if (!nombre || !cat || isNaN(precio)) { errEl.classList.add('show'); return; }
+
   saveBtn.disabled = true; saveBtn.textContent = '⟳ Guardando...';
   setSave('saving', '● Guardando...');
+
   try {
     let imageUrl = pmImgUrl;
     if (pmImgFile) {
       const sr = stRef(storage, `orbiscorp/productos/${Date.now()}_${pmImgFile.name}`);
       const sn = await uploadBytes(sr, pmImgFile);
-      imageUrl = await getDownloadURL(sn.ref);
+      imageUrl  = await getDownloadURL(sn.ref);
     }
     const payload = {
       nombre, categoria: cat, precio,
       desc: document.getElementById('pm-desc').value.trim(),
-      sku: document.getElementById('pm-sku').value.trim(),
+      sku:  document.getElementById('pm-sku').value.trim(),
       imageUrl
     };
     const eid = document.getElementById('pm-id').value;
     if (eid) {
       await updateDoc(doc(db, 'productos_orbis', eid), payload);
-      const i = allProducts.findIndex(p => p.id === eid);
-      if (i !== -1) allProducts[i] = { id: eid, ...payload };
+      const i = allP.findIndex(p => p.id === eid);
+      if (i !== -1) allP[i] = { id: eid, ...payload };
     } else {
       payload.creadoEn = serverTimestamp();
-      const r = await addDoc(PRODS_COL, payload);
-      allProducts.unshift({ id: r.id, ...payload });
+      const r = await addDoc(PRODUCTOS, payload);
+      allP.unshift({ id: r.id, ...payload });
     }
     setSave('saved', '✓ Guardado');
     setTimeout(() => { if (!unsaved) setSave('', 'Listo'); }, 2500);
@@ -1323,8 +1402,8 @@ window.deleteProduct = async function(id) {
   if (!isAdmin || !confirm('¿Eliminar este producto?')) return;
   try {
     await deleteDoc(doc(db, 'productos_orbis', id));
-    allProducts = allProducts.filter(p => p.id !== id);
-    cart = cart.filter(c => c.id !== id);
+    allP  = allP.filter(p => p.id !== id);
+    cart  = cart.filter(c => c.id !== id);
     updateCartUI();
     renderProducts();
     setSave('saved', '✓ Eliminado');
@@ -1333,31 +1412,39 @@ window.deleteProduct = async function(id) {
 };
 
 window.triggerProdImgUp = id => document.getElementById(`pimg-${id}`)?.click();
-window.handleProdImgUp = async function(input, id) {
+window.handleProdImgUp  = async function(input, id) {
   const file = input.files[0];
   if (!file || !isAdmin) return;
   setSave('saving', '● Subiendo...');
   try {
-    const sr = stRef(storage, `orbiscorp/productos/${id}_${Date.now()}_${file.name}`);
-    const sn = await uploadBytes(sr, file);
+    const sr  = stRef(storage, `orbiscorp/productos/${id}_${Date.now()}_${file.name}`);
+    const sn  = await uploadBytes(sr, file);
     const url = await getDownloadURL(sn.ref);
     await updateDoc(doc(db, 'productos_orbis', id), { imageUrl: url });
-    const i = allProducts.findIndex(p => p.id === id);
-    if (i !== -1) allProducts[i].imageUrl = url;
+    const i = allP.findIndex(p => p.id === id);
+    if (i !== -1) allP[i].imageUrl = url;
     setSave('saved', '✓ Imagen ok');
     setTimeout(() => setSave('', 'Listo'), 2000);
     renderProducts();
   } catch(e) { setSave('error', '✕ Error imagen'); }
 };
 
-/* ── LEADS ── */
+/* ══════════════════════════════════════════════════════════════
+   LEADS — solo admin puede leer la colección
+══════════════════════════════════════════════════════════════ */
 async function submitLead(fd) {
   const folio = `ORB-${Date.now().toString(36).toUpperCase()}`;
-  await addDoc(LEADS_COL, {
-    folio, nombre: fd.get('nombre') || '', empresa: fd.get('empresa') || '',
-    email: fd.get('email') || '', telefono: fd.get('telefono') || '',
-    asunto: fd.get('asunto') || '', mensaje: fd.get('mensaje') || '',
-    estado: 'nuevo', origen: 'web', creadoEn: serverTimestamp()
+  await addDoc(LEADS, {
+    folio,
+    nombre:   fd.get('nombre')   || '',
+    empresa:  fd.get('empresa')  || '',
+    email:    fd.get('email')    || '',
+    telefono: fd.get('telefono') || '',
+    asunto:   fd.get('asunto')   || '',
+    mensaje:  fd.get('mensaje')  || '',
+    estado:   'nuevo',
+    origen:   'web',
+    creadoEn: serverTimestamp()
   });
   return folio;
 }
@@ -1365,27 +1452,51 @@ async function submitLead(fd) {
 window.showLeads = async function() {
   if (!isAdmin) return;
   try {
-    const q = query(LEADS_COL, orderBy('creadoEn', 'desc'));
+    const q    = query(LEADS, orderBy('creadoEn', 'desc'), limit(30));
     const snap = await getDocs(q);
-    let html = `<div style="position:fixed;inset:0;z-index:9000;background:rgba(26,31,60,0.95);backdrop-filter:blur(8px);padding:24px;overflow-y:auto;"><div style="max-width:760px;margin:0 auto;padding:20px 0;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1);"><h2 style="font-family:var(--font-display);font-size:1.6rem;color:#fff;">Leads Recibidos</h2><button onclick="document.getElementById('leads-overlay').remove()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.875rem;">✕ Cerrar</button></div>`;
-    if (snap.empty) html += `<p style="color:rgba(255,255,255,0.4);font-family:var(--font-mono);font-size:0.8rem;text-align:center;padding:36px;">Sin leads aún.</p>`;
-    else snap.forEach(d => {
-      const l = d.data();
-      const fecha = l.creadoEn?.toDate ? l.creadoEn.toDate().toLocaleString('es-MX') : '—';
-      html += `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-left:3px solid var(--safety);border-radius:8px;padding:16px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><div><div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--safety);margin-bottom:3px;">${l.folio}</div><div style="font-weight:700;color:#fff;font-size:1rem;">${l.nombre||'—'}</div><div style="font-size:0.8rem;color:rgba(255,255,255,0.5);">${l.empresa||''} ${l.email?'· '+l.email:''}</div></div><div style="text-align:right;"><div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">${fecha}</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.7);margin-top:4px;">${l.asunto||'—'}</div></div></div>${l.mensaje?`<div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;">${l.mensaje.substring(0,300)}</div>`:''}</div>`;
-    });
+    let html = `<div style="position:fixed;inset:0;z-index:9000;background:rgba(26,31,60,0.96);backdrop-filter:blur(8px);padding:24px;overflow-y:auto;">
+      <div style="max-width:760px;margin:0 auto;padding:20px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1);">
+          <h2 style="font-family:var(--font-display);font-size:1.6rem;color:#fff;">Leads Recibidos</h2>
+          <button onclick="document.getElementById('leads-overlay').remove()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.875rem;">✕ Cerrar</button>
+        </div>`;
+    if (snap.empty) {
+      html += `<p style="color:rgba(255,255,255,0.4);font-family:var(--font-mono);font-size:0.8rem;text-align:center;padding:36px;">Sin leads aún.</p>`;
+    } else {
+      snap.forEach(d => {
+        const l     = d.data();
+        const fecha = l.creadoEn?.toDate ? l.creadoEn.toDate().toLocaleString('es-MX') : '—';
+        html += `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-left:3px solid var(--safety);border-radius:8px;padding:16px;margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+            <div>
+              <div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--safety);margin-bottom:3px;">${l.folio || d.id}</div>
+              <div style="font-weight:700;color:#fff;font-size:1rem;">${l.nombre || '—'}</div>
+              <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);">${l.empresa || ''} ${l.email ? '· ' + l.email : ''}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">${fecha}</div>
+              <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);margin-top:4px;">${l.asunto || '—'}</div>
+            </div>
+          </div>
+          ${l.mensaje ? `<div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;">${l.mensaje.substring(0, 300)}</div>` : ''}
+        </div>`;
+      });
+    }
     html += '</div></div>';
-    const o = document.createElement('div'); o.id = 'leads-overlay'; o.innerHTML = html;
+    const o = document.createElement('div');
+    o.id = 'leads-overlay'; o.innerHTML = html;
     document.body.appendChild(o);
-  } catch(e) { alert('Error al cargar leads.'); }
+  } catch(e) { alert('Error al cargar leads: ' + e.message); }
 };
 
-/* ── ADMIN AUTH ── */
-function enableAdmin(user) {
+/* ══════════════════════════════════════════════════════════════
+   ADMIN ENABLE / DISABLE — idéntico a RID v6.1
+══════════════════════════════════════════════════════════════ */
+function enableAdmin() {
   isAdmin = true;
   document.body.classList.add('admin-mode');
   document.getElementById('admin-toolbar').classList.add('active');
-  document.body.style.paddingTop = '44px';
+  updateToolbarHeight(true);
   const nb = document.getElementById('nav-admin-badge');
   if (nb) nb.style.display = 'inline-block';
   activateFields();
@@ -1394,52 +1505,79 @@ function disableAdmin() {
   isAdmin = false;
   document.body.classList.remove('admin-mode');
   document.getElementById('admin-toolbar').classList.remove('active');
-  document.body.style.paddingTop = '';
+  updateToolbarHeight(false);
   const nb = document.getElementById('nav-admin-badge');
   if (nb) nb.style.display = 'none';
   deactivateFields();
 }
+
+/* toolbar-h dinámico — igual que RID */
+function updateToolbarHeight(active) {
+  document.documentElement.style.setProperty('--toolbar-h', active ? '44px' : '0px');
+  document.body.style.paddingTop = active ? '44px' : '0px';
+}
+
+/*
+ * onAuthStateChanged DESPUÉS de setPersistence — igual que RID.
+ * Esto garantiza que la sesión se restaure correctamente al refrescar.
+ * Si ya hay sesión activa → enableAdmin() se llama de inmediato.
+ */
+onAuthStateChanged(auth, u => u ? enableAdmin() : disableAdmin());
+
+/* ── Campos editables in-situ — idéntico a RID ── */
 function activateFields() {
   document.querySelectorAll('[data-field]').forEach(el => {
     el.contentEditable = 'true';
-    el.removeEventListener('blur', onFieldBlur);
-    el.addEventListener('blur', onFieldBlur);
+    el.removeEventListener('blur', onBlur);
+    el.addEventListener('blur', onBlur);
   });
 }
 function deactivateFields() {
   document.querySelectorAll('[data-field]').forEach(el => {
     el.contentEditable = 'false';
-    el.removeEventListener('blur', onFieldBlur);
+    el.removeEventListener('blur', onBlur);
   });
 }
-function onFieldBlur(e) {
+function onBlur(e) {
   if (!isAdmin) return;
   const field = e.target.dataset.field;
-  const val = e.target.textContent.trim();
-  if (!field || !contentData) return;
+  const val   = e.target.textContent.trim();
+  if (!field || !data) return;
   saveField(field, val);
 }
+
+/* ── setSave — mismo patrón visual que RID ── */
 function setSave(st, msg) {
-  const el = document.getElementById('save-status');
-  if (!el) return;
-  el.className = 'save-status ' + (st || '');
-  el.textContent = msg;
+  const w = document.getElementById('save-status-wrap');
+  const t = document.getElementById('save-txt');
+  if (!w || !t) return;
+  w.className   = st || '';
+  t.textContent = msg;
 }
+
+/*
+ * saveField — usa updateDoc (no setDoc) para escritura parcial.
+ * Idéntico a RID: incrementa `unsaved` antes y lo decrementa al
+ * resolver para manejar guardados concurrentes correctamente.
+ */
 async function saveField(field, value) {
   unsaved++;
   setSave('saving', '● Guardando...');
   try {
-    await updateDoc(CONTENT_REF, { [field]: value });
+    await updateDoc(CREF, { [field]: value });
     unsaved = Math.max(0, unsaved - 1);
-    if (!unsaved) { setSave('saved', '✓ Guardado'); setTimeout(() => { if (!unsaved) setSave('', 'Listo'); }, 3000); }
+    if (!unsaved) {
+      setSave('saved', '✓ Guardado');
+      setTimeout(() => { if (!unsaved) setSave('', 'Listo'); }, 3000);
+    }
   } catch(e) {
     unsaved = Math.max(0, unsaved - 1);
     setSave('error', '✕ Error');
+    setTimeout(() => setSave('', 'Listo'), 4000);
   }
 }
 
-onAuthStateChanged(auth, u => u ? enableAdmin(u) : disableAdmin());
-
+/* ── Auth actions ── */
 window.doLogin = async function() {
   const em = document.getElementById('l-email').value.trim();
   const pw = document.getElementById('l-pass').value;
@@ -1454,29 +1592,52 @@ window.doLogout = async function() {
   await signOut(auth);
 };
 window.reloadData = async function() {
-  const s = await getDoc(CONTENT_REF);
-  if (s.exists()) { contentData = s.data(); renderContent(contentData); }
-  await loadProducts();
-  setSave('saved', '✓ Recargado');
-  setTimeout(() => setSave('', 'Listo'), 1500);
+  try {
+    const s = await getDoc(CREF);
+    if (s.exists()) { data = s.data(); renderAll(data); }
+    await loadProducts();
+    setSave('saved', '✓ Recargado');
+    setTimeout(() => setSave('', 'Listo'), 1500);
+  } catch(e) { setSave('error', '✕ Error al recargar'); }
 };
-window.openLogin = () => { document.getElementById('login-modal').classList.add('open'); setTimeout(() => document.getElementById('l-email')?.focus(), 100); };
-window.closeLogin = () => { document.getElementById('login-modal').classList.remove('open'); document.getElementById('l-pass').value = ''; document.getElementById('l-err').classList.remove('show'); };
+window.openLogin  = () => {
+  document.getElementById('login-modal').classList.add('open');
+  setTimeout(() => document.getElementById('l-email')?.focus(), 100);
+};
+window.closeLogin = () => {
+  document.getElementById('login-modal').classList.remove('open');
+  document.getElementById('l-pass').value = '';
+  document.getElementById('l-err').classList.remove('show');
+};
 
-document.getElementById('login-modal').addEventListener('click', e => { if (e.target === document.getElementById('login-modal')) closeLogin(); });
-document.getElementById('prod-modal').addEventListener('click', e => { if (e.target === document.getElementById('prod-modal')) closeProdModal(); });
-document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') window.doLogin(); });
-document.addEventListener('keydown', e => { if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); if (!isAdmin) openLogin(); } });
+/* Cerrar modales con clic en backdrop */
+document.getElementById('login-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('login-modal')) closeLogin();
+});
+document.getElementById('prod-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('prod-modal')) closeProdModal();
+});
+/* Login con Enter */
+document.getElementById('l-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.doLogin();
+});
+/* Atajo de teclado: Ctrl+Shift+A abre login */
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    e.preventDefault();
+    if (!isAdmin) openLogin();
+  }
+});
 
-/* ── CONTACT FORM ── */
+/* ── Contact form ── */
 document.getElementById('ct-form')?.addEventListener('submit', async e => {
   e.preventDefault();
-  const btn = document.getElementById('btn-sub');
-  const txt = document.getElementById('sub-txt');
-  const err = document.getElementById('form-err');
+  const btn    = document.getElementById('btn-sub');
+  const txt    = document.getElementById('sub-txt');
+  const err    = document.getElementById('form-err');
   err.classList.remove('show');
-  const nom = document.getElementById('f-nom').value.trim();
-  const mail = document.getElementById('f-mail').value.trim();
+  const nom    = document.getElementById('f-nom').value.trim();
+  const mail   = document.getElementById('f-mail').value.trim();
   const asunto = document.getElementById('f-asunto').value;
   if (!nom || !mail || !asunto) { err.classList.add('show'); return; }
   btn.disabled = true; txt.textContent = '⟳ Enviando...';
@@ -1492,32 +1653,37 @@ document.getElementById('ct-form')?.addEventListener('submit', async e => {
   }
 });
 
-/* ── NAV & DRAWER ── */
-function initNav() {
-  window.addEventListener('scroll', () => {
-    document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
-  }, { passive: true });
-}
-window.toggleDrawer = function() {
-  const d = document.getElementById('mobile-drawer');
-  d.classList.toggle('open');
-};
-window.closeDrawer = function() {
-  document.getElementById('mobile-drawer').classList.remove('open');
-};
+/* ── NAV ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
+window.toggleDrawer = () => document.getElementById('mobile-drawer').classList.toggle('open');
+window.closeDrawer  = () => document.getElementById('mobile-drawer').classList.remove('open');
 
-/* ── REVEAL ── */
+/* ── Reveal animations ── */
 function initReveal() {
   const els = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  const io  = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
   }, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
   els.forEach(el => io.observe(el));
 }
 
-/* ── START ── */
-init().catch(e => { console.error(e); hideLoader(); initReveal(); initNav(); });
-</script>
+/* ══════════════════════════════════════════════════════════════
+   START — init() y loadProducts() son independientes.
+   init() → onSnapshot (textos) + loadProducts() (inventario)
+   Los errores de uno no bloquean al otro.
+══════════════════════════════════════════════════════════════ */
+init()
+  .then(() => initReveal())
+  .catch(e => {
+    console.error('[ORBISCORP] Error en init:', e);
+    hideLoader();
+    initReveal();
+  });
 
+</script>
 </body>
 </html>
