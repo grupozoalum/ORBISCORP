@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2F3BA2">
+<title>OrbisCORP — Seguridad Industrial Profesional</title>
+<meta name="description" content="Distribuidores autorizados de equipo de Seguridad Industrial. Asesoría STPS, Protección Civil. Lo que usted necesita, cuando lo necesita.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- PrimeFlex -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeflex@3.3.1/primeflex.min.css">
+
+<style>
+:root {
+  --orbis:        #2F3BA2;
+  --orbis-dark:   #212B82;
+  --orbis-deep:   #151E6B;
+  --orbis-light:  #E8EBFA;
+  --orbis-mid:    #6B78C8;
+  --safety:       #F59E0B;
+  --safety-dark:  #D97706;
+  --safety-light: #FEF3C7;
+  --success:      #10B981;
+  --danger:       #EF4444;
+  --bg:           #F0F3FA;
+  --surface:      #FFFFFF;
+  --surface2:     #F7F9FC;
+  --border:       #DDE3F0;
+  --text:         #1A1F3C;
+  --text-2:       #4A5178;
+  --text-3:       #8892B0;
+  --font-body:    'DM Sans', sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'Fira Code', monospace;
+  --r-sm:         6px;
+  --r:            10px;
+  --r-lg:         16px;
+  --r-xl:         24px;
+  --shadow-sm:    0 1px 3px rgba(47,59,162,0.06), 0 1px 2px rgba(47,59,162,0.04);
+  --shadow:       0 4px 16px rgba(47,59,162,0.10), 0 2px 6px rgba(47,59,162,0.06);
+  --shadow-lg:    0 12px 40px rgba(47,59,162,0.14), 0 4px 12px rgba(47,59,162,0.08);
+  --nav-h:        68px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { text-decoration: none; color: inherit; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--orbis-mid); border-radius: 2px; }
+
+/* ── LOADER ── */
+#loader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--orbis-deep);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  transition: opacity 0.5s, visibility 0.5s;
+}
+#loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+.loader-logo {
+  font-family: var(--font-display); font-size: 2.4rem; letter-spacing: 0.08em;
+  color: #fff;
+}
+.loader-logo span { color: var(--safety); }
+.loader-bar { width: 160px; height: 2px; background: rgba(255,255,255,0.15); border-radius: 1px; overflow: hidden; }
+.loader-fill { height: 100%; background: var(--safety); border-radius: 1px; animation: loaderFill 1.4s ease forwards; }
+@keyframes loaderFill { from { width: 0 } to { width: 100% } }
+
+/* ── ADMIN TOOLBAR ── */
+#admin-toolbar {
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: 44px; background: var(--orbis-deep); border-bottom: 2px solid var(--safety);
+  align-items: center; justify-content: space-between;
+  padding: 0 20px; gap: 10px;
+}
+#admin-toolbar.active { display: flex; }
+.dock-id { display: flex; align-items: center; gap: 8px; }
+.dock-pulse { width: 7px; height: 7px; background: var(--safety); border-radius: 50%; animation: pulse 2s infinite; }
+.dock-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; color: var(--safety); text-transform: uppercase; }
+.save-status { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); padding: 3px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; }
+.save-status.saving { color: var(--safety); border-color: var(--safety); }
+.save-status.saved { color: var(--success); border-color: var(--success); }
+.dock-actions { display: flex; align-items: center; gap: 6px; }
+.dock-btn {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  background: transparent; color: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.15);
+  padding: 5px 11px; cursor: pointer; border-radius: 3px; transition: all 0.15s; min-height: 28px;
+}
+.dock-btn:hover { border-color: var(--safety); color: var(--safety); }
+.dock-btn.primary { background: var(--safety); border-color: var(--safety); color: var(--text); font-weight: 600; }
+.dock-btn.primary:hover { background: var(--safety-dark); }
+.dock-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--nav-h);
+  background: rgba(255,255,255,0.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s;
+}
+nav.scrolled { box-shadow: var(--shadow); }
+.nav-inner {
+  max-width: 1280px; margin: 0 auto;
+  height: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; gap: 16px;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-logo-img { width: 36px; height: 36px; background: var(--orbis); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; }
+.nav-logo-img svg { width: 22px; height: 22px; }
+.nav-logo-name { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: 0.05em; color: var(--orbis); }
+.nav-logo-name span { color: var(--safety-dark); }
+.nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-links a {
+  font-size: 0.875rem; font-weight: 500; color: var(--text-2); padding: 6px 14px;
+  border-radius: var(--r-sm); transition: all 0.15s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--orbis); background: var(--orbis-light); }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.btn-cart {
+  position: relative; background: var(--orbis-light); border: 1px solid var(--orbis-mid);
+  color: var(--orbis); border-radius: var(--r); padding: 8px 16px;
+  font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px; min-height: 40px;
+}
+.btn-cart:hover { background: var(--orbis); color: #fff; border-color: var(--orbis); }
+.cart-badge {
+  position: absolute; top: -6px; right: -6px;
+  background: var(--safety); color: var(--text); border-radius: 50%;
+  width: 20px; height: 20px; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--surface);
+}
+.nav-cta {
+  background: var(--orbis); color: #fff; border: none;
+  padding: 9px 20px; border-radius: var(--r); font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; min-height: 40px; text-decoration: none; display: inline-flex; align-items: center;
+}
+.nav-cta:hover { background: var(--orbis-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+.hamburger { display: none; flex-direction: column; gap: 5px; width: 38px; height: 38px; align-items: center; justify-content: center; background: transparent; border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; }
+.hamburger span { display: block; width: 18px; height: 1.5px; background: var(--text); transition: all 0.25s; }
+.mobile-drawer {
+  display: none; position: fixed; top: var(--nav-h); left: 0; right: 0; bottom: 0; z-index: 199;
+  background: #fff; padding: 20px 24px; flex-direction: column; gap: 6px;
+  border-top: 1px solid var(--border);
+}
+.mobile-drawer.open { display: flex; }
+.mobile-drawer a { font-size: 1.1rem; font-weight: 500; color: var(--text-2); padding: 12px 0; border-bottom: 1px solid var(--border); transition: color 0.15s; }
+.mobile-drawer a:hover { color: var(--orbis); }
+#nav-admin-badge { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em; color: var(--safety-dark); background: var(--safety-light); border: 1px solid var(--safety); border-radius: 3px; padding: 3px 8px; display: none; }
+
+/* ── HERO ── */
+#hero {
+  position: relative; overflow: hidden;
+  background: linear-gradient(135deg, var(--orbis-deep) 0%, var(--orbis) 60%, var(--orbis-mid) 100%);
+  min-height: 88vh; display: flex; align-items: center;
+}
+.hero-pattern {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.hero-pattern::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+.hero-diag {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 80px; background: var(--bg); clip-path: polygon(0 100%, 100% 0, 100% 100%);
+}
+.hero-inner { max-width: 1280px; margin: 0 auto; padding: 80px 24px 120px; position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  color: #fff; border-radius: 100px; padding: 6px 14px; font-size: 0.8rem; font-weight: 500;
+  letter-spacing: 0.04em; margin-bottom: 24px; backdrop-filter: blur(8px);
+}
+.hero-badge-dot { width: 7px; height: 7px; background: var(--safety); border-radius: 50%; animation: pulse 2s infinite; }
+.hero-title {
+  font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 5rem);
+  line-height: 1.0; color: #fff; letter-spacing: 0.02em;
+  margin-bottom: 24px; max-width: 700px;
+}
+.hero-title em { font-style: normal; color: var(--safety); }
+.hero-desc { font-size: clamp(1rem, 2vw, 1.15rem); color: rgba(255,255,255,0.75); line-height: 1.7; max-width: 520px; margin-bottom: 36px; font-weight: 300; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 56px; }
+.btn-hero-primary {
+  background: var(--safety); color: var(--text); font-weight: 700; font-size: 0.95rem;
+  padding: 14px 28px; border-radius: var(--r); border: none; cursor: pointer;
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.4);
+}
+.btn-hero-primary:hover { background: var(--safety-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.5); }
+.btn-hero-secondary {
+  background: rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 0.95rem;
+  padding: 14px 28px; border-radius: var(--r); border: 1px solid rgba(255,255,255,0.25); cursor: pointer;
+  transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(8px);
+}
+.btn-hero-secondary:hover { background: rgba(255,255,255,0.18); border-color: rgba(255,255,255,0.4); }
+.hero-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+.hero-stat { text-align: left; }
+.hero-stat-num { font-family: var(--font-display); font-size: 1.8rem; color: var(--safety); line-height: 1; margin-bottom: 4px; }
+.hero-stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; }
+.hero-visual {
+  position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
+  width: 40%; max-width: 480px; opacity: 0.15;
+  display: none;
+}
+
+/* ── SECTIONS ── */
+.section { padding: 88px 24px; }
+.section-inner { max-width: 1280px; margin: 0 auto; }
+.section-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.25em; color: var(--orbis-mid); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.section-label::before { content: ''; width: 20px; height: 1.5px; background: var(--orbis-mid); flex-shrink: 0; }
+.section-heading { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--text); line-height: 1.1; margin-bottom: 14px; }
+.section-heading em { font-style: italic; color: var(--orbis); font-family: 'DM Sans', sans-serif; font-weight: 700; }
+.section-sub { font-size: 1.05rem; color: var(--text-2); max-width: 500px; line-height: 1.75; margin-bottom: 56px; font-weight: 300; }
+
+/* ── TRUST BAR ── */
+.trust-bar { background: var(--orbis-deep); padding: 14px 24px; overflow: hidden; }
+.trust-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 0; overflow-x: auto; scrollbar-width: none; }
+.trust-inner::-webkit-scrollbar { display: none; }
+.trust-chip { display: flex; align-items: center; gap: 8px; padding: 6px 20px; border-right: 1px solid rgba(255,255,255,0.1); white-space: nowrap; flex-shrink: 0; }
+.trust-chip:last-child { border-right: none; }
+.trust-chip-dot { width: 6px; height: 6px; background: var(--safety); border-radius: 50%; flex-shrink: 0; }
+.trust-chip-text { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.55); text-transform: uppercase; }
+.trust-chip-text strong { color: rgba(255,255,255,0.9); }
+
+/* ── SERVICIOS ── */
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.service-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  padding: 28px; transition: all 0.25s; position: relative; overflow: hidden;
+}
+.service-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--orbis); transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+}
+.service-card:hover { box-shadow: var(--shadow); border-color: var(--orbis-mid); transform: translateY(-3px); }
+.service-card:hover::before { transform: scaleX(1); }
+.service-icon {
+  width: 52px; height: 52px; background: var(--orbis-light); border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+  font-size: 1.5rem; color: var(--orbis);
+}
+.service-title { font-weight: 700; font-size: 1.1rem; color: var(--text); margin-bottom: 10px; }
+.service-desc { font-size: 0.9rem; color: var(--text-2); line-height: 1.7; font-weight: 300; }
+
+/* ── CATÁLOGO ── */
+.catalog-bg { background: var(--surface2); }
+.filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+.flt-btn {
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--surface); color: var(--text-2); border: 1px solid var(--border);
+  padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all 0.15s; font-weight: 500;
+}
+.flt-btn:hover { border-color: var(--orbis-mid); color: var(--orbis); }
+.flt-btn.active { background: var(--orbis); color: #fff; border-color: var(--orbis); }
+.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.product-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  overflow: hidden; transition: all 0.25s; position: relative; display: flex; flex-direction: column;
+}
+.product-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: var(--border); }
+.product-img {
+  aspect-ratio: 4/3; background: var(--orbis-light);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.product-card:hover .product-img img { transform: scale(1.05); }
+.product-img-placeholder { font-size: 3rem; color: var(--orbis-mid); opacity: 0.4; }
+.product-cat-badge {
+  position: absolute; top: 10px; left: 10px;
+  background: rgba(47,59,162,0.9); color: #fff;
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px; backdrop-filter: blur(8px);
+}
+.admin-img-trigger {
+  display: none; position: absolute; inset: 0;
+  background: rgba(47,59,162,0.7); align-items: center; justify-content: center;
+  cursor: pointer; transition: opacity 0.2s;
+}
+body.admin-mode .admin-img-trigger { display: flex; }
+.admin-img-trigger-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; color: #fff; text-align: center; pointer-events: none; }
+.admin-img-trigger-label::before { content: '↑'; display: block; font-size: 24px; margin-bottom: 4px; }
+.admin-img-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.product-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+.product-name { font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 6px; }
+.product-desc { font-size: 0.85rem; color: var(--text-2); line-height: 1.6; flex: 1; margin-bottom: 14px; font-weight: 300; }
+.product-price {
+  font-family: var(--font-display); font-size: 1.4rem; color: var(--orbis); margin-bottom: 14px; line-height: 1;
+}
+.product-price span { font-size: 0.85rem; color: var(--text-3); font-family: var(--font-body); font-weight: 400; }
+.btn-add {
+  width: 100%; background: var(--safety); color: var(--text); font-weight: 700;
+  border: none; border-radius: var(--r); padding: 12px; cursor: pointer;
+  transition: all 0.2s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-add:hover { background: var(--safety-dark); transform: scale(1.02); }
+.btn-add.added { background: var(--success); color: #fff; }
+.product-admin-bar {
+  display: none; padding: 10px 16px; background: var(--orbis-light);
+  border-top: 1px solid var(--border); gap: 6px; align-items: center; flex-wrap: wrap;
+}
+body.admin-mode .product-admin-bar { display: flex; }
+.padmin-btn {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+  border: 1px solid var(--border); background: #fff; color: var(--text-2);
+  padding: 5px 10px; cursor: pointer; border-radius: var(--r-sm); transition: all 0.15s;
+}
+.padmin-btn:hover { border-color: var(--orbis); color: var(--orbis); }
+.padmin-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── CARRITO SIDEBAR ── */
+.cart-overlay {
+  position: fixed; inset: 0; background: rgba(26,31,60,0.5); z-index: 400;
+  opacity: 0; visibility: hidden; transition: all 0.3s; backdrop-filter: blur(4px);
+}
+.cart-overlay.open { opacity: 1; visibility: visible; }
+.cart-sidebar {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 380px; max-width: 95vw;
+  background: var(--surface); z-index: 401;
+  transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 40px rgba(47,59,162,0.15);
+}
+.cart-sidebar.open { transform: translateX(0); }
+.cart-head {
+  padding: 20px 24px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--orbis-deep);
+}
+.cart-title { font-family: var(--font-display); font-size: 1.1rem; color: #fff; letter-spacing: 0.04em; }
+.cart-close { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); width: 34px; height: 34px; border-radius: var(--r-sm); cursor: pointer; font-size: 1rem; transition: all 0.15s; }
+.cart-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.cart-body { flex: 1; overflow-y: auto; padding: 16px; }
+.cart-empty { text-align: center; padding: 48px 24px; color: var(--text-3); }
+.cart-empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.3; }
+.cart-empty-text { font-size: 0.9rem; font-weight: 300; }
+.cart-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.cart-item-img { width: 56px; height: 56px; border-radius: var(--r-sm); background: var(--orbis-light); overflow: hidden; flex-shrink: 0; }
+.cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+.cart-item-info { flex: 1; min-width: 0; }
+.cart-item-name { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 4px; }
+.cart-item-price { font-family: var(--font-mono); font-size: 0.8rem; color: var(--orbis); }
+.cart-item-qty { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.qty-btn { width: 26px; height: 26px; background: var(--orbis-light); border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; font-size: 0.95rem; font-weight: 700; color: var(--orbis); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.qty-btn:hover { background: var(--orbis); color: #fff; border-color: var(--orbis); }
+.qty-val { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 24px; text-align: center; }
+.cart-item-remove { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 1rem; padding: 4px; transition: color 0.15s; }
+.cart-item-remove:hover { color: var(--danger); }
+.cart-foot { padding: 20px 24px; border-top: 1px solid var(--border); background: var(--surface2); }
+.cart-subtotal { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.cart-subtotal-label { font-size: 0.875rem; color: var(--text-2); }
+.cart-subtotal-val { font-family: var(--font-display); font-size: 1.4rem; color: var(--text); }
+.cart-note { font-size: 0.75rem; color: var(--text-3); margin-bottom: 16px; font-style: italic; }
+.btn-checkout {
+  width: 100%; background: var(--success); color: #fff; font-weight: 700; font-size: 1rem;
+  border: none; border-radius: var(--r-lg); padding: 16px;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.btn-checkout:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
+.btn-checkout:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── NOSOTROS ── */
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+.about-img-wrap { position: relative; }
+.about-img-box {
+  background: var(--orbis); border-radius: var(--r-xl); overflow: hidden;
+  aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center;
+}
+.about-deco { position: absolute; bottom: -20px; right: -20px; width: 140px; height: 140px; border-radius: var(--r-xl); background: var(--safety); opacity: 0.15; }
+.values-list { display: flex; flex-direction: column; gap: 12px; }
+.value-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); }
+.value-icon { width: 36px; height: 36px; background: var(--orbis-light); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; color: var(--orbis); font-size: 1rem; flex-shrink: 0; }
+.value-title { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 3px; }
+.value-desc { font-size: 0.82rem; color: var(--text-2); line-height: 1.6; font-weight: 300; }
+
+/* ── CONTACTO ── */
+.contact-bg { background: linear-gradient(135deg, var(--orbis-deep), var(--orbis)); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 60px; align-items: start; }
+.contact-info-title { font-family: var(--font-display); font-size: 2rem; color: #fff; margin-bottom: 14px; }
+.contact-info-desc { font-size: 0.95rem; color: rgba(255,255,255,0.65); line-height: 1.75; margin-bottom: 32px; font-weight: 300; }
+.contact-data { display: flex; flex-direction: column; gap: 12px; }
+.cdata-item { display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--r); padding: 14px; }
+.cdata-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--safety); flex-shrink: 0; }
+.cdata-label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
+.cdata-val { font-size: 0.9rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+.contact-form { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-lg); }
+.form-head { background: var(--orbis-deep); padding: 20px 28px; }
+.form-head h3 { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--safety); margin-bottom: 2px; }
+.form-head p { font-size: 0.8rem; color: rgba(255,255,255,0.4); font-family: var(--font-mono); letter-spacing: 0.08em; }
+.form-body { padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+.fgrp { display: flex; flex-direction: column; gap: 5px; }
+.fgrp label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
+.fgrp input, .fgrp select, .fgrp textarea {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--font-body); font-size: 0.9rem; padding: 11px 14px;
+  border-radius: var(--r); outline: none; transition: border-color 0.15s, background 0.15s;
+  width: 100%; min-height: 44px;
+}
+.fgrp input:focus, .fgrp select:focus, .fgrp textarea:focus { border-color: var(--orbis); background: #fff; box-shadow: 0 0 0 3px rgba(47,59,162,0.1); }
+.fgrp textarea { min-height: 100px; resize: vertical; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-err { font-family: var(--font-mono); font-size: 0.75rem; color: var(--danger); letter-spacing: 0.08em; display: none; }
+.form-err.show { display: block; }
+.btn-submit {
+  background: var(--orbis); color: #fff; font-weight: 700; font-size: 0.95rem;
+  border: none; border-radius: var(--r); padding: 14px; cursor: pointer;
+  transition: all 0.2s; width: 100%; min-height: 48px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-submit:hover { background: var(--orbis-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.form-success { display: none; text-align: center; padding: 36px 28px; }
+.form-success.show { display: block; }
+.success-icon { font-size: 3rem; margin-bottom: 12px; }
+.success-title { font-family: var(--font-display); font-size: 1.5rem; color: var(--orbis); margin-bottom: 8px; }
+.success-text { font-size: 0.9rem; color: var(--text-2); line-height: 1.7; }
+
+/* ── FOOTER ── */
+footer { background: var(--orbis-deep); border-top: 3px solid var(--safety); padding: 56px 24px 36px; }
+.footer-inner { max-width: 1280px; margin: 0 auto; }
+.footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+.footer-brand { font-family: var(--font-display); font-size: 1.4rem; color: #fff; margin-bottom: 6px; }
+.footer-brand span { color: var(--safety); }
+.footer-tagline { font-size: 0.85rem; color: rgba(255,255,255,0.45); line-height: 1.65; max-width: 220px; font-weight: 300; }
+.footer-col-label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+.footer-links { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.footer-links a { font-size: 0.875rem; color: rgba(255,255,255,0.5); transition: color 0.15s; font-weight: 300; }
+.footer-links a:hover { color: var(--safety); }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.footer-copy { font-family: var(--font-mono); font-size: 0.7rem; color: rgba(255,255,255,0.2); letter-spacing: 0.08em; }
+.footer-badges { display: flex; gap: 6px; align-items: center; }
+.fbadge { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 3px 7px; }
+#admin-trigger { font-family: var(--font-mono); font-size: 0.8rem; color: rgba(255,255,255,0.08); background: transparent; border: none; cursor: pointer; padding: 6px; transition: color 0.3s; }
+#admin-trigger:hover { color: var(--safety); }
+
+/* ── MODALES ── */
+.modal { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(26,31,60,0.65); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
+.modal.open { display: flex; }
+.modal-panel { background: var(--surface); border-radius: var(--r-xl); width: 100%; max-width: 440px; overflow: hidden; box-shadow: var(--shadow-lg); }
+.modal-panel.wide { max-width: 600px; }
+.modal-head { background: var(--orbis-deep); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--safety); }
+.modal-head-title { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--safety); }
+.modal-close { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); width: 32px; height: 32px; border-radius: var(--r-sm); cursor: pointer; transition: all 0.15s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.modal-body { padding: 24px; }
+.mfield { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.mfield label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
+.mfield input, .mfield select, .mfield textarea {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--font-body); font-size: 0.9rem; padding: 10px 12px;
+  border-radius: var(--r); outline: none; min-height: 44px; width: 100%; transition: border-color 0.15s;
+}
+.mfield input:focus, .mfield select:focus, .mfield textarea:focus { border-color: var(--orbis); }
+.mfield textarea { min-height: 80px; resize: vertical; }
+.mfield-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.merror { font-family: var(--font-mono); font-size: 0.7rem; color: var(--danger); letter-spacing: 0.08em; display: none; margin-bottom: 8px; }
+.merror.show { display: block; }
+.modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.msave-btn { background: var(--orbis); color: #fff; font-weight: 700; font-size: 0.875rem; border: none; border-radius: var(--r); padding: 11px 22px; cursor: pointer; transition: all 0.15s; min-height: 44px; }
+.msave-btn:hover { background: var(--orbis-dark); }
+.msave-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.mcancel-btn { background: transparent; color: var(--text-2); border: 1px solid var(--border); font-size: 0.875rem; border-radius: var(--r); padding: 11px 18px; cursor: pointer; transition: all 0.15s; min-height: 44px; }
+.mcancel-btn:hover { border-color: var(--text-2); }
+/* img upload */
+.prod-upload-area { border: 1.5px dashed var(--border); border-radius: var(--r); padding: 20px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s; background: var(--surface2); }
+.prod-upload-area:hover { border-color: var(--orbis); background: var(--orbis-light); }
+.prod-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.prod-upload-hint { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-3); letter-spacing: 0.08em; }
+.prod-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: var(--r-sm); margin-bottom: 8px; display: none; }
+
+/* ── ADMIN EDITABLE ── */
+body.admin-mode [data-field] { outline: 1.5px dashed rgba(47,59,162,0.3); cursor: text; border-radius: 3px; transition: outline 0.15s; }
+body.admin-mode [data-field]:hover { outline: 1.5px solid rgba(47,59,162,0.6); background: rgba(47,59,162,0.04); }
+body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background: rgba(47,59,162,0.06); }
+
+/* ── REVEAL ANIMATIONS ── */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+.stagger > *:nth-child(1) { transition-delay: 0.04s !important; }
+.stagger > *:nth-child(2) { transition-delay: 0.1s !important; }
+.stagger > *:nth-child(3) { transition-delay: 0.16s !important; }
+.stagger > *:nth-child(4) { transition-delay: 0.22s !important; }
+
+/* ── UTILITIES ── */
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .about-grid { grid-template-columns: 1fr; gap: 40px; }
+  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+  .about-img-wrap { display: none; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+@media (max-width: 768px) {
+  .nav-links, .nav-cta { display: none; }
+  .hamburger { display: flex; }
+  .hero-title { font-size: 2.2rem; }
+  .section { padding: 60px 20px; }
+  .services-grid { grid-template-columns: 1fr; }
+  .products-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .mfield-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">ORBIS<span>CORP</span></div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- ADMIN TOOLBAR -->
+<div id="admin-toolbar" role="toolbar" aria-label="Panel Administrador">
+  <div class="dock-id">
+    <div class="dock-pulse"></div>
+    <span class="dock-label">Admin Mode</span>
+    <span class="save-status" id="save-status">Listo</span>
+  </div>
+  <div class="dock-actions">
+    <button class="dock-btn primary" onclick="openProductModal(null)">+ Producto</button>
+    <button class="dock-btn" onclick="showLeads()">Ver Leads</button>
+    <button class="dock-btn" onclick="window.reloadData()">↺ Recargar</button>
+    <button class="dock-btn danger" onclick="window.doLogout()">Salir</button>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div id="login-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <span class="modal-head-title" id="login-title">◈ Acceso Editor</span>
+      <button class="modal-close" onclick="closeLogin()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfield"><label for="l-email">Correo electrónico</label><input type="email" id="l-email" placeholder="admin@orbiscorp.com.mx" autocomplete="email"></div>
+      <div class="mfield"><label for="l-pass">Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="merror" id="l-err">Credenciales incorrectas. Intenta de nuevo.</div>
+      <button class="msave-btn" style="width:100%;margin-top:4px" onclick="doLogin()">Entrar al Editor →</button>
+      <p style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;color:var(--text-3);text-align:center;margin-top:14px;">Solo personal autorizado OrbisCORP</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PRODUCTO -->
+<div id="prod-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pm-title-el">
+  <div class="modal-panel wide">
+    <div class="modal-head">
+      <span class="modal-head-title" id="pm-title-el">◈ Nuevo Producto</span>
+      <button class="modal-close" onclick="closeProdModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pm-id">
+      <div class="mfield-row">
+        <div class="mfield"><label for="pm-nombre">Nombre *</label><input type="text" id="pm-nombre" placeholder="Casco de Seguridad"></div>
+        <div class="mfield"><label for="pm-cat">Categoría *</label>
+          <select id="pm-cat">
+            <option value="" disabled selected>— Seleccionar —</option>
+            <option>Seguridad</option>
+            <option>Abrasivos</option>
+            <option>Soldadura</option>
+            <option>Herramientas</option>
+            <option>Ferretería</option>
+          </select>
+        </div>
+      </div>
+      <div class="mfield"><label for="pm-desc">Descripción</label><textarea id="pm-desc" placeholder="Descripción del producto..."></textarea></div>
+      <div class="mfield-row">
+        <div class="mfield"><label for="pm-precio">Precio (MXN) *</label><input type="number" id="pm-precio" placeholder="450.00" step="0.01" min="0"></div>
+        <div class="mfield"><label for="pm-sku">SKU / Clave</label><input type="text" id="pm-sku" placeholder="ORB-001"></div>
+      </div>
+      <div class="mfield"><label>Imagen del Producto</label>
+        <div class="prod-upload-area" id="pm-upload">
+          <img class="prod-preview" id="pm-preview" alt="Preview">
+          <div class="prod-upload-hint" id="pm-upload-hint">↑ Arrastra o haz clic para subir imagen<br>JPG, PNG, WebP</div>
+          <input type="file" accept="image/*" id="pm-img-file" onchange="pmImgSelect(this)">
+        </div>
+      </div>
+      <div class="merror" id="pm-err">Completa los campos: Nombre, Categoría y Precio.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="mcancel-btn" onclick="closeProdModal()">Cancelar</button>
+      <button class="msave-btn" id="pm-save" onclick="saveProducto()">Guardar Producto →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CARRITO SIDEBAR -->
+<div id="cart-overlay" class="cart-overlay" onclick="closeCart()"></div>
+<div id="cart-sidebar" class="cart-sidebar" role="dialog" aria-label="Carrito de compras">
+  <div class="cart-head">
+    <div class="cart-title">🛒 Carrito de Compras</div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p class="cart-empty-text">Tu carrito está vacío.<br>Explora nuestro catálogo.</p>
+    </div>
+  </div>
+  <div class="cart-foot" id="cart-foot" style="display:none">
+    <div class="cart-subtotal">
+      <span class="cart-subtotal-label">Total estimado</span>
+      <span class="cart-subtotal-val" id="cart-total">$0.00</span>
+    </div>
+    <p class="cart-note">Precio orientativo. El vendedor confirmará el precio final.</p>
+    <button class="btn-checkout" id="btn-checkout" onclick="checkoutWhatsApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Pedir por WhatsApp
+    </button>
+  </div>
+</div>
+
+<!-- ═══ VUE APP ROOT ═══ -->
+<div id="app">
+
+<!-- NAV -->
+<nav id="main-nav" role="navigation" aria-label="Navegación principal">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo" aria-label="OrbisCORP inicio">
+      <div class="nav-logo-img">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" stroke="white" stroke-width="1.5"/>
+          <circle cx="11" cy="11" r="4" fill="white" opacity="0.9"/>
+          <path d="M3 11 L19 11" stroke="#FFD700" stroke-width="1"/>
+        </svg>
+      </div>
+      <span class="nav-logo-name">ORBIS<span>CORP</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#hero" class="active">Inicio</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#catalogo">Catálogo</a></li>
+      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <div class="nav-right">
+      <span id="nav-admin-badge">◈ Admin</span>
+      <button class="btn-cart" onclick="openCart()" aria-label="Abrir carrito">
+        🛒 Carrito
+        <span class="cart-badge" id="cart-badge" v-show="cartCount > 0" :key="cartCount">{{ cartCount }}</span>
+      </button>
+      <a href="#contacto" class="nav-cta">Cotizar →</a>
+      <button class="hamburger" id="ham-btn" aria-label="Menú" aria-expanded="false" onclick="toggleDrawer()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+<div id="mobile-drawer" class="mobile-drawer" role="navigation" aria-label="Menú móvil">
+  <a href="#hero" onclick="closeDrawer()">Inicio</a>
+  <a href="#servicios" onclick="closeDrawer()">Servicios</a>
+  <a href="#catalogo" onclick="closeDrawer()">Catálogo</a>
+  <a href="#nosotros" onclick="closeDrawer()">Nosotros</a>
+  <a href="#contacto" onclick="closeDrawer()">Contacto</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-pattern" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Distribuidores Autorizados · Hidalgo, México
+    </div>
+    <h1 class="hero-title" data-field="hero.title" contenteditable="false">
+      Seguridad Industrial<br>
+      <em>que protege lo</em><br>
+      que más importa
+    </h1>
+    <p class="hero-desc" data-field="hero.desc" contenteditable="false">
+      Distribuidores autorizados de equipo de Seguridad e Higiene Industrial. Asesoría STPS y Protección Civil. Lo que usted necesita, cuando lo necesita.
+    </p>
+    <div class="hero-actions">
+      <a href="#catalogo" class="btn-hero-primary">Ver Catálogo → </a>
+      <a href="#contacto" class="btn-hero-secondary">Solicitar Asesoría</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num" data-field="hero.statA" contenteditable="false">25+</div>
+        <div class="hero-stat-label">Años de experiencia</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" data-field="hero.statB" contenteditable="false">15+</div>
+        <div class="hero-stat-label">Marcas autorizadas</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" data-field="hero.statC" contenteditable="false">500+</div>
+        <div class="hero-stat-label">Clientes activos</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-diag" aria-hidden="true"></div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar" aria-label="Certificaciones y socios">
+  <div class="trust-inner">
+    <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>3M</strong> Distribuidor Autorizado</span></div>
+    <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Honeywell</strong> Partner Oficial</span></div>
+    <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Bosch</strong> Distribuidor</span></div>
+    <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>MSA Safety</strong> Autorizado</span></div>
+    <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Drager</strong> Representante</span></div>
+    <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>DBI Sala</strong> Distribuidor</span></div>
+    <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Truper</strong> Mayorista</span></div>
+  </div>
+</div>
+
+<!-- SERVICIOS -->
+<section id="servicios" class="section">
+  <div class="section-inner">
+    <div class="section-label">Nuestros servicios</div>
+    <h2 class="section-heading reveal" data-field="svc.heading" contenteditable="false">Consultoría integral en<br><em>Seguridad Industrial</em></h2>
+    <p class="section-sub reveal" data-field="svc.sub" contenteditable="false">Más que distribuidores: somos su aliado estratégico en seguridad. Desde asesoría hasta capacitación para cumplir con normas STPS y Protección Civil.</p>
+    <div class="services-grid reveal stagger">
+      <div class="service-card">
+        <div class="service-icon">📚</div>
+        <div class="service-title">Cursos y Capacitaciones</div>
+        <div class="service-desc">Capacitación sobre Seguridad e Higiene Industrial y Protección Civil conforme a normas NOM vigentes. Personal certificado.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">📋</div>
+        <div class="service-title">Asesoría STPS</div>
+        <div class="service-desc">Asistencia en medidas técnicas de emplazamiento proporcionadas por la Secretaría del Trabajo y Previsión Social.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🔍</div>
+        <div class="service-title">Preparación para Inspección</div>
+        <div class="service-desc">Preparación integral del Centro de Trabajo para visita de inspección de la STPS y organismos de Protección Civil.</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🏭</div>
+        <div class="service-title">Diagnóstico de Riesgo</div>
+        <div class="service-desc">Identificación de condiciones de riesgo en el área de trabajo con recomendaciones de mejora y plan de acción.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATÁLOGO -->
+<section id="catalogo" class="section catalog-bg">
+  <div class="section-inner">
+    <div class="section-label">Catálogo de Productos</div>
+    <h2 class="section-heading reveal">Todo en un solo lugar,<br><em>disponible para ti</em></h2>
+    <p class="section-sub reveal">Encuentra el equipo de seguridad, herramientas y materiales que necesitas de marcas líderes a precios competitivos.</p>
+    <div class="filter-bar reveal">
+      <button class="flt-btn active" data-cat="Todos" onclick="filterCat(this)">Todos</button>
+      <button class="flt-btn" data-cat="Seguridad" onclick="filterCat(this)">Seguridad</button>
+      <button class="flt-btn" data-cat="Abrasivos" onclick="filterCat(this)">Abrasivos</button>
+      <button class="flt-btn" data-cat="Soldadura" onclick="filterCat(this)">Soldadura</button>
+      <button class="flt-btn" data-cat="Herramientas" onclick="filterCat(this)">Herramientas</button>
+      <button class="flt-btn" data-cat="Ferretería" onclick="filterCat(this)">Ferretería</button>
+    </div>
+    <div class="products-grid reveal" id="products-grid"></div>
+    <div id="products-empty" style="display:none;text-align:center;padding:48px;color:var(--text-3);">
+      <p style="font-size:0.9rem">No hay productos en esta categoría.</p>
+    </div>
+  </div>
+</section>
+
+<!-- NOSOTROS -->
+<section id="nosotros" class="section">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div class="about-img-wrap reveal">
+        <div class="about-img-box">
+          <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;opacity:0.4" aria-hidden="true">
+            <circle cx="200" cy="150" r="100" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+            <circle cx="200" cy="150" r="60" fill="rgba(255,215,0,0.1)" stroke="rgba(255,215,0,0.5)" stroke-width="1.5"/>
+            <circle cx="200" cy="150" r="20" fill="rgba(255,255,255,0.2)"/>
+            <text x="200" y="296" text-anchor="middle" font-family="monospace" font-size="14" fill="rgba(255,255,255,0.3)" letter-spacing="6">ORBISCORP</text>
+          </svg>
+        </div>
+        <div class="about-deco"></div>
+      </div>
+      <div>
+        <div class="section-label">¿Quiénes somos?</div>
+        <h2 class="section-heading reveal" data-field="about.heading" contenteditable="false">Empresa 100%<br><em>mexicana desde el 2000</em></h2>
+        <p class="reveal" style="font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:18px;font-weight:300" data-field="about.p1" contenteditable="false">Orbiscorp SA de CV es una empresa comercializadora con capital 100% mexicano, fundada en el año 2000. Somos distribuidores autorizados de las marcas líderes en seguridad industrial del mercado.</p>
+        <p class="reveal" style="font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:32px;font-weight:300" data-field="about.p2" contenteditable="false">Nuestro objetivo es brindar un servicio integral: no solo en el abastecimiento de productos, sino capacitando a su personal para aprovecharlos al máximo.</p>
+        <div class="values-list reveal stagger">
+          <div class="value-item">
+            <div class="value-icon">⚡</div>
+            <div><div class="value-title">Misión</div><div class="value-desc">Satisfacer a nuestros clientes cubriendo sus necesidades a tiempo, con calidad y asesoría experta a precios competitivos.</div></div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">🎯</div>
+            <div><div class="value-title">Visión</div><div class="value-desc">Ser la empresa más completa e innovadora en servicios para todos los mercados en que participamos.</div></div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">🤝</div>
+            <div><div class="value-title">Valores</div><div class="value-desc">Honestidad · Actitud de servicio · Respeto · Mejora continua · Liderazgo.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto" class="section contact-bg">
+  <div class="section-inner">
+    <div class="contact-grid">
+      <div class="reveal">
+        <div class="section-label" style="color:rgba(255,255,255,0.5)">Estamos para servirle</div>
+        <h2 class="contact-info-title" data-field="contact.heading" contenteditable="false">¿Tienes una duda?<br>Contáctanos</h2>
+        <p class="contact-info-desc" data-field="contact.desc" contenteditable="false">Recuerde, en OrbisCORP estamos para servirle. Si no encontró lo que buscaba, podemos ayudarle. Solo basta con que nos llame o envíe un correo.</p>
+        <div class="contact-data">
+          <div class="cdata-item">
+            <div class="cdata-icon">📍</div>
+            <div><div class="cdata-label">Sucursal Principal</div><div class="cdata-val" data-field="contact.dir" contenteditable="false">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</div></div>
+          </div>
+          <div class="cdata-item">
+            <div class="cdata-icon">📞</div>
+            <div><div class="cdata-label">Teléfono</div><div class="cdata-val"><a href="tel:+527711450476" style="color:inherit">+52 771 145 0476</a></div></div>
+          </div>
+          <div class="cdata-item">
+            <div class="cdata-icon">✉️</div>
+            <div><div class="cdata-label">Correo Electrónico</div><div class="cdata-val"><a href="mailto:ventas@orbiscorp.com.mx" style="color:inherit">ventas@orbiscorp.com.mx</a></div></div>
+          </div>
+          <div class="cdata-item">
+            <div class="cdata-icon">🕐</div>
+            <div><div class="cdata-label">Horario de Atención</div><div class="cdata-val" data-field="contact.horario" contenteditable="false">Lun – Vie · 08:00 – 18:00</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form reveal">
+        <div class="form-head">
+          <h3>Formulario de Contacto</h3>
+          <p>ORB-CONTACT-01 · Respuesta en 24h</p>
+        </div>
+        <div id="form-success" class="form-success">
+          <div class="success-icon">✅</div>
+          <div class="success-title">¡Mensaje Enviado!</div>
+          <p class="success-text">Nos comunicaremos a la brevedad.<br>Folio: <strong id="f-folio">—</strong></p>
+        </div>
+        <form id="ct-form" class="form-body" novalidate>
+          <div class="form-row">
+            <div class="fgrp"><label for="f-nom">Nombre *</label><input type="text" id="f-nom" name="nombre" placeholder="Juan García" required autocomplete="name"></div>
+            <div class="fgrp"><label for="f-emp">Empresa</label><input type="text" id="f-emp" name="empresa" placeholder="Mi Empresa SA" autocomplete="organization"></div>
+          </div>
+          <div class="form-row">
+            <div class="fgrp"><label for="f-mail">Correo *</label><input type="email" id="f-mail" name="email" placeholder="juan@empresa.com" required autocomplete="email"></div>
+            <div class="fgrp"><label for="f-tel">Teléfono</label><input type="tel" id="f-tel" name="telefono" placeholder="771 123 4567" autocomplete="tel"></div>
+          </div>
+          <div class="fgrp"><label for="f-asunto">Asunto *</label>
+            <select id="f-asunto" name="asunto" required>
+              <option value="" disabled selected>— Seleccionar —</option>
+              <option>Cotización de productos</option>
+              <option>Asesoría STPS / Seguridad</option>
+              <option>Cursos y Capacitaciones</option>
+              <option>Distribución / Revendedor</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="fgrp"><label for="f-msg">Mensaje</label><textarea id="f-msg" name="mensaje" placeholder="¿En qué podemos ayudarle?"></textarea></div>
+          <div class="form-err" id="form-err">⚠ Completa los campos obligatorios.</div>
+          <button type="submit" class="btn-submit" id="btn-sub">
+            <span id="sub-txt">Enviar Mensaje</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">ORBIS<span>CORP</span></div>
+        <p class="footer-tagline">Seguridad Industrial profesional. Distribuidores autorizados de las mejores marcas. Capital 100% mexicano desde 2000.</p>
+      </div>
+      <div>
+        <div class="footer-col-label">Navegación</div>
+        <ul class="footer-links">
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#catalogo">Catálogo</a></li>
+          <li><a href="#nosotros">¿Quiénes somos?</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-label">Productos</div>
+        <ul class="footer-links">
+          <li><a href="#catalogo">Seguridad Personal</a></li>
+          <li><a href="#catalogo">Abrasivos</a></li>
+          <li><a href="#catalogo">Soldadura</a></li>
+          <li><a href="#catalogo">Herramientas</a></li>
+          <li><a href="#catalogo">Ferretería</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-label">Contacto</div>
+        <ul class="footer-links">
+          <li><a href="tel:+527711450476">+52 771 145 0476</a></li>
+          <li><a href="tel:+525949583081">+52 594 958 3081</a></li>
+          <li><a href="mailto:ventas@orbiscorp.com.mx">ventas@orbiscorp.com.mx</a></li>
+          <li><a href="https://www.facebook.com/Orbiscorpsadecv/" target="_blank" rel="noopener">Facebook</a></li>
+          <li><a href="https://www.instagram.com/orbiscorp_sadecv/" target="_blank" rel="noopener">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 OrbisCORP SA de CV · Empresa 100% Mexicana · Hidalgo, México</span>
+      <div class="footer-badges">
+        <span class="fbadge">ISO 9001</span>
+        <span class="fbadge">Est. 2000</span>
+        <button id="admin-trigger" onclick="openLogin()" title="Acceso Editor" aria-label="Acceso administrador">◈</button>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</div><!-- #app -->
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+  browserSessionPersistence, setPersistence
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getFirestore, doc, onSnapshot, updateDoc, setDoc, getDoc,
+  collection, addDoc, deleteDoc, serverTimestamp, query, orderBy, getDocs
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import {
+  getStorage, ref as stRef, uploadBytes, getDownloadURL
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+
+const FB = {
+  apiKey: "AIzaSyAnq1OZavOTquMPyLs_etqA0qystCd7rMI",
+  authDomain: "oracles-99bc3.firebaseapp.com",
+  projectId: "oracles-99bc3",
+  storageBucket: "oracles-99bc3.firebasestorage.app",
+  messagingSenderId: "785165056789",
+  appId: "1:785165056789:web:72f69d4226a8b4d70d871c"
+};
+
+const app = initializeApp(FB);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+await setPersistence(auth, browserSessionPersistence);
+
+const CONTENT_REF = doc(db, 'web_content', 'orbiscorp');
+const LEADS_COL = collection(db, 'leads_orbiscorp');
+const PRODS_COL = collection(db, 'productos_orbis');
+
+/* ── DEFAULT CONTENT ── */
+const DEFAULT_CONTENT = {
+  hero: {
+    title: "Seguridad Industrial\nque protege lo\nque más importa",
+    desc: "Distribuidores autorizados de equipo de Seguridad e Higiene Industrial. Asesoría STPS y Protección Civil. Lo que usted necesita, cuando lo necesita.",
+    statA: "25+", statB: "15+", statC: "500+"
+  },
+  svc: {
+    heading: "Consultoría integral en Seguridad Industrial",
+    sub: "Más que distribuidores: somos su aliado estratégico en seguridad."
+  },
+  about: {
+    heading: "Empresa 100% mexicana desde el 2000",
+    p1: "Orbiscorp SA de CV es una empresa comercializadora con capital 100% mexicano, fundada en el año 2000.",
+    p2: "Nuestro objetivo es brindar un servicio integral: no solo en el abastecimiento de productos."
+  },
+  contact: {
+    heading: "¿Tienes una duda? Contáctanos",
+    desc: "Estamos para servirle. Si no encontró lo que buscaba, podemos ayudarle.",
+    dir: "Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.",
+    horario: "Lun – Vie · 08:00 – 18:00"
+  }
+};
+
+const DEFAULT_PRODUCTS = [
+  { sku:"ORB-SEG-001", nombre:"Casco de Seguridad MSA V-Guard", categoria:"Seguridad", desc:"Casco fabricado en polietileno de alto impacto. Clase E, resistente a dieléctrico. Ala completa.", precio:189, imageUrl:"" },
+  { sku:"ORB-SEG-002", nombre:"Respirador 3M Serie 6000", categoria:"Seguridad", desc:"Respirador de media cara reutilizable. Compatible con filtros para vapores orgánicos, polvos y neblinas.", precio:420, imageUrl:"" },
+  { sku:"ORB-SEG-003", nombre:"Guantes de Protección Ansell", categoria:"Seguridad", desc:"Guantes de nitrilo para protección química. Resistentes a cortes nivel 2. Talla S a XL.", precio:95, imageUrl:"" },
+  { sku:"ORB-SEG-004", nombre:"Lentes de Seguridad Honeywell", categoria:"Seguridad", desc:"Gafas de protección con lente policarbonato. Protección UV 99%. Ligeras y cómodas.", precio:75, imageUrl:"" },
+  { sku:"ORB-ABR-001", nombre:"Disco de Corte Austromex 4½\"", categoria:"Abrasivos", desc:"Disco de corte para metales ferrosos. Grano A46RBF. Velocidad máxima 13,300 RPM.", precio:28, imageUrl:"" },
+  { sku:"ORB-ABR-002", nombre:"Disco de Desbaste Duramax 7\"", categoria:"Abrasivos", desc:"Disco de desbaste para acero y fundición. Espesor 6mm. Máxima durabilidad.", precio:65, imageUrl:"" },
+  { sku:"ORB-SOL-001", nombre:"Electrodo CINASA 6013 3.2mm", categoria:"Soldadura", desc:"Electrodo para soldadura de acero al carbono. Caja 5kg. Arco suave y fácil de usar. Certificado.", precio:185, imageUrl:"" },
+  { sku:"ORB-HER-001", nombre:"Amoladora Bosch GWS 6-115", categoria:"Herramientas", desc:"Amoladora angular profesional 680W, disco 4½\". Motor duradero con protección contra sobrecarga.", precio:890, imageUrl:"" },
+  { sku:"ORB-HER-002", nombre:"Taladro Bosch GSB 13 RE", categoria:"Herramientas", desc:"Taladro percutor de 600W. Velocidad variable 0-2800 RPM. Maletín incluido.", precio:1250, imageUrl:"" },
+  { sku:"ORB-FER-001", nombre:"Pala Truper Cuadrada #2", categoria:"Ferretería", desc:"Pala cuadrada con mango de madera. Hoja de acero templado. Longitud total 120cm.", precio:185, imageUrl:"" }
+];
+
+/* ── STATE ── */
+let contentData = null;
+let isAdmin = false;
+let allProducts = [];
+let cart = [];
+let currentCat = 'Todos';
+let pmImgFile = null, pmImgUrl = '';
+let unsaved = 0;
+
+/* ── CART (Global) ── */
+window.cartCount = 0;
+window.cartItems = [];
+
+/* ── INIT ── */
+async function init() {
+  try {
+    const snap = await getDoc(CONTENT_REF);
+    if (!snap.exists()) await setDoc(CONTENT_REF, DEFAULT_CONTENT);
+    onSnapshot(CONTENT_REF, s => {
+      contentData = s.exists() ? s.data() : DEFAULT_CONTENT;
+      renderContent(contentData);
+    }, () => { contentData = DEFAULT_CONTENT; renderContent(DEFAULT_CONTENT); });
+    await loadProducts();
+  } catch(e) {
+    contentData = DEFAULT_CONTENT;
+    renderContent(DEFAULT_CONTENT);
+  } finally {
+    hideLoader();
+    initReveal();
+    initNav();
+  }
+}
+
+function hideLoader() {
+  setTimeout(() => document.getElementById('loader').classList.add('done'), 1200);
+}
+
+/* ── CONTENT RENDER ── */
+function tx(sel, val) {
+  const el = document.querySelector(sel);
+  if (el && document.activeElement !== el) el.textContent = val || '';
+}
+function renderContent(d) {
+  if (!d) return;
+  if (d.hero) {
+    tx('[data-field="hero.title"]', d.hero.title);
+    tx('[data-field="hero.desc"]', d.hero.desc);
+    tx('[data-field="hero.statA"]', d.hero.statA);
+    tx('[data-field="hero.statB"]', d.hero.statB);
+    tx('[data-field="hero.statC"]', d.hero.statC);
+  }
+  if (d.svc) {
+    tx('[data-field="svc.heading"]', d.svc.heading);
+    tx('[data-field="svc.sub"]', d.svc.sub);
+  }
+  if (d.about) {
+    tx('[data-field="about.heading"]', d.about.heading);
+    tx('[data-field="about.p1"]', d.about.p1);
+    tx('[data-field="about.p2"]', d.about.p2);
+  }
+  if (d.contact) {
+    tx('[data-field="contact.heading"]', d.contact.heading);
+    tx('[data-field="contact.desc"]', d.contact.desc);
+    tx('[data-field="contact.dir"]', d.contact.dir);
+    tx('[data-field="contact.horario"]', d.contact.horario);
+  }
+  if (isAdmin) activateFields();
+}
+
+/* ── PRODUCTS ── */
+async function loadProducts() {
+  try {
+    const q = query(PRODS_COL, orderBy('creadoEn', 'desc'));
+    const snap = await getDocs(q);
+    allProducts = [];
+    snap.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
+    if (allProducts.length === 0) {
+      for (const p of DEFAULT_PRODUCTS) {
+        const r = await addDoc(PRODS_COL, { ...p, creadoEn: serverTimestamp() });
+        allProducts.push({ id: r.id, ...p });
+      }
+    }
+  } catch(e) {
+    allProducts = DEFAULT_PRODUCTS.map((p, i) => ({ id: String(i), ...p }));
+  }
+  renderProducts();
+}
+
+function renderProducts(cat = currentCat) {
+  currentCat = cat;
+  const grid = document.getElementById('products-grid');
+  const empty = document.getElementById('products-empty');
+  if (!grid) return;
+  const filtered = cat === 'Todos' ? allProducts : allProducts.filter(p => p.categoria === cat);
+  grid.innerHTML = '';
+  if (!filtered.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  filtered.forEach(p => {
+    const inCart = cart.find(c => c.id === p.id);
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.dataset.id = p.id;
+    card.innerHTML = `
+      <div class="product-img">
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.nombre}" loading="lazy">` : `<div class="product-img-placeholder">🛡️</div>`}
+        <span class="product-cat-badge">${p.categoria}</span>
+        <div class="admin-img-trigger" onclick="triggerProdImgUp('${p.id}')">
+          <div class="admin-img-trigger-label">Cambiar imagen</div>
+          <input type="file" class="admin-img-input" accept="image/*" id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')">
+        </div>
+      </div>
+      <div class="product-body">
+        <div class="product-name">${p.nombre}</div>
+        <div class="product-desc">${p.desc || ''}</div>
+        <div class="product-price">$${Number(p.precio).toFixed(2)} <span>MXN / unidad</span></div>
+        <button class="btn-add ${inCart ? 'added' : ''}" onclick="addToCart('${p.id}')">
+          ${inCart ? '✓ En el carrito' : '+ Añadir al carrito'}
+        </button>
+      </div>
+      <div class="product-admin-bar">
+        <button class="padmin-btn" onclick="openProductModal('${p.id}')">✎ Editar</button>
+        <button class="padmin-btn danger" onclick="deleteProduct('${p.id}')">✕ Eliminar</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+window.filterCat = function(btn) {
+  document.querySelectorAll('.flt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts(btn.dataset.cat);
+};
+
+/* ── CART ── */
+function updateCartUI() {
+  const badge = document.getElementById('cart-badge');
+  const cartBody = document.getElementById('cart-body');
+  const cartFoot = document.getElementById('cart-foot');
+  const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  if (badge) badge.textContent = count;
+  window.cartCount = count;
+  if (cart.length === 0) {
+    cartBody.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p class="cart-empty-text">Tu carrito está vacío.<br>Explora nuestro catálogo.</p></div>`;
+    if (cartFoot) cartFoot.style.display = 'none';
+  } else {
+    cartBody.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-item-img">
+          ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.nombre}">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem">🛡️</div>`}
+        </div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.nombre}</div>
+          <div class="cart-item-price">$${(item.precio * item.qty).toFixed(2)} MXN</div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="changeQty('${item.id}', -1)" aria-label="Disminuir">−</button>
+            <span class="qty-val">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty('${item.id}', 1)" aria-label="Aumentar">+</button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Eliminar del carrito">✕</button>
+      </div>`).join('');
+    if (cartFoot) {
+      cartFoot.style.display = 'block';
+      document.getElementById('cart-total').textContent = `$${total.toFixed(2)} MXN`;
+    }
+  }
+}
+
+window.addToCart = function(id) {
+  const prod = allProducts.find(p => p.id === id);
+  if (!prod) return;
+  const existing = cart.find(c => c.id === id);
+  if (existing) { existing.qty++; } else { cart.push({ ...prod, qty: 1 }); }
+  updateCartUI();
+  renderProducts();
+  openCart();
+};
+window.removeFromCart = function(id) {
+  cart = cart.filter(c => c.id !== id);
+  updateCartUI();
+  renderProducts();
+};
+window.changeQty = function(id, delta) {
+  const item = cart.find(c => c.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) return window.removeFromCart(id);
+  updateCartUI();
+};
+window.openCart = function() {
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-sidebar').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  updateCartUI();
+};
+window.closeCart = function() {
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-sidebar').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+/* ── WHATSAPP CHECKOUT ── */
+const WA_NUMBER = '527712175423';
+window.checkoutWhatsApp = function() {
+  if (!cart.length) return;
+  const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  let msg = '🛡️ *Hola, OrbisCORP — Pedido desde la Web*\n\n';
+  msg += '*Productos solicitados:*\n';
+  cart.forEach(item => {
+    msg += `  • ${item.nombre} (${item.sku}) — Cant: ${item.qty} — $${(item.precio * item.qty).toFixed(2)} MXN\n`;
+  });
+  msg += `\n*Total estimado:* $${total.toFixed(2)} MXN\n`;
+  msg += '\n¿Me pueden confirmar disponibilidad y precio final?';
+  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+};
+
+/* ── PRODUCT MODAL ── */
+window.openProductModal = function(id) {
+  if (!isAdmin) return;
+  pmImgFile = null; pmImgUrl = '';
+  document.getElementById('pm-err').classList.remove('show');
+  const titleEl = document.getElementById('pm-title-el');
+  if (id) {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+    titleEl.textContent = '◈ Editar Producto';
+    document.getElementById('pm-id').value = id;
+    document.getElementById('pm-nombre').value = p.nombre || '';
+    document.getElementById('pm-cat').value = p.categoria || '';
+    document.getElementById('pm-desc').value = p.desc || '';
+    document.getElementById('pm-precio').value = p.precio || '';
+    document.getElementById('pm-sku').value = p.sku || '';
+    pmImgUrl = p.imageUrl || '';
+    const pv = document.getElementById('pm-preview');
+    const ph = document.getElementById('pm-upload-hint');
+    if (pmImgUrl) { pv.src = pmImgUrl; pv.style.display = 'block'; ph.style.display = 'none'; }
+    else { pv.style.display = 'none'; ph.style.display = ''; }
+  } else {
+    titleEl.textContent = '◈ Nuevo Producto';
+    ['pm-id','pm-nombre','pm-desc','pm-precio','pm-sku'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('pm-cat').value = '';
+    document.getElementById('pm-preview').style.display = 'none';
+    document.getElementById('pm-upload-hint').style.display = '';
+  }
+  document.getElementById('prod-modal').classList.add('open');
+};
+window.closeProdModal = () => document.getElementById('prod-modal').classList.remove('open');
+
+window.pmImgSelect = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  pmImgFile = file;
+  const r = new FileReader();
+  r.onload = e => {
+    const pv = document.getElementById('pm-preview');
+    const ph = document.getElementById('pm-upload-hint');
+    pv.src = e.target.result; pv.style.display = 'block'; ph.style.display = 'none';
+  };
+  r.readAsDataURL(file);
+};
+
+window.saveProducto = async function() {
+  const errEl = document.getElementById('pm-err');
+  const saveBtn = document.getElementById('pm-save');
+  errEl.classList.remove('show');
+  const nombre = document.getElementById('pm-nombre').value.trim();
+  const cat = document.getElementById('pm-cat').value;
+  const precio = parseFloat(document.getElementById('pm-precio').value);
+  if (!nombre || !cat || isNaN(precio)) { errEl.classList.add('show'); return; }
+  saveBtn.disabled = true; saveBtn.textContent = '⟳ Guardando...';
+  setSave('saving', '● Guardando...');
+  try {
+    let imageUrl = pmImgUrl;
+    if (pmImgFile) {
+      const sr = stRef(storage, `orbiscorp/productos/${Date.now()}_${pmImgFile.name}`);
+      const sn = await uploadBytes(sr, pmImgFile);
+      imageUrl = await getDownloadURL(sn.ref);
+    }
+    const payload = {
+      nombre, categoria: cat, precio,
+      desc: document.getElementById('pm-desc').value.trim(),
+      sku: document.getElementById('pm-sku').value.trim(),
+      imageUrl
+    };
+    const eid = document.getElementById('pm-id').value;
+    if (eid) {
+      await updateDoc(doc(db, 'productos_orbis', eid), payload);
+      const i = allProducts.findIndex(p => p.id === eid);
+      if (i !== -1) allProducts[i] = { id: eid, ...payload };
+    } else {
+      payload.creadoEn = serverTimestamp();
+      const r = await addDoc(PRODS_COL, payload);
+      allProducts.unshift({ id: r.id, ...payload });
+    }
+    setSave('saved', '✓ Guardado');
+    setTimeout(() => { if (!unsaved) setSave('', 'Listo'); }, 2500);
+    closeProdModal();
+    renderProducts();
+  } catch(e) {
+    setSave('error', '✕ Error');
+    errEl.textContent = '⚠ Error al guardar.';
+    errEl.classList.add('show');
+  } finally {
+    saveBtn.disabled = false; saveBtn.textContent = 'Guardar Producto →';
+  }
+};
+
+window.deleteProduct = async function(id) {
+  if (!isAdmin || !confirm('¿Eliminar este producto?')) return;
+  try {
+    await deleteDoc(doc(db, 'productos_orbis', id));
+    allProducts = allProducts.filter(p => p.id !== id);
+    cart = cart.filter(c => c.id !== id);
+    updateCartUI();
+    renderProducts();
+    setSave('saved', '✓ Eliminado');
+    setTimeout(() => setSave('', 'Listo'), 2000);
+  } catch(e) { alert('Error al eliminar.'); }
+};
+
+window.triggerProdImgUp = id => document.getElementById(`pimg-${id}`)?.click();
+window.handleProdImgUp = async function(input, id) {
+  const file = input.files[0];
+  if (!file || !isAdmin) return;
+  setSave('saving', '● Subiendo...');
+  try {
+    const sr = stRef(storage, `orbiscorp/productos/${id}_${Date.now()}_${file.name}`);
+    const sn = await uploadBytes(sr, file);
+    const url = await getDownloadURL(sn.ref);
+    await updateDoc(doc(db, 'productos_orbis', id), { imageUrl: url });
+    const i = allProducts.findIndex(p => p.id === id);
+    if (i !== -1) allProducts[i].imageUrl = url;
+    setSave('saved', '✓ Imagen ok');
+    setTimeout(() => setSave('', 'Listo'), 2000);
+    renderProducts();
+  } catch(e) { setSave('error', '✕ Error imagen'); }
+};
+
+/* ── LEADS ── */
+async function submitLead(fd) {
+  const folio = `ORB-${Date.now().toString(36).toUpperCase()}`;
+  await addDoc(LEADS_COL, {
+    folio, nombre: fd.get('nombre') || '', empresa: fd.get('empresa') || '',
+    email: fd.get('email') || '', telefono: fd.get('telefono') || '',
+    asunto: fd.get('asunto') || '', mensaje: fd.get('mensaje') || '',
+    estado: 'nuevo', origen: 'web', creadoEn: serverTimestamp()
+  });
+  return folio;
+}
+
+window.showLeads = async function() {
+  if (!isAdmin) return;
+  try {
+    const q = query(LEADS_COL, orderBy('creadoEn', 'desc'));
+    const snap = await getDocs(q);
+    let html = `<div style="position:fixed;inset:0;z-index:9000;background:rgba(26,31,60,0.95);backdrop-filter:blur(8px);padding:24px;overflow-y:auto;"><div style="max-width:760px;margin:0 auto;padding:20px 0;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.1);"><h2 style="font-family:var(--font-display);font-size:1.6rem;color:#fff;">Leads Recibidos</h2><button onclick="document.getElementById('leads-overlay').remove()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.875rem;">✕ Cerrar</button></div>`;
+    if (snap.empty) html += `<p style="color:rgba(255,255,255,0.4);font-family:var(--font-mono);font-size:0.8rem;text-align:center;padding:36px;">Sin leads aún.</p>`;
+    else snap.forEach(d => {
+      const l = d.data();
+      const fecha = l.creadoEn?.toDate ? l.creadoEn.toDate().toLocaleString('es-MX') : '—';
+      html += `<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-left:3px solid var(--safety);border-radius:8px;padding:16px;margin-bottom:8px;"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;"><div><div style="font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--safety);margin-bottom:3px;">${l.folio}</div><div style="font-weight:700;color:#fff;font-size:1rem;">${l.nombre||'—'}</div><div style="font-size:0.8rem;color:rgba(255,255,255,0.5);">${l.empresa||''} ${l.email?'· '+l.email:''}</div></div><div style="text-align:right;"><div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">${fecha}</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.7);margin-top:4px;">${l.asunto||'—'}</div></div></div>${l.mensaje?`<div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;">${l.mensaje.substring(0,300)}</div>`:''}</div>`;
+    });
+    html += '</div></div>';
+    const o = document.createElement('div'); o.id = 'leads-overlay'; o.innerHTML = html;
+    document.body.appendChild(o);
+  } catch(e) { alert('Error al cargar leads.'); }
+};
+
+/* ── ADMIN AUTH ── */
+function enableAdmin(user) {
+  isAdmin = true;
+  document.body.classList.add('admin-mode');
+  document.getElementById('admin-toolbar').classList.add('active');
+  document.body.style.paddingTop = '44px';
+  const nb = document.getElementById('nav-admin-badge');
+  if (nb) nb.style.display = 'inline-block';
+  activateFields();
+}
+function disableAdmin() {
+  isAdmin = false;
+  document.body.classList.remove('admin-mode');
+  document.getElementById('admin-toolbar').classList.remove('active');
+  document.body.style.paddingTop = '';
+  const nb = document.getElementById('nav-admin-badge');
+  if (nb) nb.style.display = 'none';
+  deactivateFields();
+}
+function activateFields() {
+  document.querySelectorAll('[data-field]').forEach(el => {
+    el.contentEditable = 'true';
+    el.removeEventListener('blur', onFieldBlur);
+    el.addEventListener('blur', onFieldBlur);
+  });
+}
+function deactivateFields() {
+  document.querySelectorAll('[data-field]').forEach(el => {
+    el.contentEditable = 'false';
+    el.removeEventListener('blur', onFieldBlur);
+  });
+}
+function onFieldBlur(e) {
+  if (!isAdmin) return;
+  const field = e.target.dataset.field;
+  const val = e.target.textContent.trim();
+  if (!field || !contentData) return;
+  saveField(field, val);
+}
+function setSave(st, msg) {
+  const el = document.getElementById('save-status');
+  if (!el) return;
+  el.className = 'save-status ' + (st || '');
+  el.textContent = msg;
+}
+async function saveField(field, value) {
+  unsaved++;
+  setSave('saving', '● Guardando...');
+  try {
+    await updateDoc(CONTENT_REF, { [field]: value });
+    unsaved = Math.max(0, unsaved - 1);
+    if (!unsaved) { setSave('saved', '✓ Guardado'); setTimeout(() => { if (!unsaved) setSave('', 'Listo'); }, 3000); }
+  } catch(e) {
+    unsaved = Math.max(0, unsaved - 1);
+    setSave('error', '✕ Error');
+  }
+}
+
+onAuthStateChanged(auth, u => u ? enableAdmin(u) : disableAdmin());
+
+window.doLogin = async function() {
+  const em = document.getElementById('l-email').value.trim();
+  const pw = document.getElementById('l-pass').value;
+  const er = document.getElementById('l-err');
+  er.classList.remove('show');
+  if (!em || !pw) { er.classList.add('show'); return; }
+  try { await signInWithEmailAndPassword(auth, em, pw); closeLogin(); }
+  catch(e) { er.classList.add('show'); }
+};
+window.doLogout = async function() {
+  if (!confirm('¿Cerrar sesión de administrador?')) return;
+  await signOut(auth);
+};
+window.reloadData = async function() {
+  const s = await getDoc(CONTENT_REF);
+  if (s.exists()) { contentData = s.data(); renderContent(contentData); }
+  await loadProducts();
+  setSave('saved', '✓ Recargado');
+  setTimeout(() => setSave('', 'Listo'), 1500);
+};
+window.openLogin = () => { document.getElementById('login-modal').classList.add('open'); setTimeout(() => document.getElementById('l-email')?.focus(), 100); };
+window.closeLogin = () => { document.getElementById('login-modal').classList.remove('open'); document.getElementById('l-pass').value = ''; document.getElementById('l-err').classList.remove('show'); };
+
+document.getElementById('login-modal').addEventListener('click', e => { if (e.target === document.getElementById('login-modal')) closeLogin(); });
+document.getElementById('prod-modal').addEventListener('click', e => { if (e.target === document.getElementById('prod-modal')) closeProdModal(); });
+document.getElementById('l-pass').addEventListener('keydown', e => { if (e.key === 'Enter') window.doLogin(); });
+document.addEventListener('keydown', e => { if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); if (!isAdmin) openLogin(); } });
+
+/* ── CONTACT FORM ── */
+document.getElementById('ct-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('btn-sub');
+  const txt = document.getElementById('sub-txt');
+  const err = document.getElementById('form-err');
+  err.classList.remove('show');
+  const nom = document.getElementById('f-nom').value.trim();
+  const mail = document.getElementById('f-mail').value.trim();
+  const asunto = document.getElementById('f-asunto').value;
+  if (!nom || !mail || !asunto) { err.classList.add('show'); return; }
+  btn.disabled = true; txt.textContent = '⟳ Enviando...';
+  try {
+    const folio = await submitLead(new FormData(e.target));
+    e.target.style.display = 'none';
+    document.getElementById('f-folio').textContent = folio;
+    document.getElementById('form-success').classList.add('show');
+  } catch(ex) {
+    btn.disabled = false; txt.textContent = 'Enviar Mensaje';
+    err.textContent = '⚠ Error al enviar. Intente de nuevo.';
+    err.classList.add('show');
+  }
+});
+
+/* ── NAV & DRAWER ── */
+function initNav() {
+  window.addEventListener('scroll', () => {
+    document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+}
+window.toggleDrawer = function() {
+  const d = document.getElementById('mobile-drawer');
+  d.classList.toggle('open');
+};
+window.closeDrawer = function() {
+  document.getElementById('mobile-drawer').classList.remove('open');
+};
+
+/* ── REVEAL ── */
+function initReveal() {
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
+  els.forEach(el => io.observe(el));
+}
+
+/* ── START ── */
+init().catch(e => { console.error(e); hideLoader(); initReveal(); initNav(); });
+</script>
+
+</body>
+</html>
