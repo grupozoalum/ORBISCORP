@@ -1082,15 +1082,17 @@ async function loadProducts() {
   try {
     const q = query(PRODS_COL, orderBy('creadoEn', 'desc'));
     const snap = await getDocs(q);
-    allProducts = [];
-    snap.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
-    if (allProducts.length === 0) {
-      for (const p of DEFAULT_PRODUCTS) {
-        const r = await addDoc(PRODS_COL, { ...p, creadoEn: serverTimestamp() });
-        allProducts.push({ id: r.id, ...p });
-      }
+    
+    if (snap.empty) {
+       console.warn("La base de datos está vacía.");
+       allProducts = DEFAULT_PRODUCTS.map((p, i) => ({ id: String(i), ...p }));
+    } else {
+       allProducts = [];
+       snap.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
     }
   } catch(e) {
+    console.error("ERROR REAL DE FIRESTORE:", e); // Esto te dirá si falta el índice
+    // Solo mostramos defaults si hay un error crítico
     allProducts = DEFAULT_PRODUCTS.map((p, i) => ({ id: String(i), ...p }));
   }
   renderProducts();
