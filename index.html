@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#2F3BA2">
-<title>OrbisCORP — Seguridad Industrial Profesional</title>
-<meta name="description" content="Distribuidores autorizados de equipo de Seguridad Industrial. Asesoría STPS, Protección Civil. Lo que usted necesita, cuando lo necesita.">
+<title>OrbisCORP — Tienda en Línea de Seguridad Industrial</title>
+<meta name="description" content="Tienda en línea de Seguridad Industrial. EPP, Abrasivos, Soldadura, Herramientas y Ferretería. Compra en línea, distribuidores autorizados en Hidalgo, México.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Syne:wght@700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
@@ -88,7 +88,6 @@ a { text-decoration: none; color: inherit; }
 .dock-pulse { width: 7px; height: 7px; background: var(--safety); border-radius: 50%; animation: pulse 2s infinite; }
 .dock-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; color: var(--safety); text-transform: uppercase; }
 
-/* Save status */
 #save-status-wrap {
   display: flex; align-items: center; gap: 4px;
   padding: 2px 7px; border: 1px solid rgba(255,255,255,0.1); border-radius: 3px;
@@ -228,15 +227,6 @@ nav.scrolled { box-shadow: var(--shadow); }
 .hero-stat-num { font-family: var(--font-display); font-size: 1.8rem; color: var(--safety); line-height: 1; margin-bottom: 4px; }
 .hero-stat-label { font-size: 0.8rem; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; }
 
-/* ── SECTIONS ── */
-.section { padding: 88px 24px; }
-.section-inner { max-width: 1280px; margin: 0 auto; }
-.section-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.25em; color: var(--orbis-mid); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-.section-label::before { content: ''; width: 20px; height: 1.5px; background: var(--orbis-mid); flex-shrink: 0; }
-.section-heading { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--text); line-height: 1.1; margin-bottom: 14px; }
-.section-heading em { font-style: italic; color: var(--orbis); font-family: 'DM Sans', sans-serif; font-weight: 700; }
-.section-sub { font-size: 1.05rem; color: var(--text-2); max-width: 500px; line-height: 1.75; margin-bottom: 56px; font-weight: 300; }
-
 /* ── TRUST BAR ── */
 .trust-bar { background: var(--orbis-deep); padding: 14px 24px; overflow: hidden; }
 .trust-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 0; overflow-x: auto; scrollbar-width: none; }
@@ -247,75 +237,189 @@ nav.scrolled { box-shadow: var(--shadow); }
 .trust-chip-text { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.55); text-transform: uppercase; }
 .trust-chip-text strong { color: rgba(255,255,255,0.9); }
 
-/* ── SERVICIOS ── */
-.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-.service-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
-  padding: 28px; transition: all 0.25s; position: relative; overflow: hidden;
-}
-.service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--orbis); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; }
-.service-card:hover { box-shadow: var(--shadow); border-color: var(--orbis-mid); transform: translateY(-3px); }
-.service-card:hover::before { transform: scaleX(1); }
-.service-icon { width: 52px; height: 52px; background: var(--orbis-light); border-radius: var(--r); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 1.5rem; color: var(--orbis); }
-.service-title { font-weight: 700; font-size: 1.1rem; color: var(--text); margin-bottom: 10px; }
-.service-desc { font-size: 0.9rem; color: var(--text-2); line-height: 1.7; font-weight: 300; }
+/* ── SECTIONS ── */
+.section { padding: 88px 24px; }
+.section-inner { max-width: 1280px; margin: 0 auto; }
+.section-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.25em; color: var(--orbis-mid); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.section-label::before { content: ''; width: 20px; height: 1.5px; background: var(--orbis-mid); flex-shrink: 0; }
+.section-heading { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); color: var(--text); line-height: 1.1; margin-bottom: 14px; }
+.section-heading em { font-style: italic; color: var(--orbis); font-family: 'DM Sans', sans-serif; font-weight: 700; }
+.section-sub { font-size: 1.05rem; color: var(--text-2); max-width: 500px; line-height: 1.75; margin-bottom: 56px; font-weight: 300; }
 
 /* ── CATÁLOGO ── */
 .catalog-bg { background: var(--surface2); }
-.filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
-.flt-btn {
-  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
-  background: var(--surface); color: var(--text-2); border: 1px solid var(--border);
-  padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all 0.15s; font-weight: 500;
+
+.categorias-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
-.flt-btn:hover { border-color: var(--orbis-mid); color: var(--orbis); }
-.flt-btn.active { background: var(--orbis); color: #fff; border-color: var(--orbis); }
-.products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-.product-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
-  overflow: hidden; transition: all 0.25s; position: relative; display: flex; flex-direction: column;
+
+/* ── BLOQUE DE CATEGORÍA ── */
+.cat-gallery-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s;
 }
-.product-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
-.product-img {
-  aspect-ratio: 4/3; background: var(--orbis-light);
+.cat-gallery-block:hover { box-shadow: var(--shadow); }
+
+/* Header de la categoría */
+.cat-gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: var(--orbis-deep);
+  border-bottom: 2px solid var(--safety);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.cat-gallery-header:hover { background: var(--orbis-dark); }
+
+.cat-gallery-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cat-gallery-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  color: #fff;
+  text-transform: uppercase;
+}
+.cat-gallery-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.08);
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+.cat-expand-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.45);
+}
+.cat-expand-arrow {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden;
+  font-size: 0.8rem;
+  color: var(--safety);
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), background 0.2s;
+  flex-shrink: 0;
 }
-.product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
-.product-card:hover .product-img img { transform: scale(1.05); }
-.product-img-placeholder { font-size: 3rem; color: var(--orbis-mid); opacity: 0.4; }
-.product-cat-badge {
-  position: absolute; top: 10px; left: 10px;
-  background: rgba(47,59,162,0.9); color: #fff;
-  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 100px; backdrop-filter: blur(8px);
+.cat-gallery-block.expanded .cat-expand-arrow { transform: rotate(180deg); background: rgba(245,158,11,0.2); }
+.cat-gallery-block.expanded .cat-expand-hint-text { color: var(--safety); }
+
+/* ── TARJETA PORTADA / ARQUETIPO ── */
+.cat-cover-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 240px;
+  cursor: pointer;
+  transition: background 0.2s;
 }
+.cat-cover-body:hover { background: var(--orbis-light); }
+
+.cat-product-img-wrap {
+  position: relative;
+  background: var(--orbis-light);
+  overflow: hidden;
+  min-height: 240px;
+}
+.cat-product-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.cat-cover-body:hover .cat-product-img-wrap img { transform: scale(1.04); }
+.cat-product-img-wrap .img-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem; color: var(--orbis-mid); opacity: 0.25;
+}
+
+/* Overlay de imagen admin */
 .admin-img-trigger {
-  display: none; position: absolute; inset: 0;
-  background: rgba(47,59,162,0.7); align-items: center; justify-content: center;
-  cursor: pointer; transition: opacity 0.2s;
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(47,59,162,0.7);
+  align-items: center; justify-content: center;
+  cursor: pointer; z-index: 2;
 }
 body.admin-mode .admin-img-trigger { display: flex; }
-.admin-img-trigger-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; color: #fff; text-align: center; pointer-events: none; }
+.admin-img-trigger-label {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em;
+  color: #fff; text-align: center; pointer-events: none;
+}
 .admin-img-trigger-label::before { content: '↑'; display: block; font-size: 24px; margin-bottom: 4px; }
 .admin-img-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.product-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
-.product-name { font-weight: 700; font-size: 1rem; color: var(--text); margin-bottom: 6px; }
-.product-desc { font-size: 0.85rem; color: var(--text-2); line-height: 1.6; flex: 1; margin-bottom: 14px; font-weight: 300; }
-.product-price { font-family: var(--font-display); font-size: 1.4rem; color: var(--orbis); margin-bottom: 14px; line-height: 1; }
-.product-price span { font-size: 0.85rem; color: var(--text-3); font-family: var(--font-body); font-weight: 400; }
-.btn-add {
-  width: 100%; background: var(--safety); color: var(--text); font-weight: 700;
-  border: none; border-radius: var(--r); padding: 12px; cursor: pointer;
-  transition: all 0.2s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+
+/* Info de portada */
+.cat-cover-info {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
 }
-.btn-add:hover { background: var(--safety-dark); transform: scale(1.02); }
-.btn-add.added { background: var(--success); color: #fff; }
-.product-admin-bar {
-  display: none; padding: 10px 16px; background: var(--orbis-light);
-  border-top: 1px solid var(--border); gap: 6px; align-items: center; flex-wrap: wrap;
+.cat-product-sku {
+  font-family: var(--font-mono);
+  font-size: 0.7rem; letter-spacing: 0.15em; color: var(--text-3);
+  text-transform: uppercase; background: var(--orbis-light);
+  display: inline-block; padding: 3px 10px; border-radius: 100px; width: fit-content;
 }
-body.admin-mode .product-admin-bar { display: flex; }
+.cat-product-name {
+  font-family: var(--font-display);
+  font-size: 1.4rem; color: var(--text); line-height: 1.2; margin-bottom: 6px;
+}
+.cat-product-desc {
+  font-size: 0.9rem; color: var(--text-2); line-height: 1.7; font-weight: 300;
+}
+.cat-product-price {
+  font-family: var(--font-display);
+  font-size: 2rem; color: var(--orbis); line-height: 1;
+}
+.cat-product-price span { font-family: var(--font-body); font-size: 0.85rem; color: var(--text-3); font-weight: 400; }
+.cat-product-stock { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; color: var(--success); margin-top: 4px; }
+.cat-product-stock.low { color: var(--safety-dark); }
+.cat-product-stock.out { color: var(--danger); }
+
+.cat-cover-cta {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 4px;
+}
+.btn-cover-explore {
+  background: var(--orbis); color: #fff; font-weight: 700; font-size: 0.875rem;
+  border: none; border-radius: var(--r); padding: 11px 22px;
+  cursor: pointer; transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-cover-explore:hover { background: var(--orbis-dark); }
+.cat-cover-meta {
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+/* Barra de admin en portada */
+.cat-product-admin-bar {
+  display: none; gap: 6px; padding: 10px 0 0;
+  border-top: 1px solid var(--border); margin-top: 8px;
+}
+body.admin-mode .cat-product-admin-bar { display: flex; flex-wrap: wrap; }
 .padmin-btn {
   font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
   border: 1px solid var(--border); background: #fff; color: var(--text-2);
@@ -323,6 +427,124 @@ body.admin-mode .product-admin-bar { display: flex; }
 }
 .padmin-btn:hover { border-color: var(--orbis); color: var(--orbis); }
 .padmin-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Estado vacío de categoría */
+.cat-empty-state {
+  padding: 40px 32px; display: flex; align-items: center; gap: 16px; color: var(--text-3);
+}
+.cat-empty-icon { font-size: 2.5rem; opacity: 0.3; }
+.cat-empty-text { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.08em; }
+
+/* ── GRID EXPANDIBLE ── */
+.cat-grid-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.16,1,0.3,1);
+  background: var(--surface2);
+  border-top: 0px solid var(--border);
+}
+.cat-gallery-block.expanded .cat-grid-panel {
+  max-height: 4000px;
+  border-top-width: 1px;
+}
+
+.cat-grid-inner {
+  padding: 28px 24px;
+}
+
+.cat-grid-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--orbis-mid); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cat-grid-title::before { content: ''; width: 16px; height: 1.5px; background: var(--orbis-mid); flex-shrink: 0; }
+
+/* Grid de productos — 4 col desktop, 3 tablet, 2 mobile, 1 xs */
+.cat-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1100px) { .cat-products-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .cat-products-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .cat-products-grid { grid-template-columns: 1fr; } }
+
+/* Tarjeta de producto individual en grid */
+.prod-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+.prod-card:hover { box-shadow: var(--shadow); transform: translateY(-3px); }
+
+.prod-card-img {
+  position: relative;
+  background: var(--orbis-light);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.prod-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.prod-card:hover .prod-card-img img { transform: scale(1.06); }
+.prod-card-img .img-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--orbis-mid); opacity: 0.2; }
+
+/* Admin image overlay for grid cards */
+.prod-card .admin-img-trigger {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(47,59,162,0.7);
+  align-items: center; justify-content: center;
+  cursor: pointer; z-index: 2;
+}
+body.admin-mode .prod-card .admin-img-trigger { display: flex; }
+
+.prod-card-body {
+  padding: 14px 16px 16px;
+  display: flex; flex-direction: column; gap: 6px; flex: 1;
+}
+.prod-card-sku {
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em;
+  color: var(--text-3); text-transform: uppercase;
+}
+.prod-card-name {
+  font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.35;
+  flex: 1;
+}
+.prod-card-desc {
+  font-size: 0.78rem; color: var(--text-2); line-height: 1.55; font-weight: 300;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.prod-card-price {
+  font-family: var(--font-display); font-size: 1.35rem; color: var(--orbis);
+  margin-top: 4px; line-height: 1;
+}
+.prod-card-price span { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-3); font-weight: 400; }
+.prod-card-stock { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; color: var(--success); }
+.prod-card-stock.low { color: var(--safety-dark); }
+.prod-card-stock.out { color: var(--danger); }
+
+.btn-add-card {
+  margin-top: 10px;
+  width: 100%;
+  background: var(--safety); color: var(--text); font-weight: 700;
+  border: none; border-radius: var(--r); padding: 10px 14px;
+  cursor: pointer; transition: all 0.2s; font-size: 0.82rem;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn-add-card:hover { background: var(--safety-dark); }
+.btn-add-card.added { background: var(--success); color: #fff; }
+.btn-add-card:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Admin bar en tarjeta de grid */
+.prod-card-admin-bar {
+  display: none; gap: 6px; margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+body.admin-mode .prod-card-admin-bar { display: flex; }
 
 /* ── CARRITO SIDEBAR ── */
 .cart-overlay { position: fixed; inset: 0; background: rgba(26,31,60,0.5); z-index: 400; opacity: 0; visibility: hidden; transition: all 0.3s; backdrop-filter: blur(4px); }
@@ -347,12 +569,16 @@ body.admin-mode .product-admin-bar { display: flex; }
 .cart-item-img { width: 56px; height: 56px; border-radius: var(--r-sm); background: var(--orbis-light); overflow: hidden; flex-shrink: 0; }
 .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
 .cart-item-info { flex: 1; min-width: 0; }
-.cart-item-name { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 4px; }
+.cart-item-name { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 2px; }
+.cart-item-sku { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 4px; }
 .cart-item-price { font-family: var(--font-mono); font-size: 0.8rem; color: var(--orbis); }
 .cart-item-qty { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
 .qty-btn { width: 26px; height: 26px; background: var(--orbis-light); border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; font-size: 0.95rem; font-weight: 700; color: var(--orbis); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.qty-btn:hover { background: var(--orbis); color: #fff; border-color: var(--orbis); }
+.qty-btn:hover:not(:disabled) { background: var(--orbis); color: #fff; border-color: var(--orbis); }
+.qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .qty-val { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 24px; text-align: center; }
+.qty-stock-warn { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; color: var(--danger); margin-top: 4px; display: none; }
+.qty-stock-warn.show { display: block; }
 .cart-item-remove { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 1rem; padding: 4px; transition: color 0.15s; }
 .cart-item-remove:hover { color: var(--danger); }
 .cart-foot { padding: 20px 24px; border-top: 1px solid var(--border); background: var(--surface2); }
@@ -366,16 +592,6 @@ body.admin-mode .product-admin-bar { display: flex; }
   cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .btn-checkout:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
-
-/* ── NOSOTROS ── */
-.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-.about-img-wrap { position: relative; }
-.about-img-box { background: var(--orbis); border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; }
-.values-list { display: flex; flex-direction: column; gap: 12px; }
-.value-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); }
-.value-icon { width: 36px; height: 36px; background: var(--orbis-light); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; color: var(--orbis); font-size: 1rem; flex-shrink: 0; }
-.value-title { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 3px; }
-.value-desc { font-size: 0.82rem; color: var(--text-2); line-height: 1.6; font-weight: 300; }
 
 /* ── CONTACTO ── */
 .contact-bg { background: linear-gradient(135deg, var(--orbis-deep), var(--orbis)); }
@@ -441,12 +657,12 @@ footer { background: var(--orbis-deep); border-top: 3px solid var(--safety); pad
 .modal { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(26,31,60,0.65); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
 .modal.open { display: flex; }
 .modal-panel { background: var(--surface); border-radius: var(--r-xl); width: 100%; max-width: 440px; overflow: hidden; box-shadow: var(--shadow-lg); }
-.modal-panel.wide { max-width: 600px; }
+.modal-panel.wide { max-width: 620px; }
 .modal-head { background: var(--orbis-deep); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--safety); }
 .modal-head-title { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--safety); }
 .modal-close { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); width: 32px; height: 32px; border-radius: var(--r-sm); cursor: pointer; transition: all 0.15s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
 .modal-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
-.modal-body { padding: 24px; }
+.modal-body { padding: 24px; max-height: 70vh; overflow-y: auto; }
 .mfield { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
 .mfield label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); display: block; }
 .mfield input, .mfield select, .mfield textarea {
@@ -488,21 +704,27 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
-  .about-grid { grid-template-columns: 1fr; gap: 40px; }
   .contact-grid { grid-template-columns: 1fr; gap: 40px; }
-  .about-img-wrap { display: none; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .cat-cover-body { grid-template-columns: 200px 1fr; }
 }
 @media (max-width: 768px) {
   .nav-links, .nav-cta { display: none; }
   .hamburger { display: flex; }
   .hero-title { font-size: 2.2rem; }
   .section { padding: 60px 20px; }
-  .services-grid { grid-template-columns: 1fr; }
-  .products-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr; }
   .mfield-row { grid-template-columns: 1fr; }
+  .cat-cover-body { grid-template-columns: 1fr; }
+  .cat-product-img-wrap { min-height: 180px; }
+  .cat-expand-hint-text { display: none; }
+}
+@media (max-width: 480px) {
+  .cat-cover-info { padding: 16px; }
+  .cat-product-name { font-size: 1.1rem; }
+  .cat-product-price { font-size: 1.5rem; }
+  .cat-grid-inner { padding: 16px; }
 }
 </style>
 </head>
@@ -563,18 +785,22 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
         <div class="mfield"><label for="pm-cat">Categoría *</label>
           <select id="pm-cat">
             <option value="" disabled selected>— Seleccionar —</option>
-            <option>Seguridad</option>
-            <option>Abrasivos</option>
-            <option>Soldadura</option>
-            <option>Herramientas</option>
-            <option>Ferretería</option>
+            <option value="EPP">EPP</option>
+            <option value="Abrasivos">Abrasivos</option>
+            <option value="Soldadura">Soldadura</option>
+            <option value="Herramientas">Herramientas</option>
+            <option value="Ferretería">Ferretería</option>
           </select>
         </div>
       </div>
       <div class="mfield"><label for="pm-desc">Descripción</label><textarea id="pm-desc" placeholder="Descripción del producto..."></textarea></div>
       <div class="mfield-row">
         <div class="mfield"><label for="pm-precio">Precio (MXN) *</label><input type="number" id="pm-precio" placeholder="450.00" step="0.01" min="0"></div>
-        <div class="mfield"><label for="pm-sku">SKU / Clave</label><input type="text" id="pm-sku" placeholder="ORB-001"></div>
+        <div class="mfield"><label for="pm-sku">SKU / Clave *</label><input type="text" id="pm-sku" placeholder="ORB-EPP-001" required></div>
+      </div>
+      <div class="mfield-row">
+        <div class="mfield"><label for="pm-inventario">Inventario / Stock *</label><input type="number" id="pm-inventario" placeholder="10" min="0"></div>
+        <div class="mfield" style="justify-content:flex-end"></div>
       </div>
       <div class="mfield"><label>Imagen del Producto</label>
         <div class="prod-upload-area" id="pm-upload">
@@ -583,7 +809,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
           <input type="file" accept="image/*" id="pm-img-file" onchange="pmImgSelect(this)">
         </div>
       </div>
-      <div class="merror" id="pm-err">Completa los campos: Nombre, Categoría y Precio.</div>
+      <div class="merror" id="pm-err">Completa los campos obligatorios.</div>
     </div>
     <div class="modal-foot">
       <button class="mcancel-btn" onclick="closeProdModal()">Cancelar</button>
@@ -633,9 +859,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
     </a>
     <ul class="nav-links">
       <li><a href="#hero" class="active">Inicio</a></li>
-      <li><a href="#servicios">Servicios</a></li>
-      <li><a href="#catalogo">Catálogo</a></li>
-      <li><a href="#nosotros">Nosotros</a></li>
+      <li><a href="#catalogo">Tienda</a></li>
       <li><a href="#contacto">Contacto</a></li>
     </ul>
     <div class="nav-right">
@@ -644,7 +868,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
         🛒 Carrito
         <span class="cart-badge" id="cart-badge" style="display:none">0</span>
       </button>
-      <a href="#contacto" class="nav-cta">Cotizar →</a>
+      <a href="#catalogo" class="nav-cta">Ver Tienda →</a>
       <button class="hamburger" id="ham-btn" aria-label="Menú" aria-expanded="false" onclick="toggleDrawer()">
         <span></span><span></span><span></span>
       </button>
@@ -653,9 +877,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
 </nav>
 <div id="mobile-drawer" class="mobile-drawer" role="navigation" aria-label="Menú móvil">
   <a href="#hero" onclick="closeDrawer()">Inicio</a>
-  <a href="#servicios" onclick="closeDrawer()">Servicios</a>
-  <a href="#catalogo" onclick="closeDrawer()">Catálogo</a>
-  <a href="#nosotros" onclick="closeDrawer()">Nosotros</a>
+  <a href="#catalogo" onclick="closeDrawer()">Tienda</a>
   <a href="#contacto" onclick="closeDrawer()">Contacto</a>
 </div>
 
@@ -665,32 +887,31 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
   <div class="hero-inner">
     <div class="hero-badge">
       <div class="hero-badge-dot"></div>
-      Distribuidores Autorizados · Hidalgo, México
+      Tienda en Línea · Envíos en Hidalgo y toda la República
     </div>
     <h1 class="hero-title" data-field="hero.title" contenteditable="false">
-      Seguridad Industrial<br>
-      <em>que protege lo</em><br>
-      que más importa
+      Todo el equipo que<br>
+      <em>necesitas, hoy.</em>
     </h1>
     <p class="hero-desc" data-field="hero.desc" contenteditable="false">
-      Distribuidores autorizados de equipo de Seguridad e Higiene Industrial. Asesoría STPS y Protección Civil. Lo que usted necesita, cuando lo necesita.
+      EPP, Abrasivos, Soldadura, Herramientas y Ferretería de las mejores marcas del mercado. Pedidos directos con precio competitivo y envío rápido.
     </p>
     <div class="hero-actions">
-      <a href="#catalogo" class="btn-hero-primary">Ver Catálogo →</a>
-      <a href="#contacto" class="btn-hero-secondary">Solicitar Asesoría</a>
+      <a href="#catalogo" class="btn-hero-primary">Comprar Ahora →</a>
+      <a href="#contacto" class="btn-hero-secondary">Solicitar Cotización</a>
     </div>
     <div class="hero-stats">
       <div class="hero-stat">
-        <div class="hero-stat-num" data-field="hero.statA" contenteditable="false">25+</div>
-        <div class="hero-stat-label">Años de experiencia</div>
+        <div class="hero-stat-num" data-field="hero.statA" contenteditable="false">500+</div>
+        <div class="hero-stat-label">Productos disponibles</div>
       </div>
       <div class="hero-stat">
         <div class="hero-stat-num" data-field="hero.statB" contenteditable="false">15+</div>
         <div class="hero-stat-label">Marcas autorizadas</div>
       </div>
       <div class="hero-stat">
-        <div class="hero-stat-num" data-field="hero.statC" contenteditable="false">500+</div>
-        <div class="hero-stat-label">Clientes activos</div>
+        <div class="hero-stat-num" data-field="hero.statC" contenteditable="false">24h</div>
+        <div class="hero-stat-label">Tiempo de respuesta</div>
       </div>
     </div>
   </div>
@@ -698,7 +919,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
 </section>
 
 <!-- TRUST BAR -->
-<div class="trust-bar" aria-label="Socios comerciales">
+<div class="trust-bar" aria-label="Marcas distribuidoras">
   <div class="trust-inner">
     <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>3M</strong> Distribuidor Autorizado</span></div>
     <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Honeywell</strong> Partner Oficial</span></div>
@@ -710,83 +931,17 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
   </div>
 </div>
 
-<!-- SERVICIOS -->
-<section id="servicios" class="section">
-  <div class="section-inner">
-    <div class="section-label">Nuestros servicios</div>
-    <h2 class="section-heading reveal" data-field="svc.heading" contenteditable="false">Consultoría integral en<br><em>Seguridad Industrial</em></h2>
-    <p class="section-sub reveal" data-field="svc.sub" contenteditable="false">Más que distribuidores: somos su aliado estratégico en seguridad. Desde asesoría hasta capacitación para cumplir con normas STPS y Protección Civil.</p>
-    <div class="services-grid reveal stagger">
-      <div class="service-card">
-        <div class="service-icon">📚</div>
-        <div class="service-title">Cursos y Capacitaciones</div>
-        <div class="service-desc">Capacitación sobre Seguridad e Higiene Industrial y Protección Civil conforme a normas NOM vigentes. Personal certificado.</div>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">📋</div>
-        <div class="service-title">Asesoría STPS</div>
-        <div class="service-desc">Asistencia en medidas técnicas de emplazamiento proporcionadas por la Secretaría del Trabajo y Previsión Social.</div>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">🔍</div>
-        <div class="service-title">Preparación para Inspección</div>
-        <div class="service-desc">Preparación integral del Centro de Trabajo para visita de inspección de la STPS y organismos de Protección Civil.</div>
-      </div>
-      <div class="service-card">
-        <div class="service-icon">🏭</div>
-        <div class="service-title">Diagnóstico de Riesgo</div>
-        <div class="service-desc">Identificación de condiciones de riesgo en el área de trabajo con recomendaciones de mejora y plan de acción.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- CATÁLOGO -->
 <section id="catalogo" class="section catalog-bg">
   <div class="section-inner">
-    <div class="section-label">Catálogo de Productos</div>
-    <h2 class="section-heading reveal">Todo en un solo lugar,<br><em>disponible para ti</em></h2>
-    <p class="section-sub reveal">Encuentra el equipo de seguridad, herramientas y materiales que necesitas de marcas líderes a precios competitivos.</p>
-    <div class="filter-bar reveal" role="group" aria-label="Filtrar productos">
-      <button class="flt-btn active" data-cat="Todos" onclick="filterCat(this)">Todos</button>
-      <button class="flt-btn" data-cat="Seguridad" onclick="filterCat(this)">Seguridad</button>
-      <button class="flt-btn" data-cat="Abrasivos" onclick="filterCat(this)">Abrasivos</button>
-      <button class="flt-btn" data-cat="Soldadura" onclick="filterCat(this)">Soldadura</button>
-      <button class="flt-btn" data-cat="Herramientas" onclick="filterCat(this)">Herramientas</button>
-      <button class="flt-btn" data-cat="Ferretería" onclick="filterCat(this)">Ferretería</button>
-    </div>
-    <div class="products-grid reveal" id="products-grid"></div>
-    <div id="products-empty" style="display:none;text-align:center;padding:48px;color:var(--text-3);">
-      <p style="font-size:0.9rem">No hay productos en esta categoría.</p>
-    </div>
-  </div>
-</section>
+    <div class="section-label">Tienda en línea</div>
+    <h2 class="section-heading reveal">Explora por categoría,<br><em>compra al instante</em></h2>
+    <p class="section-sub reveal">Elige una categoría para ver todos los productos disponibles. Agrega al carrito y confirma tu pedido por WhatsApp.</p>
 
-<!-- NOSOTROS -->
-<section id="nosotros" class="section">
-  <div class="section-inner">
-    <div class="about-grid">
-      <div class="about-img-wrap reveal">
-        <div class="about-img-box">
-          <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;opacity:0.4" aria-hidden="true">
-            <circle cx="200" cy="150" r="100" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-            <circle cx="200" cy="150" r="60" fill="rgba(255,215,0,0.1)" stroke="rgba(255,215,0,0.5)" stroke-width="1.5"/>
-            <circle cx="200" cy="150" r="20" fill="rgba(255,255,255,0.2)"/>
-            <text x="200" y="296" text-anchor="middle" font-family="monospace" font-size="14" fill="rgba(255,255,255,0.3)" letter-spacing="6">ORBISCORP</text>
-          </svg>
-        </div>
-      </div>
-      <div>
-        <div class="section-label">¿Quiénes somos?</div>
-        <h2 class="section-heading reveal" data-field="about.heading" contenteditable="false">Empresa 100%<br><em>mexicana desde el 2000</em></h2>
-        <p class="reveal" style="font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:18px;font-weight:300" data-field="about.p1" contenteditable="false">Orbiscorp SA de CV es una empresa comercializadora con capital 100% mexicano, fundada en el año 2000. Somos distribuidores autorizados de las marcas líderes en seguridad industrial del mercado.</p>
-        <p class="reveal" style="font-size:1rem;color:var(--text-2);line-height:1.8;margin-bottom:32px;font-weight:300" data-field="about.p2" contenteditable="false">Nuestro objetivo es brindar un servicio integral: no solo en el abastecimiento de productos, sino capacitando a su personal para aprovecharlos al máximo.</p>
-        <div class="values-list reveal stagger">
-          <div class="value-item"><div class="value-icon">⚡</div><div><div class="value-title">Misión</div><div class="value-desc">Satisfacer a nuestros clientes cubriendo sus necesidades a tiempo, con calidad y asesoría experta a precios competitivos.</div></div></div>
-          <div class="value-item"><div class="value-icon">🎯</div><div><div class="value-title">Visión</div><div class="value-desc">Ser la empresa más completa e innovadora en servicios para todos los mercados en que participamos.</div></div></div>
-          <div class="value-item"><div class="value-icon">🤝</div><div><div class="value-title">Valores</div><div class="value-desc">Honestidad · Actitud de servicio · Respeto · Mejora continua · Liderazgo.</div></div></div>
-        </div>
-      </div>
+    <div id="categorias-showcase" class="categorias-showcase reveal stagger"></div>
+
+    <div id="products-empty" style="display:none;text-align:center;padding:48px;color:var(--text-3);">
+      <p style="font-size:0.9rem;font-family:var(--font-mono);">Cargando productos...</p>
     </div>
   </div>
 </section>
@@ -797,8 +952,8 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
     <div class="contact-grid">
       <div class="reveal">
         <div class="section-label" style="color:rgba(255,255,255,0.5)">Estamos para servirle</div>
-        <h2 class="contact-info-title" data-field="contact.heading" contenteditable="false">¿Tienes una duda?<br>Contáctanos</h2>
-        <p class="contact-info-desc" data-field="contact.desc" contenteditable="false">Recuerde, en OrbisCORP estamos para servirle. Si no encontró lo que buscaba, podemos ayudarle. Solo basta con que nos llame o envíe un correo.</p>
+        <h2 class="contact-info-title" data-field="contact.heading" contenteditable="false">¿Necesitas una cotización?</h2>
+        <p class="contact-info-desc" data-field="contact.desc" contenteditable="false">Contáctanos directamente o llena el formulario y te respondemos en menos de 24 horas con el mejor precio del mercado.</p>
         <div class="contact-data">
           <div class="cdata-item"><div class="cdata-icon">📍</div><div><div class="cdata-label">Sucursal Principal</div><div class="cdata-val" data-field="contact.dir" contenteditable="false">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</div></div></div>
           <div class="cdata-item"><div class="cdata-icon">📞</div><div><div class="cdata-label">Teléfono</div><div class="cdata-val"><a href="tel:+527711450476" style="color:inherit">+52 771 145 0476</a></div></div></div>
@@ -808,7 +963,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
       </div>
       <div class="contact-form reveal">
         <div class="form-head">
-          <h3>Formulario de Contacto</h3>
+          <h3>Formulario de Cotización</h3>
           <p>ORB-CONTACT-01 · Respuesta en 24h</p>
         </div>
         <div id="form-success" class="form-success">
@@ -829,15 +984,15 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
             <select id="f-asunto" name="asunto" required>
               <option value="" disabled selected>— Seleccionar —</option>
               <option>Cotización de productos</option>
-              <option>Asesoría STPS / Seguridad</option>
-              <option>Cursos y Capacitaciones</option>
+              <option>Pedido en línea</option>
               <option>Distribución / Revendedor</option>
+              <option>Devolución / Garantía</option>
               <option>Otro</option>
             </select>
           </div>
-          <div class="fgrp"><label for="f-msg">Mensaje</label><textarea id="f-msg" name="mensaje" placeholder="¿En qué podemos ayudarle?"></textarea></div>
+          <div class="fgrp"><label for="f-msg">Mensaje</label><textarea id="f-msg" name="mensaje" placeholder="¿Qué productos necesitas?"></textarea></div>
           <div class="form-err" id="form-err">⚠ Completa los campos obligatorios.</div>
-          <button type="submit" class="btn-submit" id="btn-sub"><span id="sub-txt">Enviar Mensaje</span></button>
+          <button type="submit" class="btn-submit" id="btn-sub"><span id="sub-txt">Enviar Cotización</span></button>
         </form>
       </div>
     </div>
@@ -850,21 +1005,20 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
     <div class="footer-grid">
       <div>
         <div class="footer-brand">ORBIS<span>CORP</span></div>
-        <p class="footer-tagline">Seguridad Industrial profesional. Distribuidores autorizados de las mejores marcas. Capital 100% mexicano desde 2000.</p>
+        <p class="footer-tagline">Tienda en línea de Seguridad Industrial. Distribuidores autorizados. Capital 100% mexicano desde 2000.</p>
       </div>
       <div>
         <div class="footer-col-label">Navegación</div>
         <ul class="footer-links">
-          <li><a href="#servicios">Servicios</a></li>
-          <li><a href="#catalogo">Catálogo</a></li>
-          <li><a href="#nosotros">¿Quiénes somos?</a></li>
+          <li><a href="#hero">Inicio</a></li>
+          <li><a href="#catalogo">Tienda</a></li>
           <li><a href="#contacto">Contacto</a></li>
         </ul>
       </div>
       <div>
-        <div class="footer-col-label">Productos</div>
+        <div class="footer-col-label">Categorías</div>
         <ul class="footer-links">
-          <li><a href="#catalogo">Seguridad Personal</a></li>
+          <li><a href="#catalogo">EPP</a></li>
           <li><a href="#catalogo">Abrasivos</a></li>
           <li><a href="#catalogo">Soldadura</a></li>
           <li><a href="#catalogo">Herramientas</a></li>
@@ -894,10 +1048,7 @@ body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background
 </footer>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     FIREBASE CMS — Lógica clonada de RID INDUSTRIAS v6.1
-     Colecciones: web_content/orbiscorp · productos_orbis · leads_orbiscorp
-     VISIBILIDAD PÚBLICA: onSnapshot + getDocs no requieren auth en Firestore
-     ESCRITURA PROTEGIDA: updateDoc / addDoc / deleteDoc solo si isAdmin === true
+     FIREBASE CMS — OrbisCORP E-commerce v3.0 — Grid Expandible
      ═══════════════════════════════════════════════════════════════════ -->
 <script type="module">
 import { initializeApp }
@@ -930,12 +1081,6 @@ const auth    = getAuth(app);
 const db      = getFirestore(app);
 const storage = getStorage(app);
 
-/*
- * setPersistence ANTES de onAuthStateChanged — igual que RID v6.1.
- * Garantiza que la sesión admin sobreviva un F5 (browserSessionPersistence
- * la mantiene mientras la pestaña viva; cambia a localPersistence si quieres
- * que persista entre pestañas).
- */
 await setPersistence(auth, browserSessionPersistence);
 
 /* ── REFS ── */
@@ -943,81 +1088,69 @@ const CREF      = doc(db, 'web_content', 'orbiscorp');
 const LEADS     = collection(db, 'leads_orbiscorp');
 const PRODUCTOS = collection(db, 'productos_orbis');
 
+/* ── CATEGORÍAS ── */
+const CATS = ['EPP', 'Abrasivos', 'Soldadura', 'Herramientas', 'Ferretería'];
+
+const CAT_ICONS = {
+  EPP:          '🦺',
+  Abrasivos:    '🔴',
+  Soldadura:    '⚡',
+  Herramientas: '🔧',
+  Ferretería:   '🔩'
+};
+
 /* ── DEFAULT CONTENT ── */
 const DEFAULT = {
   hero: {
-    title: "Seguridad Industrial\nque protege lo\nque más importa",
-    desc:  "Distribuidores autorizados de equipo de Seguridad e Higiene Industrial. Asesoría STPS y Protección Civil. Lo que usted necesita, cuando lo necesita.",
-    statA: "25+", statB: "15+", statC: "500+"
-  },
-  svc: {
-    heading: "Consultoría integral en Seguridad Industrial",
-    sub:     "Más que distribuidores: somos su aliado estratégico en seguridad."
-  },
-  about: {
-    heading: "Empresa 100% mexicana desde el 2000",
-    p1: "Orbiscorp SA de CV es una empresa comercializadora con capital 100% mexicano, fundada en el año 2000.",
-    p2: "Nuestro objetivo es brindar un servicio integral: no solo en el abastecimiento de productos."
+    title: "Todo el equipo que\nnecesitas, hoy.",
+    desc:  "EPP, Abrasivos, Soldadura, Herramientas y Ferretería de las mejores marcas del mercado. Pedidos directos con precio competitivo y envío rápido.",
+    statA: "500+", statB: "15+", statC: "24h"
   },
   contact: {
-    heading: "¿Tienes una duda? Contáctanos",
-    desc:    "Estamos para servirle. Si no encontró lo que buscaba, podemos ayudarle.",
+    heading: "¿Necesitas una cotización?",
+    desc:    "Contáctanos directamente o llena el formulario y te respondemos en menos de 24 horas con el mejor precio del mercado.",
     dir:     "Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.",
     horario: "Lun – Vie · 08:00 – 18:00"
   }
 };
 
-/* ── DEFAULT PRODUCTOS (semilla si la colección está vacía) ── */
+/* ── DEFAULT PRODUCTOS ── */
 const DEFAULT_PRODUCTS = [
-  { sku:"ORB-SEG-001", nombre:"Casco de Seguridad MSA V-Guard",  categoria:"Seguridad",    desc:"Casco fabricado en polietileno de alto impacto. Clase E, resistente a dieléctrico. Ala completa.", precio:189,  imageUrl:"" },
-  { sku:"ORB-SEG-002", nombre:"Respirador 3M Serie 6000",         categoria:"Seguridad",    desc:"Respirador de media cara reutilizable. Compatible con filtros para vapores orgánicos, polvos y neblinas.", precio:420, imageUrl:"" },
-  { sku:"ORB-SEG-003", nombre:"Guantes de Protección Ansell",     categoria:"Seguridad",    desc:"Guantes de nitrilo para protección química. Resistentes a cortes nivel 2. Talla S a XL.", precio:95,   imageUrl:"" },
-  { sku:"ORB-SEG-004", nombre:"Lentes de Seguridad Honeywell",    categoria:"Seguridad",    desc:"Gafas de protección con lente policarbonato. Protección UV 99%. Ligeras y cómodas.", precio:75,   imageUrl:"" },
-  { sku:"ORB-ABR-001", nombre:"Disco de Corte Austromex 4½\"",    categoria:"Abrasivos",    desc:"Disco de corte para metales ferrosos. Grano A46RBF. Velocidad máxima 13,300 RPM.", precio:28,   imageUrl:"" },
-  { sku:"ORB-ABR-002", nombre:"Disco de Desbaste Duramax 7\"",    categoria:"Abrasivos",    desc:"Disco de desbaste para acero y fundición. Espesor 6mm. Máxima durabilidad.", precio:65,   imageUrl:"" },
-  { sku:"ORB-SOL-001", nombre:"Electrodo CINASA 6013 3.2mm",      categoria:"Soldadura",    desc:"Electrodo para soldadura de acero al carbono. Caja 5kg. Arco suave y fácil de usar.", precio:185,  imageUrl:"" },
-  { sku:"ORB-HER-001", nombre:"Amoladora Bosch GWS 6-115",        categoria:"Herramientas", desc:"Amoladora angular profesional 680W, disco 4½\". Motor duradero con protección contra sobrecarga.", precio:890,  imageUrl:"" },
-  { sku:"ORB-HER-002", nombre:"Taladro Bosch GSB 13 RE",          categoria:"Herramientas", desc:"Taladro percutor de 600W. Velocidad variable 0-2800 RPM. Maletín incluido.", precio:1250, imageUrl:"" },
-  { sku:"ORB-FER-001", nombre:"Pala Truper Cuadrada #2",          categoria:"Ferretería",   desc:"Pala cuadrada con mango de madera. Hoja de acero templado. Longitud total 120cm.", precio:185,  imageUrl:"" }
+  { sku:"ORB-EPP-001", nombre:"Casco de Seguridad MSA V-Guard",  categoria:"EPP",          desc:"Casco fabricado en polietileno de alto impacto. Clase E, resistente a dieléctrico. Ala completa.", precio:189,  inventario:50,  imageUrl:"" },
+  { sku:"ORB-EPP-002", nombre:"Respirador 3M Serie 6000",         categoria:"EPP",          desc:"Respirador de media cara reutilizable. Compatible con filtros para vapores orgánicos, polvos y neblinas.", precio:420, inventario:30, imageUrl:"" },
+  { sku:"ORB-EPP-003", nombre:"Guantes de Protección Ansell",     categoria:"EPP",          desc:"Guantes de nitrilo para protección química. Resistentes a cortes nivel 2. Talla S a XL.", precio:95,  inventario:120, imageUrl:"" },
+  { sku:"ORB-EPP-004", nombre:"Lentes de Seguridad Honeywell",    categoria:"EPP",          desc:"Gafas de protección con lente policarbonato. Protección UV 99%. Ligeras y cómodas.", precio:75,  inventario:200, imageUrl:"" },
+  { sku:"ORB-ABR-001", nombre:"Disco de Corte Austromex 4½\"",    categoria:"Abrasivos",    desc:"Disco de corte para metales ferrosos. Grano A46RBF. Velocidad máxima 13,300 RPM.", precio:28,   inventario:500, imageUrl:"" },
+  { sku:"ORB-ABR-002", nombre:"Disco de Desbaste Duramax 7\"",    categoria:"Abrasivos",    desc:"Disco de desbaste para acero y fundición. Espesor 6mm. Máxima durabilidad.", precio:65,  inventario:200, imageUrl:"" },
+  { sku:"ORB-SOL-001", nombre:"Electrodo CINASA 6013 3.2mm",      categoria:"Soldadura",    desc:"Electrodo para soldadura de acero al carbono. Caja 5kg. Arco suave y fácil de usar.", precio:185, inventario:80, imageUrl:"" },
+  { sku:"ORB-SOL-002", nombre:"Careta de Soldar Miller",          categoria:"Soldadura",    desc:"Careta de soldar con oscurecimiento automático. Lente DIN 9-13. Cómoda y ligera.", precio:650, inventario:15, imageUrl:"" },
+  { sku:"ORB-HER-001", nombre:"Amoladora Bosch GWS 6-115",        categoria:"Herramientas", desc:"Amoladora angular profesional 680W, disco 4½\". Motor duradero con protección contra sobrecarga.", precio:890, inventario:20, imageUrl:"" },
+  { sku:"ORB-HER-002", nombre:"Taladro Bosch GSB 13 RE",          categoria:"Herramientas", desc:"Taladro percutor de 600W. Velocidad variable 0-2800 RPM. Maletín incluido.", precio:1250, inventario:12, imageUrl:"" },
+  { sku:"ORB-FER-001", nombre:"Pala Truper Cuadrada #2",          categoria:"Ferretería",   desc:"Pala cuadrada con mango de madera. Hoja de acero templado. Longitud total 120cm.", precio:185, inventario:60, imageUrl:"" },
+  { sku:"ORB-FER-002", nombre:"Cinta Métrica Stanley 5m",         categoria:"Ferretería",   desc:"Cinta métrica de 5m con bloqueo automático. Cuerpo ergonómico de goma. Gancho magnético.", precio:95, inventario:90, imageUrl:"" }
 ];
 
 /* ── STATE ── */
-let data       = null;
-let isAdmin    = false;
-let allP       = [];       // todos los productos en memoria
-let cart       = [];
-let currentCat = 'Todos';
-let pmImgFile  = null;
-let pmImgUrl   = '';
-let unsaved    = 0;
+let data      = null;
+let isAdmin   = false;
+let allP      = [];
+let cart      = [];
+let pmImgFile = null;
+let pmImgUrl  = '';
+let unsaved   = 0;
+
+/* Registro de categorías expandidas */
+const expandedCats = new Set();
 
 /* ══════════════════════════════════════════════════════════════
-   INIT — estructura 1:1 de RID v6.1:
-   1. getDoc para verificar existencia del documento de contenido
-   2. setDoc si no existe (solo lo llama la primera vez)
-   3. onSnapshot en CREF → reactivo para todos los usuarios
-   4. loadProducts() llamado de forma INDEPENDIENTE (no encadenado)
-      → un error en los textos NO bloquea el inventario
-   5. hideLoader se llama en el onSnapshot (cuando llega la primera data)
+   INIT
 ══════════════════════════════════════════════════════════════ */
 async function init() {
-  /*
-   * Intento inicial de escritura solo si el doc no existe.
-   * Si el usuario es público y las reglas solo permiten lectura,
-   * este setDoc fallará silenciosamente — no es un problema porque
-   * el doc ya existirá en producción.
-   */
   try {
     const snap = await getDoc(CREF);
     if (!snap.exists()) await setDoc(CREF, DEFAULT);
-  } catch (_) { /* reglas de escritura pueden bloquear esto en público — OK */ }
+  } catch (_) {}
 
-  /*
-   * onSnapshot funciona sin autenticación siempre que las Firestore Rules
-   * permitan read: allow read: if true;  en esa colección.
-   * El listener es reactivo: cualquier cambio del admin se refleja
-   * instantáneamente en todos los visitantes.
-   */
   onSnapshot(
     CREF,
     snap => {
@@ -1026,10 +1159,6 @@ async function init() {
       hideLoader();
     },
     err => {
-      /*
-       * Si el read falla (reglas muy restrictivas o sin conexión),
-       * usamos los defaults en memoria para que la página no quede en blanco.
-       */
       console.warn('[ORBISCORP] onSnapshot error:', err);
       data = DEFAULT;
       renderAll(DEFAULT);
@@ -1037,7 +1166,6 @@ async function init() {
     }
   );
 
-  /* loadProducts se llama INDEPENDIENTEMENTE — igual que loadProys() en RID */
   loadProducts();
 }
 
@@ -1049,11 +1177,10 @@ function hideLoader() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   RENDER CONTENT — aplica data a los [data-field] del DOM
+   RENDER CONTENT
 ══════════════════════════════════════════════════════════════ */
 function tx(sel, val) {
   const el = document.querySelector(sel);
-  /* No sobreescribir si el admin está editando el campo en este momento */
   if (el && document.activeElement !== el) el.textContent = val || '';
 }
 
@@ -1066,75 +1193,40 @@ function renderAll(d) {
     tx('[data-field="hero.statB"]',  d.hero.statB);
     tx('[data-field="hero.statC"]',  d.hero.statC);
   }
-  if (d.svc) {
-    tx('[data-field="svc.heading"]', d.svc.heading);
-    tx('[data-field="svc.sub"]',     d.svc.sub);
-  }
-  if (d.about) {
-    tx('[data-field="about.heading"]', d.about.heading);
-    tx('[data-field="about.p1"]',      d.about.p1);
-    tx('[data-field="about.p2"]',      d.about.p2);
-  }
   if (d.contact) {
     tx('[data-field="contact.heading"]', d.contact.heading);
     tx('[data-field="contact.desc"]',    d.contact.desc);
     tx('[data-field="contact.dir"]',     d.contact.dir);
     tx('[data-field="contact.horario"]', d.contact.horario);
   }
-  /* Re-activar campos editables si ya somos admin */
   if (isAdmin) activateFields();
 }
 
 /* ══════════════════════════════════════════════════════════════
-   LOAD PRODUCTS — clonado de loadProys() de RID v6.1
-
-   Comportamiento:
-   ① getDocs con orderBy('creadoEn', 'desc')
-   ② Si la consulta ordenada falla por índice faltante → intento
-      fallback con consulta simple (sin orderBy)
-   ③ Si la colección está vacía → siembra defaults con addDoc
-   ④ El catch NUNCA borra allP si ya tiene datos; solo usa memoria
-   ⑤ Visibilidad pública: getDocs funciona sin auth si las reglas
-      tienen  allow read: if true;
+   LOAD PRODUCTS
 ══════════════════════════════════════════════════════════════ */
 async function loadProducts() {
   try {
-    /* Consulta principal ordenada */
     const q    = query(PRODUCTOS, orderBy('creadoEn', 'desc'));
     const snap = await getDocs(q);
 
     allP = [];
     snap.forEach(d => allP.push({ id: d.id, ...d.data() }));
 
-    /* Siembra solo si la colección está realmente vacía */
     if (allP.length === 0) {
       for (const p of DEFAULT_PRODUCTS) {
         const r = await addDoc(PRODUCTOS, { ...p, creadoEn: serverTimestamp() });
         allP.push({ id: r.id, ...p });
       }
     }
-
   } catch (errOrdered) {
-    /*
-     * La consulta ordenada puede fallar si el índice compuesto no existe
-     * todavía en Firestore (error code 'failed-precondition') o si las
-     * reglas de seguridad bloquean la lectura para usuarios no autenticados.
-     *
-     * ESTRATEGIA (misma que RID):
-     *   a) Si allP ya tiene datos de una carga anterior → no tocar nada.
-     *   b) Si allP está vacío → intentar consulta simple (sin orderBy).
-     *   c) Si todo falla → usar defaults EN MEMORIA (no escribe en Firestore).
-     */
     console.warn('[ORBISCORP] loadProducts ordenado falló:', errOrdered.code, errOrdered.message);
-
     if (allP.length === 0) {
       try {
-        /* Fallback: consulta sin orderBy — no requiere índice */
         const snapSimple = await getDocs(PRODUCTOS);
         snapSimple.forEach(d => allP.push({ id: d.id, ...d.data() }));
       } catch (errSimple) {
-        console.warn('[ORBISCORP] loadProducts fallback también falló:', errSimple.message);
-        /* Último recurso: mostrar defaults en memoria sin escribir en la DB */
+        console.warn('[ORBISCORP] loadProducts fallback falló:', errSimple.message);
         if (allP.length === 0) {
           allP = DEFAULT_PRODUCTS.map((p, i) => ({ id: `local-${i}`, ...p }));
         }
@@ -1142,74 +1234,246 @@ async function loadProducts() {
     }
   }
 
-  /* Renderizar independientemente del camino que tomamos */
-  renderProducts();
+  renderGalerias();
 }
 
 /* ══════════════════════════════════════════════════════════════
-   RENDER PRODUCTS
+   HELPERS DE STOCK
 ══════════════════════════════════════════════════════════════ */
-function renderProducts(cat) {
-  if (cat !== undefined) currentCat = cat;
-  const grid  = document.getElementById('products-grid');
+function getStockInfo(p) {
+  const inv = (p.inventario !== undefined && p.inventario !== null) ? Number(p.inventario) : null;
+  let label = '', cls = '';
+  if (inv !== null) {
+    if (inv <= 0)   { label = 'SIN STOCK';            cls = 'out'; }
+    else if (inv <= 5) { label = `¡Solo ${inv} disponibles!`; cls = 'low'; }
+    else               { label = `${inv} en stock`;           cls = '';    }
+  }
+  return { inv, label, cls, outOfStock: inv !== null && inv <= 0 };
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER GALERÍAS — estructura con portada + panel expandible
+══════════════════════════════════════════════════════════════ */
+function renderGalerias() {
+  const showcase = document.getElementById('categorias-showcase');
+  if (!showcase) return;
+  showcase.innerHTML = '';
+
   const empty = document.getElementById('products-empty');
-  if (!grid) return;
-
-  const filtered = currentCat === 'Todos'
-    ? allP
-    : allP.filter(p => p.categoria === currentCat);
-
-  grid.innerHTML = '';
-
-  if (!filtered.length) {
-    empty.style.display = 'block';
+  if (allP.length === 0) {
+    if (empty) empty.style.display = 'block';
     return;
   }
-  empty.style.display = 'none';
+  if (empty) empty.style.display = 'none';
 
-  filtered.forEach(p => {
-    const inCart = cart.find(c => c.id === p.id);
-    const card   = document.createElement('div');
-    card.className   = 'product-card';
-    card.dataset.id  = p.id;
-    card.dataset.cat = p.categoria || '';
-    card.innerHTML = `
-      <div class="product-img">
+  CATS.forEach(cat => {
+    const prods = allP.filter(p => p.categoria === cat);
+
+    const block = document.createElement('div');
+    block.className = 'cat-gallery-block' + (expandedCats.has(cat) ? ' expanded' : '');
+    block.id = `cat-block-${cat.toLowerCase().replace(/[^a-z]/g, '_')}`;
+
+    /* ── Portada (primer producto, o vacío) ── */
+    const cover = prods.length > 0
+      ? renderCoverHTML(prods[0], cat)
+      : renderCatEmptyHTML(cat);
+
+    /* ── Grid panel ── */
+    const gridHTML = renderGridPanelHTML(prods, cat);
+
+    block.innerHTML = `
+      <!-- Header clickeable -->
+      <div class="cat-gallery-header" onclick="toggleCat('${cat}')" role="button"
+           aria-expanded="${expandedCats.has(cat)}" aria-controls="grid-panel-${cat}">
+        <div class="cat-gallery-header-left">
+          <span style="font-size:1.4rem;">${CAT_ICONS[cat] || '📦'}</span>
+          <span class="cat-gallery-title">${cat}</span>
+          <span class="cat-gallery-count" id="count-${cat}">${prods.length} producto${prods.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="cat-expand-hint">
+          <span class="cat-expand-hint-text">${expandedCats.has(cat) ? 'Cerrar' : 'Ver todos'}</span>
+          <div class="cat-expand-arrow">▼</div>
+        </div>
+      </div>
+
+      <!-- Tarjeta portada -->
+      <div id="cover-${cat}" onclick="toggleCat('${cat}')">
+        ${cover}
+      </div>
+
+      <!-- Panel expandible con grid -->
+      <div class="cat-grid-panel" id="grid-panel-${cat}" role="region" aria-label="Productos ${cat}">
+        <div class="cat-grid-inner" id="grid-inner-${cat}">
+          ${gridHTML}
+        </div>
+      </div>`;
+
+    showcase.appendChild(block);
+  });
+}
+
+/* ── HTML de portada (arquetipo fijo) ── */
+function renderCoverHTML(p, cat) {
+  const { inv, label, cls } = getStockInfo(p);
+  return `
+    <div class="cat-cover-body">
+      <div class="cat-product-img-wrap" id="imgwrap-${p.id}">
         ${p.imageUrl
           ? `<img src="${p.imageUrl}" alt="${p.nombre || ''}" loading="lazy">`
-          : `<div class="product-img-placeholder">🛡️</div>`}
-        <span class="product-cat-badge">${p.categoria || ''}</span>
-        <div class="admin-img-trigger" onclick="triggerProdImgUp('${p.id}')">
+          : `<div class="img-placeholder">${CAT_ICONS[cat] || '📦'}</div>`}
+        <div class="admin-img-trigger" onclick="event.stopPropagation(); triggerProdImgUp('${p.id}')">
           <div class="admin-img-trigger-label">Cambiar imagen</div>
           <input type="file" class="admin-img-input" accept="image/*"
                  id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')">
         </div>
       </div>
-      <div class="product-body">
-        <div class="product-name">${p.nombre || ''}</div>
-        <div class="product-desc">${p.desc || ''}</div>
-        <div class="product-price">
-          $${Number(p.precio || 0).toFixed(2)}
-          <span>MXN / unidad</span>
+      <div class="cat-cover-info">
+        <div>
+          ${p.sku ? `<div class="cat-product-sku">${p.sku}</div>` : ''}
+          <h3 class="cat-product-name">${p.nombre || ''}</h3>
+          <p class="cat-product-desc">${p.desc || ''}</p>
         </div>
-        <button class="btn-add ${inCart ? 'added' : ''}"
-                onclick="addToCart('${p.id}')">
-          ${inCart ? '✓ En el carrito' : '+ Añadir al carrito'}
-        </button>
+        <div>
+          <div class="cat-product-price">
+            $${Number(p.precio || 0).toFixed(2)}<span>MXN / unidad</span>
+          </div>
+          ${label ? `<div class="cat-product-stock ${cls}">${label}</div>` : ''}
+          <div class="cat-cover-cta">
+            <button class="btn-cover-explore" onclick="event.stopPropagation(); toggleCat('${cat}')">
+              Ver todos los productos →
+            </button>
+            <span class="cat-cover-meta">desde $${Number(p.precio || 0).toFixed(2)} MXN</span>
+          </div>
+          <div class="cat-product-admin-bar">
+            <button class="padmin-btn" onclick="event.stopPropagation(); openProductModal('${p.id}')">✎ Editar</button>
+            <button class="padmin-btn danger" onclick="event.stopPropagation(); deleteProduct('${p.id}')">✕ Eliminar</button>
+          </div>
+        </div>
       </div>
-      <div class="product-admin-bar">
-        <button class="padmin-btn" onclick="openProductModal('${p.id}')">✎ Editar</button>
-        <button class="padmin-btn danger" onclick="deleteProduct('${p.id}')">✕ Eliminar</button>
-      </div>`;
-    grid.appendChild(card);
-  });
+    </div>`;
 }
 
-window.filterCat = function(btn) {
-  document.querySelectorAll('.flt-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderProducts(btn.dataset.cat);
+function renderCatEmptyHTML(cat) {
+  return `
+    <div class="cat-empty-state">
+      <div class="cat-empty-icon">${CAT_ICONS[cat] || '📦'}</div>
+      <div>
+        <p class="cat-empty-text">SIN PRODUCTOS EN ESTA CATEGORÍA</p>
+        ${isAdmin ? `<p style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3);margin-top:6px;">Usa "+ Producto" para agregar.</p>` : ''}
+      </div>
+    </div>`;
+}
+
+/* ── HTML del panel grid expandible ── */
+function renderGridPanelHTML(prods, cat) {
+  if (prods.length === 0) {
+    return `<p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-3);text-align:center;padding:24px 0;">
+      Sin productos en esta categoría.
+    </p>`;
+  }
+
+  const cards = prods.map(p => renderProductCardHTML(p, cat)).join('');
+  return `
+    <div class="cat-grid-title">◈ Todos los productos — ${cat}</div>
+    <div class="cat-products-grid" id="grid-${cat}">${cards}</div>`;
+}
+
+/* ── HTML de tarjeta individual en el grid ── */
+function renderProductCardHTML(p, cat) {
+  const { inv, label, cls, outOfStock } = getStockInfo(p);
+  const inCart  = cart.find(c => c.id === p.id);
+  const cartQty = inCart ? inCart.qty : 0;
+  const atLimit = inv !== null && cartQty >= inv;
+
+  return `
+    <div class="prod-card" id="pcard-${p.id}">
+      <div class="prod-card-img">
+        ${p.imageUrl
+          ? `<img src="${p.imageUrl}" alt="${p.nombre || ''}" loading="lazy">`
+          : `<div class="img-placeholder">${CAT_ICONS[cat] || '📦'}</div>`}
+        <div class="admin-img-trigger" onclick="event.stopPropagation(); triggerProdImgUp('${p.id}')">
+          <div class="admin-img-trigger-label">Cambiar imagen</div>
+          <input type="file" class="admin-img-input" accept="image/*"
+                 id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')">
+        </div>
+      </div>
+      <div class="prod-card-body">
+        ${p.sku ? `<div class="prod-card-sku">${p.sku}</div>` : ''}
+        <div class="prod-card-name">${p.nombre || ''}</div>
+        <div class="prod-card-desc">${p.desc || ''}</div>
+        <div class="prod-card-price">$${Number(p.precio || 0).toFixed(2)}<span> MXN</span></div>
+        ${label ? `<div class="prod-card-stock ${cls}">${label}</div>` : ''}
+        <button
+          class="btn-add-card ${inCart ? 'added' : ''}"
+          id="btnadd-${p.id}"
+          onclick="addToCart('${p.id}')"
+          ${outOfStock ? 'disabled' : ''}
+          ${atLimit && !outOfStock ? 'disabled title="Límite de stock alcanzado"' : ''}>
+          ${outOfStock ? '✕ Sin stock' : inCart ? `✓ En carrito (${cartQty})` : '+ Añadir al carrito'}
+        </button>
+        <div class="prod-card-admin-bar">
+          <button class="padmin-btn" onclick="openProductModal('${p.id}')">✎ Editar</button>
+          <button class="padmin-btn danger" onclick="deleteProduct('${p.id}')">✕ Eliminar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOGGLE DE CATEGORÍA
+══════════════════════════════════════════════════════════════ */
+window.toggleCat = function(cat) {
+  const block      = document.getElementById(`cat-block-${cat.toLowerCase().replace(/[^a-z]/g,'_')}`);
+  const header     = block ? block.querySelector('.cat-gallery-header') : null;
+  const hintText   = header ? header.querySelector('.cat-expand-hint-text') : null;
+
+  if (expandedCats.has(cat)) {
+    expandedCats.delete(cat);
+    block && block.classList.remove('expanded');
+    if (header) header.setAttribute('aria-expanded', 'false');
+    if (hintText) hintText.textContent = 'Ver todos';
+  } else {
+    expandedCats.add(cat);
+    block && block.classList.add('expanded');
+    if (header) header.setAttribute('aria-expanded', 'true');
+    if (hintText) hintText.textContent = 'Cerrar';
+    // Renderizar el grid al abrir (en caso de que aún no tenga contenido)
+    refreshGridPanel(cat);
+  }
 };
+
+/* ── Refrescar solo el panel grid (sin tocar portada) ── */
+function refreshGridPanel(cat) {
+  const inner = document.getElementById(`grid-inner-${cat}`);
+  if (!inner) return;
+  const prods = allP.filter(p => p.categoria === cat);
+  inner.innerHTML = renderGridPanelHTML(prods, cat);
+}
+
+/* ── Refrescar bloque completo de una categoría ── */
+function refreshCatBlock(cat) {
+  const block = document.getElementById(`cat-block-${cat.toLowerCase().replace(/[^a-z]/g,'_')}`);
+  if (!block) return;
+
+  const prods = allP.filter(p => p.categoria === cat);
+
+  /* Actualizar contador */
+  const countEl = document.getElementById(`count-${cat}`);
+  if (countEl) countEl.textContent = `${prods.length} producto${prods.length !== 1 ? 's' : ''}`;
+
+  /* Refrescar portada */
+  const coverEl = document.getElementById(`cover-${cat}`);
+  if (coverEl) {
+    coverEl.innerHTML = prods.length > 0
+      ? renderCoverHTML(prods[0], cat)
+      : renderCatEmptyHTML(cat);
+  }
+
+  /* Refrescar grid si está expandido */
+  if (expandedCats.has(cat)) {
+    refreshGridPanel(cat);
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════
    CART
@@ -1227,27 +1491,34 @@ function updateCartUI() {
   }
 
   if (cart.length === 0) {
-    cartBody.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p class="cart-empty-text">Tu carrito está vacío.<br>Explora nuestro catálogo.</p></div>`;
+    cartBody.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p class="cart-empty-text">Tu carrito está vacío.<br>Explora nuestra tienda.</p></div>`;
     if (cartFoot) cartFoot.style.display = 'none';
   } else {
-    cartBody.innerHTML = cart.map(item => `
-      <div class="cart-item">
-        <div class="cart-item-img">
-          ${item.imageUrl
-            ? `<img src="${item.imageUrl}" alt="${item.nombre}">`
-            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem">🛡️</div>`}
-        </div>
-        <div class="cart-item-info">
-          <div class="cart-item-name">${item.nombre}</div>
-          <div class="cart-item-price">$${(item.precio * item.qty).toFixed(2)} MXN</div>
-          <div class="cart-item-qty">
-            <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
-            <span class="qty-val">${item.qty}</span>
-            <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+    cartBody.innerHTML = cart.map(item => {
+      const inv     = (item.inventario !== undefined && item.inventario !== null) ? Number(item.inventario) : null;
+      const atLimit = inv !== null && item.qty >= inv;
+      return `
+        <div class="cart-item">
+          <div class="cart-item-img">
+            ${item.imageUrl
+              ? `<img src="${item.imageUrl}" alt="${item.nombre}">`
+              : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem">${CAT_ICONS[item.categoria] || '📦'}</div>`}
           </div>
-        </div>
-        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Quitar">✕</button>
-      </div>`).join('');
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.nombre}</div>
+            ${item.sku ? `<div class="cart-item-sku">SKU: ${item.sku}</div>` : ''}
+            <div class="cart-item-price">$${(item.precio * item.qty).toFixed(2)} MXN</div>
+            <div class="cart-item-qty">
+              <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+              <span class="qty-val">${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty('${item.id}',1)" ${atLimit ? 'disabled title="Stock máximo alcanzado"' : ''}>+</button>
+            </div>
+            ${atLimit && inv !== null ? `<div class="qty-stock-warn show">⚠ Máximo ${inv} unidades disponibles</div>` : '<div class="qty-stock-warn"></div>'}
+          </div>
+          <button class="cart-item-remove" onclick="removeFromCart('${item.id}')" aria-label="Quitar">✕</button>
+        </div>`;
+    }).join('');
+
     if (cartFoot) {
       cartFoot.style.display = 'block';
       document.getElementById('cart-total').textContent = `$${total.toFixed(2)} MXN`;
@@ -1258,23 +1529,46 @@ function updateCartUI() {
 window.addToCart = function(id) {
   const prod = allP.find(p => p.id === id);
   if (!prod) return;
+
+  const inv = (prod.inventario !== undefined && prod.inventario !== null) ? Number(prod.inventario) : null;
+  if (inv !== null && inv <= 0) return;
+
   const existing = cart.find(c => c.id === id);
-  if (existing) { existing.qty++; } else { cart.push({ ...prod, qty: 1 }); }
+  if (existing) {
+    if (inv !== null && existing.qty >= inv) return;
+    existing.qty++;
+  } else {
+    cart.push({ ...prod, qty: 1 });
+  }
   updateCartUI();
-  renderProducts();
+  if (prod.categoria) refreshCatBlock(prod.categoria);
   openCart();
 };
+
 window.removeFromCart = function(id) {
+  const item = cart.find(c => c.id === id);
+  const cat  = item ? item.categoria : null;
   cart = cart.filter(c => c.id !== id);
-  updateCartUI(); renderProducts();
+  updateCartUI();
+  if (cat) refreshCatBlock(cat);
 };
+
 window.changeQty = function(id, delta) {
   const item = cart.find(c => c.id === id);
   if (!item) return;
+
+  if (delta > 0) {
+    const prod = allP.find(p => p.id === id);
+    const inv  = prod && prod.inventario !== undefined && prod.inventario !== null
+                 ? Number(prod.inventario) : null;
+    if (inv !== null && item.qty >= inv) { updateCartUI(); return; }
+  }
+
   item.qty += delta;
   if (item.qty <= 0) return window.removeFromCart(id);
   updateCartUI();
 };
+
 window.openCart = function() {
   document.getElementById('cart-overlay').classList.add('open');
   document.getElementById('cart-sidebar').classList.add('open');
@@ -1287,21 +1581,22 @@ window.closeCart = function() {
   document.body.style.overflow = '';
 };
 
-/* WhatsApp checkout */
 const WA_NUMBER = '527712175423';
 window.checkoutWhatsApp = function() {
   if (!cart.length) return;
   const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
-  let msg = '🛡️ *Hola, OrbisCORP — Pedido desde la Web*\n\n*Productos solicitados:*\n';
+  let msg = '🛡️ *Hola, OrbisCORP — Pedido desde la Tienda en Línea*\n\n*Productos solicitados:*\n';
   cart.forEach(item => {
-    msg += `  • ${item.nombre} (${item.sku || ''}) — Cant: ${item.qty} — $${(item.precio * item.qty).toFixed(2)} MXN\n`;
+    msg += `  • *${item.nombre}*\n`;
+    msg += `    SKU: ${item.sku || 'N/A'} | Cant: ${item.qty} ud. | Subtotal: $${(item.precio * item.qty).toFixed(2)} MXN\n`;
   });
-  msg += `\n*Total estimado:* $${total.toFixed(2)} MXN\n\n¿Me pueden confirmar disponibilidad y precio final?`;
+  msg += `\n*Total estimado:* $${total.toFixed(2)} MXN\n`;
+  msg += `\n¿Me pueden confirmar disponibilidad y precio final? Gracias.`;
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
 /* ══════════════════════════════════════════════════════════════
-   PRODUCT MODAL — solo admin puede abrir / guardar
+   PRODUCT MODAL
 ══════════════════════════════════════════════════════════════ */
 window.openProductModal = function(id) {
   if (!isAdmin) return;
@@ -1313,12 +1608,13 @@ window.openProductModal = function(id) {
     const p = allP.find(x => x.id === id);
     if (!p) return;
     titleEl.textContent = '◈ Editar Producto';
-    document.getElementById('pm-id').value      = id;
-    document.getElementById('pm-nombre').value  = p.nombre || '';
-    document.getElementById('pm-cat').value     = p.categoria || '';
-    document.getElementById('pm-desc').value    = p.desc || '';
-    document.getElementById('pm-precio').value  = p.precio || '';
-    document.getElementById('pm-sku').value     = p.sku || '';
+    document.getElementById('pm-id').value         = id;
+    document.getElementById('pm-nombre').value     = p.nombre || '';
+    document.getElementById('pm-cat').value        = p.categoria || '';
+    document.getElementById('pm-desc').value       = p.desc || '';
+    document.getElementById('pm-precio').value     = p.precio || '';
+    document.getElementById('pm-sku').value        = p.sku || '';
+    document.getElementById('pm-inventario').value = (p.inventario !== undefined && p.inventario !== null) ? p.inventario : '';
     pmImgUrl = p.imageUrl || '';
     const pv = document.getElementById('pm-preview');
     const ph = document.getElementById('pm-upload-hint');
@@ -1326,7 +1622,9 @@ window.openProductModal = function(id) {
     else          { pv.style.display = 'none'; ph.style.display = ''; }
   } else {
     titleEl.textContent = '◈ Nuevo Producto';
-    ['pm-id','pm-nombre','pm-desc','pm-precio','pm-sku'].forEach(f => document.getElementById(f).value = '');
+    ['pm-id','pm-nombre','pm-desc','pm-precio','pm-sku','pm-inventario'].forEach(f => {
+      document.getElementById(f).value = '';
+    });
     document.getElementById('pm-cat').value = '';
     document.getElementById('pm-preview').style.display    = 'none';
     document.getElementById('pm-upload-hint').style.display = '';
@@ -1354,10 +1652,25 @@ window.saveProducto = async function() {
   const saveBtn = document.getElementById('pm-save');
   errEl.classList.remove('show');
 
-  const nombre = document.getElementById('pm-nombre').value.trim();
-  const cat    = document.getElementById('pm-cat').value;
-  const precio = parseFloat(document.getElementById('pm-precio').value);
-  if (!nombre || !cat || isNaN(precio)) { errEl.classList.add('show'); return; }
+  const nombre     = document.getElementById('pm-nombre').value.trim();
+  const cat        = document.getElementById('pm-cat').value;
+  const precio     = parseFloat(document.getElementById('pm-precio').value);
+  const sku        = document.getElementById('pm-sku').value.trim();
+  const invRaw     = document.getElementById('pm-inventario').value.trim();
+  const inventario = parseInt(invRaw, 10);
+
+  if (!nombre || !cat || isNaN(precio)) {
+    errEl.textContent = '⚠ Completa los campos: Nombre, Categoría y Precio.';
+    errEl.classList.add('show'); return;
+  }
+  if (!sku) {
+    errEl.textContent = '⚠ El SKU es obligatorio.';
+    errEl.classList.add('show'); return;
+  }
+  if (invRaw === '' || isNaN(inventario) || inventario < 0) {
+    errEl.textContent = '⚠ El inventario debe ser un número mayor o igual a 0.';
+    errEl.classList.add('show'); return;
+  }
 
   saveBtn.disabled = true; saveBtn.textContent = '⟳ Guardando...';
   setSave('saving', '● Guardando...');
@@ -1365,21 +1678,25 @@ window.saveProducto = async function() {
   try {
     let imageUrl = pmImgUrl;
     if (pmImgFile) {
-      const sr = stRef(storage, `orbiscorp/productos/${Date.now()}_${pmImgFile.name}`);
-      const sn = await uploadBytes(sr, pmImgFile);
+      const sr  = stRef(storage, `orbiscorp/productos/${Date.now()}_${pmImgFile.name}`);
+      const sn  = await uploadBytes(sr, pmImgFile);
       imageUrl  = await getDownloadURL(sn.ref);
     }
     const payload = {
       nombre, categoria: cat, precio,
       desc: document.getElementById('pm-desc').value.trim(),
-      sku:  document.getElementById('pm-sku').value.trim(),
-      imageUrl
+      sku, inventario, imageUrl
     };
-    const eid = document.getElementById('pm-id').value;
+    const oldCat = null;
+    const eid    = document.getElementById('pm-id').value;
     if (eid) {
+      const existing = allP.find(p => p.id === eid);
+      const prevCat  = existing ? existing.categoria : null;
       await updateDoc(doc(db, 'productos_orbis', eid), payload);
       const i = allP.findIndex(p => p.id === eid);
       if (i !== -1) allP[i] = { id: eid, ...payload };
+      // Si cambió de categoría, refrescar la categoría antigua también
+      if (prevCat && prevCat !== cat) refreshCatBlock(prevCat);
     } else {
       payload.creadoEn = serverTimestamp();
       const r = await addDoc(PRODUCTOS, payload);
@@ -1388,10 +1705,11 @@ window.saveProducto = async function() {
     setSave('saved', '✓ Guardado');
     setTimeout(() => { if (!unsaved) setSave('', 'Listo'); }, 2500);
     closeProdModal();
-    renderProducts();
+    refreshCatBlock(cat);
+    updateCartUI();
   } catch(e) {
     setSave('error', '✕ Error');
-    errEl.textContent = '⚠ Error al guardar.';
+    errEl.textContent = '⚠ Error al guardar. Intenta de nuevo.';
     errEl.classList.add('show');
   } finally {
     saveBtn.disabled = false; saveBtn.textContent = 'Guardar Producto →';
@@ -1400,12 +1718,14 @@ window.saveProducto = async function() {
 
 window.deleteProduct = async function(id) {
   if (!isAdmin || !confirm('¿Eliminar este producto?')) return;
+  const prod = allP.find(p => p.id === id);
+  const cat  = prod ? prod.categoria : null;
   try {
     await deleteDoc(doc(db, 'productos_orbis', id));
-    allP  = allP.filter(p => p.id !== id);
-    cart  = cart.filter(c => c.id !== id);
+    allP = allP.filter(p => p.id !== id);
+    cart = cart.filter(c => c.id !== id);
     updateCartUI();
-    renderProducts();
+    if (cat) refreshCatBlock(cat);
     setSave('saved', '✓ Eliminado');
     setTimeout(() => setSave('', 'Listo'), 2000);
   } catch(e) { alert('Error al eliminar.'); }
@@ -1415,6 +1735,7 @@ window.triggerProdImgUp = id => document.getElementById(`pimg-${id}`)?.click();
 window.handleProdImgUp  = async function(input, id) {
   const file = input.files[0];
   if (!file || !isAdmin) return;
+  const prod = allP.find(p => p.id === id);
   setSave('saving', '● Subiendo...');
   try {
     const sr  = stRef(storage, `orbiscorp/productos/${id}_${Date.now()}_${file.name}`);
@@ -1425,12 +1746,12 @@ window.handleProdImgUp  = async function(input, id) {
     if (i !== -1) allP[i].imageUrl = url;
     setSave('saved', '✓ Imagen ok');
     setTimeout(() => setSave('', 'Listo'), 2000);
-    renderProducts();
+    if (prod && prod.categoria) refreshCatBlock(prod.categoria);
   } catch(e) { setSave('error', '✕ Error imagen'); }
 };
 
 /* ══════════════════════════════════════════════════════════════
-   LEADS — solo admin puede leer la colección
+   LEADS
 ══════════════════════════════════════════════════════════════ */
 async function submitLead(fd) {
   const folio = `ORB-${Date.now().toString(36).toUpperCase()}`;
@@ -1490,7 +1811,7 @@ window.showLeads = async function() {
 };
 
 /* ══════════════════════════════════════════════════════════════
-   ADMIN ENABLE / DISABLE — idéntico a RID v6.1
+   ADMIN ENABLE / DISABLE
 ══════════════════════════════════════════════════════════════ */
 function enableAdmin() {
   isAdmin = true;
@@ -1500,6 +1821,7 @@ function enableAdmin() {
   const nb = document.getElementById('nav-admin-badge');
   if (nb) nb.style.display = 'inline-block';
   activateFields();
+  if (allP.length) renderGalerias();
 }
 function disableAdmin() {
   isAdmin = false;
@@ -1511,20 +1833,13 @@ function disableAdmin() {
   deactivateFields();
 }
 
-/* toolbar-h dinámico — igual que RID */
 function updateToolbarHeight(active) {
   document.documentElement.style.setProperty('--toolbar-h', active ? '44px' : '0px');
   document.body.style.paddingTop = active ? '44px' : '0px';
 }
 
-/*
- * onAuthStateChanged DESPUÉS de setPersistence — igual que RID.
- * Esto garantiza que la sesión se restaure correctamente al refrescar.
- * Si ya hay sesión activa → enableAdmin() se llama de inmediato.
- */
 onAuthStateChanged(auth, u => u ? enableAdmin() : disableAdmin());
 
-/* ── Campos editables in-situ — idéntico a RID ── */
 function activateFields() {
   document.querySelectorAll('[data-field]').forEach(el => {
     el.contentEditable = 'true';
@@ -1546,7 +1861,6 @@ function onBlur(e) {
   saveField(field, val);
 }
 
-/* ── setSave — mismo patrón visual que RID ── */
 function setSave(st, msg) {
   const w = document.getElementById('save-status-wrap');
   const t = document.getElementById('save-txt');
@@ -1555,11 +1869,6 @@ function setSave(st, msg) {
   t.textContent = msg;
 }
 
-/*
- * saveField — usa updateDoc (no setDoc) para escritura parcial.
- * Idéntico a RID: incrementa `unsaved` antes y lo decrementa al
- * resolver para manejar guardados concurrentes correctamente.
- */
 async function saveField(field, value) {
   unsaved++;
   setSave('saving', '● Guardando...');
@@ -1577,7 +1886,7 @@ async function saveField(field, value) {
   }
 }
 
-/* ── Auth actions ── */
+/* ── Auth ── */
 window.doLogin = async function() {
   const em = document.getElementById('l-email').value.trim();
   const pw = document.getElementById('l-pass').value;
@@ -1617,11 +1926,9 @@ document.getElementById('login-modal').addEventListener('click', e => {
 document.getElementById('prod-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('prod-modal')) closeProdModal();
 });
-/* Login con Enter */
 document.getElementById('l-pass').addEventListener('keydown', e => {
   if (e.key === 'Enter') window.doLogin();
 });
-/* Atajo de teclado: Ctrl+Shift+A abre login */
 document.addEventListener('keydown', e => {
   if (e.ctrlKey && e.shiftKey && e.key === 'A') {
     e.preventDefault();
@@ -1647,7 +1954,7 @@ document.getElementById('ct-form')?.addEventListener('submit', async e => {
     document.getElementById('f-folio').textContent = folio;
     document.getElementById('form-success').classList.add('show');
   } catch(ex) {
-    btn.disabled = false; txt.textContent = 'Enviar Mensaje';
+    btn.disabled = false; txt.textContent = 'Enviar Cotización';
     err.textContent = '⚠ Error al enviar. Intente de nuevo.';
     err.classList.add('show');
   }
@@ -1672,9 +1979,7 @@ function initReveal() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   START — init() y loadProducts() son independientes.
-   init() → onSnapshot (textos) + loadProducts() (inventario)
-   Los errores de uno no bloquean al otro.
+   START
 ══════════════════════════════════════════════════════════════ */
 init()
   .then(() => initReveal())
