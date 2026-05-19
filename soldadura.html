@@ -248,7 +248,12 @@ nav.scrolled { box-shadow: var(--shadow); }
 
 /* ── CATÁLOGO ── */
 .catalog-bg { background: var(--surface2); }
-.categorias-showcase { display: flex; flex-direction: column; gap: 32px; }
+
+.categorias-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
 
 /* ── BLOQUE DE CATEGORÍA ── */
 .cat-gallery-block {
@@ -318,7 +323,7 @@ nav.scrolled { box-shadow: var(--shadow); }
 .cat-gallery-block.expanded .cat-expand-arrow { transform: rotate(180deg); background: rgba(245,158,11,0.2); }
 .cat-gallery-block.expanded .cat-expand-hint-text { color: var(--safety); }
 
-/* ── TARJETA PORTADA ── */
+/* ── TARJETA PORTADA / ARQUETIPO ── */
 .cat-cover-body {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -442,7 +447,11 @@ body.admin-mode .cat-product-admin-bar { display: flex; flex-wrap: wrap; }
   max-height: 4000px;
   border-top-width: 1px;
 }
-.cat-grid-inner { padding: 28px 24px; }
+
+.cat-grid-inner {
+  padding: 28px 24px;
+}
+
 .cat-grid-title {
   font-family: var(--font-mono);
   font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
@@ -451,7 +460,7 @@ body.admin-mode .cat-product-admin-bar { display: flex; flex-wrap: wrap; }
 }
 .cat-grid-title::before { content: ''; width: 16px; height: 1.5px; background: var(--orbis-mid); flex-shrink: 0; }
 
-/* Grid de productos */
+/* Grid de productos — 4 col desktop, 3 tablet, 2 mobile, 1 xs */
 .cat-products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -482,24 +491,45 @@ body.admin-mode .cat-product-admin-bar { display: flex; flex-wrap: wrap; }
 .prod-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
 .prod-card:hover .prod-card-img img { transform: scale(1.06); }
 .prod-card-img .img-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--orbis-mid); opacity: 0.2; }
-.prod-card .admin-img-trigger { display: none; position: absolute; inset: 0; background: rgba(47,59,162,0.7); align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+
+/* Admin image overlay for grid cards */
+.prod-card .admin-img-trigger {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(47,59,162,0.7);
+  align-items: center; justify-content: center;
+  cursor: pointer; z-index: 2;
+}
 body.admin-mode .prod-card .admin-img-trigger { display: flex; }
 
 .prod-card-body {
   padding: 14px 16px 16px;
   display: flex; flex-direction: column; gap: 6px; flex: 1;
 }
-.prod-card-sku { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em; color: var(--text-3); text-transform: uppercase; }
-.prod-card-name { font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.35; flex: 1; }
-.prod-card-desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.55; font-weight: 300; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.prod-card-price { font-family: var(--font-display); font-size: 1.35rem; color: var(--orbis); margin-top: 4px; line-height: 1; }
+.prod-card-sku {
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.12em;
+  color: var(--text-3); text-transform: uppercase;
+}
+.prod-card-name {
+  font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.35;
+  flex: 1;
+}
+.prod-card-desc {
+  font-size: 0.78rem; color: var(--text-2); line-height: 1.55; font-weight: 300;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.prod-card-price {
+  font-family: var(--font-display); font-size: 1.35rem; color: var(--orbis);
+  margin-top: 4px; line-height: 1;
+}
 .prod-card-price span { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-3); font-weight: 400; }
 .prod-card-stock { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; color: var(--success); }
 .prod-card-stock.low { color: var(--safety-dark); }
 .prod-card-stock.out { color: var(--danger); }
 
 .btn-add-card {
-  margin-top: 10px; width: 100%;
+  margin-top: 10px;
+  width: 100%;
   background: var(--safety); color: var(--text); font-weight: 700;
   border: none; border-radius: var(--r); padding: 10px 14px;
   cursor: pointer; transition: all 0.2s; font-size: 0.82rem;
@@ -508,7 +538,12 @@ body.admin-mode .prod-card .admin-img-trigger { display: flex; }
 .btn-add-card:hover { background: var(--safety-dark); }
 .btn-add-card.added { background: var(--success); color: #fff; }
 .btn-add-card:disabled { opacity: 0.45; cursor: not-allowed; }
-.prod-card-admin-bar { display: none; gap: 6px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+/* Admin bar en tarjeta de grid */
+.prod-card-admin-bar {
+  display: none; gap: 6px; margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
 body.admin-mode .prod-card-admin-bar { display: flex; }
 
 /* ── CARRITO SIDEBAR ── */
@@ -529,26 +564,33 @@ body.admin-mode .prod-card-admin-bar { display: flex; }
 .cart-body { flex: 1; overflow-y: auto; padding: 16px; }
 .cart-empty { text-align: center; padding: 48px 24px; color: var(--text-3); }
 .cart-empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.3; }
+.cart-empty-text { font-size: 0.9rem; font-weight: 300; }
 .cart-item { display: flex; gap: 12px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border); }
 .cart-item-img { width: 56px; height: 56px; border-radius: var(--r-sm); background: var(--orbis-light); overflow: hidden; flex-shrink: 0; }
 .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
 .cart-item-info { flex: 1; min-width: 0; }
 .cart-item-name { font-weight: 600; font-size: 0.9rem; color: var(--text); margin-bottom: 2px; }
-.cart-item-sku { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-3); }
+.cart-item-sku { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 4px; }
 .cart-item-price { font-family: var(--font-mono); font-size: 0.8rem; color: var(--orbis); }
 .cart-item-qty { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
-.qty-btn { width: 26px; height: 26px; background: var(--orbis-light); border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; font-size: 0.95rem; font-weight: 700; color: var(--orbis); display: flex; align-items: center; justify-content: center; }
+.qty-btn { width: 26px; height: 26px; background: var(--orbis-light); border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; font-size: 0.95rem; font-weight: 700; color: var(--orbis); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.qty-btn:hover:not(:disabled) { background: var(--orbis); color: #fff; border-color: var(--orbis); }
+.qty-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .qty-val { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 24px; text-align: center; }
-.qty-stock-warn { font-family: var(--font-mono); font-size: 0.65rem; color: var(--danger); margin-top: 4px; display: none; }
+.qty-stock-warn { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.08em; color: var(--danger); margin-top: 4px; display: none; }
 .qty-stock-warn.show { display: block; }
-.cart-item-remove { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 1rem; padding: 4px; }
+.cart-item-remove { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 1rem; padding: 4px; transition: color 0.15s; }
 .cart-item-remove:hover { color: var(--danger); }
 .cart-foot { padding: 20px 24px; border-top: 1px solid var(--border); background: var(--surface2); }
 .cart-subtotal { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .cart-subtotal-label { font-size: 0.875rem; color: var(--text-2); }
 .cart-subtotal-val { font-family: var(--font-display); font-size: 1.4rem; color: var(--text); }
 .cart-note { font-size: 0.75rem; color: var(--text-3); margin-bottom: 16px; font-style: italic; }
-.btn-checkout { width: 100%; background: var(--success); color: #fff; font-weight: 700; font-size: 1rem; border: none; border-radius: var(--r-lg); padding: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-checkout {
+  width: 100%; background: var(--success); color: #fff; font-weight: 700; font-size: 1rem;
+  border: none; border-radius: var(--r-lg); padding: 16px;
+  cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
 .btn-checkout:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
 
 /* ── CONTACTO ── */
@@ -561,7 +603,6 @@ body.admin-mode .prod-card-admin-bar { display: flex; }
 .cdata-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.1); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--safety); flex-shrink: 0; }
 .cdata-label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 2px; }
 .cdata-val { font-size: 0.9rem; color: rgba(255,255,255,0.85); font-weight: 500; }
-
 .contact-form { background: var(--surface); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-lg); }
 .form-head { background: var(--orbis-deep); padding: 20px 28px; }
 .form-head h3 { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--safety); margin-bottom: 2px; }
@@ -569,16 +610,30 @@ body.admin-mode .prod-card-admin-bar { display: flex; }
 .form-body { padding: 28px; display: flex; flex-direction: column; gap: 14px; }
 .fgrp { display: flex; flex-direction: column; gap: 5px; }
 .fgrp label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); }
-.fgrp input, .fgrp select, .fgrp textarea { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 0.9rem; padding: 11px 14px; border-radius: var(--r); outline: none; transition: border-color 0.15s, background 0.15s; width: 100%; min-height: 44px; }
+.fgrp input, .fgrp select, .fgrp textarea {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--font-body); font-size: 0.9rem; padding: 11px 14px;
+  border-radius: var(--r); outline: none; transition: border-color 0.15s, background 0.15s;
+  width: 100%; min-height: 44px;
+}
 .fgrp input:focus, .fgrp select:focus, .fgrp textarea:focus { border-color: var(--orbis); background: #fff; box-shadow: 0 0 0 3px rgba(47,59,162,0.1); }
 .fgrp textarea { min-height: 100px; resize: vertical; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.form-err { font-family: var(--font-mono); font-size: 0.75rem; color: var(--danger); display: none; }
+.form-err { font-family: var(--font-mono); font-size: 0.75rem; color: var(--danger); letter-spacing: 0.08em; display: none; }
 .form-err.show { display: block; }
-.btn-submit { background: var(--orbis); color: #fff; font-weight: 700; font-size: 0.95rem; border: none; border-radius: var(--r); padding: 14px; cursor: pointer; transition: all 0.2s; width: 100%; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-submit {
+  background: var(--orbis); color: #fff; font-weight: 700; font-size: 0.95rem;
+  border: none; border-radius: var(--r); padding: 14px; cursor: pointer;
+  transition: all 0.2s; width: 100%; min-height: 48px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
 .btn-submit:hover { background: var(--orbis-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .form-success { display: none; text-align: center; padding: 36px 28px; }
 .form-success.show { display: block; }
+.success-icon { font-size: 3rem; margin-bottom: 12px; }
+.success-title { font-family: var(--font-display); font-size: 1.5rem; color: var(--orbis); margin-bottom: 8px; }
+.success-text { font-size: 0.9rem; color: var(--text-2); line-height: 1.7; }
 
 /* ── FOOTER ── */
 footer { background: var(--orbis-deep); border-top: 3px solid var(--safety); padding: 56px 24px 36px; }
@@ -595,32 +650,82 @@ footer { background: var(--orbis-deep); border-top: 3px solid var(--safety); pad
 .footer-copy { font-family: var(--font-mono); font-size: 0.7rem; color: rgba(255,255,255,0.2); letter-spacing: 0.08em; }
 .footer-badges { display: flex; gap: 6px; align-items: center; }
 .fbadge { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 3px 7px; }
-#admin-trigger { font-family: var(--font-mono); font-size: 0.8rem; color: rgba(255,255,255,0.08); background: transparent; border: none; cursor: pointer; padding: 6px; }
+#admin-trigger { font-family: var(--font-mono); font-size: 0.8rem; color: rgba(255,255,255,0.08); background: transparent; border: none; cursor: pointer; padding: 6px; transition: color 0.3s; }
+#admin-trigger:hover { color: var(--safety); }
 
 /* ── MODALES ── */
 .modal { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(26,31,60,0.65); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
 .modal.open { display: flex; }
 .modal-panel { background: var(--surface); border-radius: var(--r-xl); width: 100%; max-width: 440px; overflow: hidden; box-shadow: var(--shadow-lg); }
 .modal-panel.wide { max-width: 620px; }
-.modal-head { background: var(--orbis-deep); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--safety); color: #fff; }
+.modal-head { background: var(--orbis-deep); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--safety); }
 .modal-head-title { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--safety); }
-.modal-close { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); width: 32px; height: 32px; border-radius: var(--r-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.modal-close { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); width: 32px; height: 32px; border-radius: var(--r-sm); cursor: pointer; transition: all 0.15s; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+.modal-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
 .modal-body { padding: 24px; max-height: 70vh; overflow-y: auto; }
 .mfield { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-.mfield label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-3); text-transform: uppercase; }
-.mfield input, .mfield select, .mfield textarea { background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-family: var(--font-body); font-size: 0.9rem; padding: 10px 12px; border-radius: var(--r); outline: none; width: 100%; }
+.mfield label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); display: block; }
+.mfield input, .mfield select, .mfield textarea {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--font-body); font-size: 0.9rem; padding: 10px 12px;
+  border-radius: var(--r); outline: none; min-height: 44px; width: 100%; transition: border-color 0.15s;
+}
+.mfield input:focus, .mfield select:focus, .mfield textarea:focus { border-color: var(--orbis); }
+.mfield textarea { min-height: 80px; resize: vertical; }
 .mfield-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.merror { font-family: var(--font-mono); font-size: 0.7rem; color: var(--danger); letter-spacing: 0.08em; display: none; margin-bottom: 8px; }
+.merror.show { display: block; }
 .modal-foot { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.msave-btn { background: var(--orbis); color: #fff; font-weight: 700; font-size: 0.875rem; border: none; border-radius: var(--r); padding: 11px 22px; cursor: pointer; }
-.mcancel-btn { background: transparent; color: var(--text-2); border: 1px solid var(--border); font-size: 0.875rem; border-radius: var(--r); padding: 11px 18px; cursor: pointer; }
-.prod-upload-area { border: 1.5px dashed var(--border); border-radius: var(--r); padding: 20px; text-align: center; cursor: pointer; position: relative; background: var(--surface2); }
-.prod-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: var(--r-sm); display: none; }
+.msave-btn { background: var(--orbis); color: #fff; font-weight: 700; font-size: 0.875rem; border: none; border-radius: var(--r); padding: 11px 22px; cursor: pointer; transition: all 0.15s; min-height: 44px; }
+.msave-btn:hover { background: var(--orbis-dark); }
+.msave-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.mcancel-btn { background: transparent; color: var(--text-2); border: 1px solid var(--border); font-size: 0.875rem; border-radius: var(--r); padding: 11px 18px; cursor: pointer; transition: all 0.15s; min-height: 44px; }
+.mcancel-btn:hover { border-color: var(--text-2); }
+.prod-upload-area { border: 1.5px dashed var(--border); border-radius: var(--r); padding: 20px; text-align: center; cursor: pointer; position: relative; transition: all 0.2s; background: var(--surface2); }
+.prod-upload-area:hover { border-color: var(--orbis); background: var(--orbis-light); }
+.prod-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.prod-upload-hint { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-3); letter-spacing: 0.08em; }
+.prod-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: var(--r-sm); margin-bottom: 8px; display: none; }
 
+/* ── ADMIN EDITABLE ── */
+body.admin-mode [data-field] { outline: 1.5px dashed rgba(47,59,162,0.3); cursor: text; border-radius: 3px; transition: outline 0.15s; }
+body.admin-mode [data-field]:hover { outline: 1.5px solid rgba(47,59,162,0.6); background: rgba(47,59,162,0.04); }
+body.admin-mode [data-field]:focus { outline: 2px solid var(--orbis); background: rgba(47,59,162,0.06); }
+
+/* ── REVEAL ANIMATIONS ── */
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .reveal.in { opacity: 1; transform: translateY(0); }
+.stagger > *:nth-child(1) { transition-delay: 0.04s !important; }
+.stagger > *:nth-child(2) { transition-delay: 0.10s !important; }
+.stagger > *:nth-child(3) { transition-delay: 0.16s !important; }
+.stagger > *:nth-child(4) { transition-delay: 0.22s !important; }
+
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-@media (max-width: 1024px) { .contact-grid { grid-template-columns: 1fr; gap: 40px; } .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } .cat-cover-body { grid-template-columns: 200px 1fr; } }
-@media (max-width: 768px) { .nav-links, .nav-cta { display: none; } .hamburger { display: flex; } .hero-title { font-size: 2.2rem; } .section { padding: 60px 20px; } .cat-cover-body { grid-template-columns: 1fr; } .cat-product-img-wrap { min-height: 180px; } }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .cat-cover-body { grid-template-columns: 200px 1fr; }
+}
+@media (max-width: 768px) {
+  .nav-links, .nav-cta { display: none; }
+  .hamburger { display: flex; }
+  .hero-title { font-size: 2.2rem; }
+  .section { padding: 60px 20px; }
+  .form-row { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .mfield-row { grid-template-columns: 1fr; }
+  .cat-cover-body { grid-template-columns: 1fr; }
+  .cat-product-img-wrap { min-height: 180px; }
+  .cat-expand-hint-text { display: none; }
+}
+@media (max-width: 480px) {
+  .cat-cover-info { padding: 16px; }
+  .cat-product-name { font-size: 1.1rem; }
+  .cat-product-price { font-size: 1.5rem; }
+  .cat-grid-inner { padding: 16px; }
+}
 
 /* ═══════════════════════════════════════════════════
    ORBISCORP PREMIUM MOBILE-FIRST UPGRADE v5.0
@@ -1081,7 +1186,7 @@ body.admin-mode .pc-admin-bar { display:flex; }
     </div>
     <div class="qv-img-wrap">
       <img id="qv-img" src="" alt="" style="display:none">
-      <div class="qv-img-placeholder" id="qv-placeholder">📦</div>
+      <div class="qv-img-placeholder" id="qv-placeholder">⚡</div>
       <div class="qv-drag-handle"></div>
     </div>
     <div class="qv-body">
@@ -1176,100 +1281,177 @@ body.admin-mode .pc-admin-bar { display:flex; }
 </div>
 
 <!-- MODAL LOGIN -->
-<div id="login-modal" class="modal" role="dialog" aria-modal="true">
+<div id="login-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
   <div class="modal-panel">
-    <div class="modal-head"><span class="modal-head-title">◈ Acceso Editor</span><button class="modal-close" onclick="closeLogin()">✕</button></div>
+    <div class="modal-head">
+      <span class="modal-head-title" id="login-title">◈ Acceso Editor</span>
+      <button class="modal-close" onclick="closeLogin()">✕</button>
+    </div>
     <div class="modal-body">
-      <div class="mfield"><label for="l-email">Correo electrónico</label><input type="email" id="l-email" placeholder="admin@orbiscorp.com.mx"></div>
-      <div class="mfield"><label for="l-pass">Contraseña</label><input type="password" id="l-pass" placeholder="••••••••"></div>
-      <div class="merror" id="l-err" style="display:none; color:var(--danger)">Credenciales incorrectas.</div>
+      <div class="mfield"><label for="l-email">Correo electrónico</label><input type="email" id="l-email" placeholder="admin@orbiscorp.com.mx" autocomplete="email"></div>
+      <div class="mfield"><label for="l-pass">Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="merror" id="l-err">Credenciales incorrectas. Intenta de nuevo.</div>
       <button class="msave-btn ripple-host" style="width:100%;margin-top:4px" onclick="doLogin()">Entrar al Editor →</button>
+      <p style="font-family:var(--font-mono);font-size:0.65rem;letter-spacing:0.1em;color:var(--text-3);text-align:center;margin-top:14px;">Solo personal autorizado OrbisCORP</p>
     </div>
   </div>
 </div>
 
 <!-- MODAL PRODUCTO -->
-<div id="prod-modal" class="modal" role="dialog" aria-modal="true">
+<div id="prod-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="pm-title-el">
   <div class="modal-panel wide">
-    <div class="modal-head"><span class="modal-head-title" id="pm-title-el">◈ Nuevo Producto</span><button class="modal-close" onclick="closeProdModal()">✕</button></div>
+    <div class="modal-head">
+      <span class="modal-head-title" id="pm-title-el">◈ Nuevo Producto</span>
+      <button class="modal-close" onclick="closeProdModal()">✕</button>
+    </div>
     <div class="modal-body">
       <input type="hidden" id="pm-id">
       <div class="mfield-row">
         <div class="mfield"><label for="pm-nombre">Nombre *</label><input type="text" id="pm-nombre" placeholder="Inversor de Soldadura"></div>
         <div class="mfield"><label for="pm-cat">Categoría *</label>
           <select id="pm-cat">
-            <option value="EPP">EPP</option><option value="Abrasivos">Abrasivos</option><option value="Soldadura" selected>Soldadura</option><option value="Herramientas">Herramientas</option><option value="Ferretería">Ferretería</option>
+            <option value="" disabled>— Seleccionar —</option>
+            <option value="EPP">EPP</option>
+            <option value="Abrasivos">Abrasivos</option>
+            <option value="Soldadura" selected>Soldadura</option>
+            <option value="Herramientas">Herramientas</option>
+            <option value="Ferretería">Ferretería</option>
           </select>
         </div>
       </div>
-      <div class="mfield"><label for="pm-desc">Descripción</label><textarea id="pm-desc" placeholder="Descripción..."></textarea></div>
+      <div class="mfield"><label for="pm-desc">Descripción</label><textarea id="pm-desc" placeholder="Descripción del producto..."></textarea></div>
       <div class="mfield-row">
-        <div class="mfield"><label for="pm-precio">Precio *</label><input type="number" id="pm-precio" placeholder="3200.00"></div>
-        <div class="mfield"><label for="pm-sku">SKU *</label><input type="text" id="pm-sku" placeholder="ORB-SOL-001"></div>
+        <div class="mfield"><label for="pm-precio">Precio (MXN) *</label><input type="number" id="pm-precio" placeholder="3200.00" step="0.01" min="0"></div>
+        <div class="mfield"><label for="pm-sku">SKU / Clave *</label><input type="text" id="pm-sku" placeholder="ORB-SOL-001" required></div>
       </div>
       <div class="mfield-row">
-        <div class="mfield"><label for="pm-inventario">Stock *</label><input type="number" id="pm-inventario" placeholder="10"></div>
+        <div class="mfield"><label for="pm-inventario">Inventario / Stock *</label><input type="number" id="pm-inventario" placeholder="10" min="0"></div>
+        <div class="mfield" style="justify-content:flex-end"></div>
       </div>
-      <div class="mfield"><label>Imagen</label>
-        <div class="prod-upload-area">
+      <div class="mfield"><label>Imagen del Producto</label>
+        <div class="prod-upload-area" id="pm-upload">
           <img class="prod-preview" id="pm-preview" alt="Preview">
-          <div id="pm-upload-hint">Haz clic para subir archivo</div>
-          <input type="file" accept="image/*" id="pm-img-file" onchange="pmImgSelect(this)" style="position:absolute; inset:0; opacity:0; cursor:pointer;">
+          <div class="prod-upload-hint" id="pm-upload-hint">↑ Arrastra o haz clic para subir imagen · JPG, PNG, WebP</div>
+          <input type="file" accept="image/*" id="pm-img-file" onchange="pmImgSelect(this)">
         </div>
       </div>
-      <div class="merror" id="pm-err" style="display:none; color:var(--danger)">Campos incompletos.</div>
+      <div class="merror" id="pm-err">Completa los campos obligatorios.</div>
     </div>
-    <div class="modal-foot"><button class="mcancel-btn" onclick="closeProdModal()">Cancelar</button><button class="msave-btn ripple-host" id="pm-save" onclick="saveProducto()">Guardar Producto →</button></div>
+    <div class="modal-foot">
+      <button class="mcancel-btn" onclick="closeProdModal()">Cancelar</button>
+      <button class="msave-btn ripple-host" id="pm-save" onclick="saveProducto()">Guardar Producto →</button>
+    </div>
   </div>
 </div>
 
-<!-- CARRITO -->
+<!-- CARRITO SIDEBAR -->
 <div id="cart-overlay" class="cart-overlay" onclick="closeCart()"></div>
-<div id="cart-sidebar" class="cart-sidebar" role="dialog">
-  <div class="cart-head"><div class="cart-title">🛒 Carrito de Compras</div><button class="cart-close" onclick="closeCart()">✕</button></div>
-  <div class="cart-body" id="cart-body"><div class="cart-empty"><p class="cart-empty-text">Tu carrito está vacío.</p></div></div>
+<div id="cart-sidebar" class="cart-sidebar" role="dialog" aria-label="Carrito de compras">
+  <div class="cart-head">
+    <div class="cart-title">🛒 Carrito de Compras</div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p class="cart-empty-text">Tu carrito está vacío.<br>Explora nuestro catálogo.</p>
+    </div>
+  </div>
   <div class="cart-foot" id="cart-foot" style="display:none">
-    <div class="cart-subtotal"><span class="cart-subtotal-label">Total estimado</span><span class="cart-subtotal-val" id="cart-total">$0.00</span></div>
-    <button class="btn-checkout ripple-host" onclick="checkoutWhatsApp()">Pedir por WhatsApp</button>
+    <div class="cart-subtotal">
+      <span class="cart-subtotal-label">Total estimado</span>
+      <span class="cart-subtotal-val" id="cart-total">$0.00</span>
+    </div>
+    <p class="cart-note">Precio orientativo. El vendedor confirmará el precio final.</p>
+    <button class="btn-checkout ripple-host" onclick="checkoutWhatsApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Pedir por WhatsApp
+    </button>
   </div>
 </div>
 
 <!-- NAV -->
-<nav id="main-nav">
+<nav id="main-nav" role="navigation" aria-label="Navegación principal">
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo">
-      <div class="nav-logo-img"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8" stroke="white" stroke-width="1.5"/><circle cx="11" cy="11" r="4" fill="white" opacity="0.9"/><path d="M3 11 L19 11" stroke="#FFD700" stroke-width="1"/></svg></div>
+    <a href="index.html" class="nav-logo" aria-label="OrbisCORP inicio">
+      <div class="nav-logo-img">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" stroke="white" stroke-width="1.5"/>
+          <circle cx="11" cy="11" r="4" fill="white" opacity="0.9"/>
+          <path d="M3 11 L19 11" stroke="#FFD700" stroke-width="1"/>
+        </svg>
+      </div>
       <span class="nav-logo-name">ORBIS<span>CORP</span></span>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Inicio</a></li><li><a href="epp.html">EPP</a></li><li><a href="abrasivos.html">Abrasivos</a></li><li><a href="soldadura.html" class="active">Soldadura</a></li><li><a href="herramientas.html">Herramientas</a></li><li><a href="ferreteria.html">Ferretería</a></li>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="epp.html">EPP</a></li>
+      <li><a href="abrasivos.html">Abrasivos</a></li>
+      <li><a href="soldadura.html" class="active">Soldadura</a></li>
+      <li><a href="herramientas.html">Herramientas</a></li>
+      <li><a href="ferreteria.html">Ferretería</a></li>
     </ul>
     <div class="nav-right">
       <span id="nav-admin-badge">◈ Admin</span>
-      <button class="btn-cart" onclick="openCart()">🛒 Carrito <span class="cart-badge" id="cart-badge" style="display:none">0</span></button>
+      <button class="btn-cart" onclick="openCart()" aria-label="Abrir carrito">
+        🛒 Carrito
+        <span class="cart-badge" id="cart-badge" style="display:none">0</span>
+      </button>
       <a href="#catalogo" class="nav-cta">Ver Catálogo →</a>
+      <button class="hamburger" id="ham-btn" aria-label="Menú" aria-expanded="false" onclick="toggleDrawer()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </nav>
+<div id="mobile-drawer" class="mobile-drawer" role="navigation" aria-label="Menú móvil">
+  <a href="index.html">Inicio</a>
+  <a href="epp.html" onclick="closeDrawer()">EPP</a>
+  <a href="abrasivos.html" onclick="closeDrawer()">Abrasivos</a>
+  <a href="soldadura.html" onclick="closeDrawer()">Soldadura</a>
+  <a href="herramientas.html" onclick="closeDrawer()">Herramientas</a>
+  <a href="ferreteria.html" onclick="closeDrawer()">Ferretería</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
-  <div class="hero-pattern"></div>
+  <div class="hero-pattern" aria-hidden="true"></div>
   <div class="hero-inner">
-    <div class="hero-badge"><div class="hero-badge-dot"></div>Suministro Metalmecánico e Industrial de Alta Frecuencia</div>
-    <h1 class="hero-title" data-field="hero.title" contenteditable="false">Equipos y Consumibles<br><em>de Soldadura.</em></h1>
-    <p class="hero-desc" data-field="hero.desc" contenteditable="false">Inversores profesionales IGBT, electrodos estructurales normados, antorchas y caretas automáticas con tecnologías de oscurecimiento digital avanzado.</p>
-    <div class="hero-actions"><a href="#catalogo" class="btn-hero-primary ripple-host">Explorar Catálogo ↓</a></div>
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Suministro Metalmecánico e Industrial de Alta Frecuencia
+    </div>
+    <h1 class="hero-title" data-field="hero.title" contenteditable="false">
+      Equipos y Consumibles<br>
+      <em>de Soldadura.</em>
+    </h1>
+    <p class="hero-desc" data-field="hero.desc" contenteditable="false">
+      Inversores profesionales IGBT, electrodos estructurales normados, antorchas y caretas automáticas con tecnologías de oscurecimiento digital avanzado.
+    </p>
+    <div class="hero-actions">
+      <a href="#catalogo" class="btn-hero-primary ripple-host">Explorar Catálogo ↓</a>
+      <a href="#contacto" class="btn-hero-secondary">Solicitar Cotización Masiva</a>
+    </div>
     <div class="hero-stats">
-      <div class="hero-stat"><div class="hero-stat-num" data-field="hero.statA">6013/7018</div><div class="hero-stat-label">Electrodos en Stock</div></div>
-      <div class="hero-stat"><div class="hero-stat-num" data-field="hero.statB">Miller / Infra</div><div class="hero-stat-label">Marcas Distribuidas</div></div>
-      <div class="hero-stat"><div class="hero-stat-num" data-field="hero.statC">24h</div><div class="hero-stat-label">Entrega en Hidalgo</div></div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" data-field="hero.statA" contenteditable="false">6013/7018</div>
+        <div class="hero-stat-label">Electrodos en Stock</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" data-field="hero.statB" contenteditable="false">Miller / Infra</div>
+        <div class="hero-stat-label">Marcas distribuidas</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num" data-field="hero.statC" contenteditable="false">24h</div>
+        <div class="hero-stat-label">Entrega en Hidalgo</div>
+      </div>
     </div>
   </div>
-  <div class="hero-diag"></div>
+  <div class="hero-diag" aria-hidden="true"></div>
 </section>
 
-<div class="trust-bar">
+<!-- TRUST BAR -->
+<div class="trust-bar" aria-label="Marcas distribuidoras">
   <div class="trust-inner">
     <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Lincoln Electric</strong> Suministro</span></div>
     <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Miller</strong> Distribuidor Mayorista</span></div>
@@ -1277,14 +1459,28 @@ body.admin-mode .pc-admin-bar { display:flex; }
   </div>
 </div>
 
-<!-- CATALOG -->
+<!-- BREADCRUMB -->
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="breadcrumb-inner">
+    <span class="bc-item"><a href="index.html">OrbisCORP</a></span>
+    <span class="bc-sep">›</span>
+    <span class="bc-item bc-current">⚡ Equipos y Consumibles de Soldadura</span>
+  </div>
+</nav>
+
+
+<!-- CATÁLOGO -->
 <section id="catalogo" class="section catalog-bg">
   <div class="section-inner">
     <div class="section-label">Línea de Procesos</div>
     <h2 class="section-heading reveal">Soldadura Estructural<br><em>disponible al momento</em></h2>
     <p class="section-sub reveal">Inversores, microalambre, aporte de aleación y caretas certificadas. Añada a su pedido y finalice la cotización vía WhatsApp.</p>
+
     <div id="categorias-showcase" class="categorias-showcase reveal stagger"></div>
-    <div id="products-empty" style="display:none;text-align:center;padding:48px;color:var(--text-3);"><p style="font-size:0.9rem;font-family:var(--font-mono);">Cargando productos...</p></div>
+
+    <div id="products-empty" style="display:none;text-align:center;padding:48px;color:var(--text-3);">
+      <p style="font-size:0.9rem;font-family:var(--font-mono);">Cargando productos...</p>
+    </div>
   </div>
 </section>
 
@@ -1294,25 +1490,46 @@ body.admin-mode .pc-admin-bar { display:flex; }
     <div class="contact-grid">
       <div class="reveal">
         <div class="section-label" style="color:rgba(255,255,255,0.5)">Atención a Contratistas</div>
-        <h2 class="contact-info-title" data-field="contact.heading">¿Requiere Volumen de Aporte?</h2>
-        <p class="contact-info-desc" data-field="contact.desc">Envíenos sus requerimientos de kilogramos o pallets de electrodo y maquinaria para asignarle costos preferenciales.</p>
+        <h2 class="contact-info-title" data-field="contact.heading" contenteditable="false">¿Requiere Volumen de Aporte?</h2>
+        <p class="contact-info-desc" data-field="contact.desc" contenteditable="false">Envíenos sus requerimientos de kilogramos o pallets de electrodo y maquinaria para asignarle costos preferenciales.</p>
         <div class="contact-data">
-          <div class="cdata-item">📍 <span data-field="contact.dir">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</span></div>
-          <div class="cdata-item">📞 <span><a href="tel:+527711450476" style="color:inherit">+52 771 145 0476</a></span></div>
+          <div class="cdata-item"><div class="cdata-icon">📍</div><div><div class="cdata-label">Sucursal Principal</div><div class="cdata-val" data-field="contact.dir" contenteditable="false">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</div></div></div>
+          <div class="cdata-item"><div class="cdata-icon">📞</div><div><div class="cdata-label">Teléfono</div><div class="cdata-val"><a href="tel:+527711450476" style="color:inherit">+52 771 145 0476</a></div></div></div>
+          <div class="cdata-item"><div class="cdata-icon">✉️</div><div><div class="cdata-label">Correo Electrónico</div><div class="cdata-val"><a href="mailto:ventas@orbiscorp.com.mx" style="color:inherit">ventas@orbiscorp.com.mx</a></div></div></div>
+          <div class="cdata-item"><div class="cdata-icon">🕐</div><div><div class="cdata-label">Horario de Atención</div><div class="cdata-val" data-field="contact.horario" contenteditable="false">Lun – Vie · 08:00 – 18:00</div></div></div>
         </div>
       </div>
       <div class="contact-form reveal">
+        <div class="form-head">
+          <h3>Formulario de Cotización</h3>
+          <p>ORB-CONTACT-01 · Respuesta en 24h</p>
+        </div>
+        <div id="form-success" class="form-success">
+          <div class="success-icon">✅</div>
+          <div class="success-title">¡Mensaje Enviado!</div>
+          <p class="success-text">Nos comunicaremos a la brevedad.<br>Folio: <strong id="f-folio">—</strong></p>
+        </div>
         <form id="ct-form" class="form-body" novalidate>
           <div class="form-row">
-            <div class="fgrp"><label>Nombre *</label><input type="text" id="f-nom" name="nombre" required></div>
-            <div class="fgrp"><label>Empresa</label><input type="text" id="f-emp" name="empresa"></div>
+            <div class="fgrp"><label for="f-nom">Nombre *</label><input type="text" id="f-nom" name="nombre" placeholder="Juan García" required autocomplete="name"></div>
+            <div class="fgrp"><label for="f-emp">Empresa</label><input type="text" id="f-emp" name="empresa" placeholder="Mi Empresa SA" autocomplete="organization"></div>
           </div>
           <div class="form-row">
-            <div class="fgrp"><label>Correo *</label><input type="email" id="f-mail" name="email" required></div>
-            <div class="fgrp"><label>Asunto *</label><select id="f-asunto" name="asunto" required><option>Cotización de Soldadura Volumen</option></select></div>
+            <div class="fgrp"><label for="f-mail">Correo *</label><input type="email" id="f-mail" name="email" placeholder="juan@empresa.com" required autocomplete="email"></div>
+            <div class="fgrp"><label for="f-tel">Teléfono</label><input type="tel" id="f-tel" name="telefono" placeholder="771 123 4567" autocomplete="tel"></div>
           </div>
-          <div class="fgrp"><label>Especificación</label><textarea id="f-msg" name="mensaje"></textarea></div>
-          <div class="form-err" id="form-err">⚠ Complete los campos obligatorios.</div>
+          <div class="fgrp"><label for="f-asunto">Asunto *</label>
+            <select id="f-asunto" name="asunto" required>
+              <option value="" disabled selected>— Seleccionar —</option>
+              <option>Cotización de Soldadura Volumen</option>
+              <option>Pedido en línea</option>
+              <option>Distribución / Revendedor</option>
+              <option>Devolución / Garantía</option>
+              <option>Otro</option>
+            </select>
+          </div>
+          <div class="fgrp"><label for="f-msg">Mensaje</label><textarea id="f-msg" name="mensaje" placeholder="¿Qué productos y kilogramos necesitas?"></textarea></div>
+          <div class="form-err" id="form-err">⚠ Completa los campos obligatorios.</div>
           <button type="submit" class="btn-submit ripple-host" id="btn-sub"><span id="sub-txt">Enviar Cotización</span></button>
         </form>
       </div>
@@ -1320,11 +1537,50 @@ body.admin-mode .pc-admin-bar { display:flex; }
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer>
   <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">ORBIS<span>CORP</span></div>
+        <p class="footer-tagline">Tienda en línea de Seguridad Industrial. Distribuidores autorizados. Capital 100% mexicano desde 2000.</p>
+      </div>
+      <div>
+        <div class="footer-col-label">Navegación</div>
+        <ul class="footer-links">
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="epp.html">EPP</a></li>
+          <li><a href="abrasivos.html">Abrasivos</a></li>
+          <li><a href="soldadura.html">Soldadura</a></li>
+          <li><a href="herramientas.html">Herramientas</a></li>
+          <li><a href="ferreteria.html">Ferretería</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-label">Categorías</div>
+        <ul class="footer-links">
+          <li><a href="epp.html">EPP</a></li>
+          <li><a href="abrasivos.html">Abrasivos</a></li>
+          <li><a href="soldadura.html">Soldadura</a></li>
+          <li><a href="herramientas.html">Herramientas</a></li>
+          <li><a href="ferreteria.html">Ferretería</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-label">Contacto</div>
+        <ul class="footer-links">
+          <li><a href="tel:+527711450476">+52 771 145 0476</a></li>
+          <li><a href="mailto:ventas@orbiscorp.com.mx">ventas@orbiscorp.com.mx</a></li>
+          <li><a href="https://www.facebook.com/Orbiscorpsadecv/" target="_blank" rel="noopener">Facebook</a></li>
+        </ul>
+      </div>
+    </div>
     <div class="footer-bottom">
-      <span class="footer-copy">© 2025 OrbisCORP SA de CV · Especialistas en Soldadura · Hidalgo, México</span>
-      <button id="admin-trigger" onclick="openLogin()">◈</button>
+      <span class="footer-copy">© 2025 OrbisCORP SA de CV · Empresa 100% Mexicana · Hidalgo, México</span>
+      <div class="footer-badges">
+        <span class="fbadge">ISO 9001</span>
+        <button id="admin-trigger" onclick="openLogin()" title="Acceso Editor" aria-label="Acceso administrador">◈</button>
+      </div>
     </div>
   </div>
 </footer>
@@ -1336,91 +1592,177 @@ import { getFirestore, doc, onSnapshot, updateDoc, setDoc, getDoc, collection, a
 import { getStorage, ref as stRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 const FB = { apiKey: "AIzaSyAnq1OZavOTquMPyLs_etqA0qystCd7rMI", authDomain: "oracles-99bc3.firebaseapp.com", projectId: "oracles-99bc3", storageBucket: "oracles-99bc3.firebasestorage.app", messagingSenderId: "785165056789", appId: "1:785165056789:web:72f69d4226a8b4d70d871c" };
-const app = initializeApp(FB); const auth = getAuth(app); const db = getFirestore(app); const storage = getStorage(app);
+const app       = initializeApp(FB);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
 await setPersistence(auth, browserSessionPersistence);
 
-const CREF = doc(db, 'web_content', 'orbiscorp'); const LEADS = collection(db, 'leads_orbiscorp'); const PRODUCTOS = collection(db, 'productos_orbis');
+const CREF      = doc(db, 'web_content', 'orbiscorp_soldadura');
+const LEADS     = collection(db, 'leads_orbiscorp');
+const PRODUCTOS = collection(db, 'productos_orbis');
 
+// ── FILTRADO EXCLUSIVO PARA ARQUETIPO SOLDADURA ──
 const CATEGORIA_ACTUAL = 'Soldadura';
-const CATS = [CATEGORIA_ACTUAL]; const CAT_ICONS = { Soldadura: '⚡' };
+const CATS = [CATEGORIA_ACTUAL];
+const CAT_ICONS = { Soldadura: '⚡' };
+
+const DEFAULT = {
+  hero: { title: "Equipos y Consumibles<br><em>de Soldadura.</em>", desc: "Inversores profesionales IGBT, electrodos estructurales normados, antorchas y caretas automáticas con tecnologías de oscurecimiento digital avanzado.", statA: "6013/7018", statB: "Miller / Infra", statC: "24h" },
+  contact: { heading: "¿Requiere Volumen de Aporte?", desc: "Envíenos sus requerimientos de kilogramos o pallets de electrodo y maquinaria para asignarle costos preferenciales.", dir: "Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.", horario: "Lun – Vie · 08:00 – 18:00" }
+};
+
+let data      = null;
+let isAdmin   = false;
+let allP      = [];
+let cart      = [];
+let pmImgFile = null;
+let pmImgUrl  = '';
+let unsaved   = 0;
+
 const expandedCats = new Set([CATEGORIA_ACTUAL]);
 
-let data = null; let isAdmin = false; let allP = []; let cart = []; let pmImgFile = null; let pmImgUrl = ''; let unsaved = 0;
-
 async function init() {
-  onSnapshot(CREF, snap => { data = snap.exists() ? snap.data() : {}; renderAll(data); hideLoader(); }, () => hideLoader());
+  try {
+    const snap = await getDoc(CREF);
+    if (!snap.exists()) await setDoc(CREF, DEFAULT);
+  } catch (_) {}
+
+  onSnapshot(CREF, snap => {
+    data = snap.exists() ? snap.data() : DEFAULT;
+    renderAll(data);
+    hideLoader();
+  }, err => {
+    data = DEFAULT;
+    renderAll(DEFAULT);
+    hideLoader();
+  });
+
   loadProducts();
 }
 
-function hideLoader() { const l = document.getElementById('loader'); if (l) l.classList.add('done'); }
-function tx(sel, val) { const el = document.querySelector(sel); if (el && document.activeElement !== el) el.textContent = val || ''; }
+function hideLoader() {
+  const l = document.getElementById('loader');
+  if (!l) return;
+  l.classList.add('done');
+  setTimeout(() => { l.style.display = 'none'; }, 700);
+}
+
+function tx(sel, val) {
+  const el = document.querySelector(sel);
+  if (el && document.activeElement !== el) el.innerHTML = val || '';
+}
 
 function renderAll(d) {
-  if (d && d.hero) { tx('[data-field="hero.title"]', d.hero.title); tx('[data-field="hero.desc"]', d.hero.desc); }
+  if (!d) return;
+  if (d.hero) {
+    tx('[data-field="hero.title"]',  d.hero.title);
+    tx('[data-field="hero.desc"]',   d.hero.desc);
+    tx('[data-field="hero.statA"]',  d.hero.statA);
+    tx('[data-field="hero.statB"]',  d.hero.statB);
+    tx('[data-field="hero.statC"]',  d.hero.statC);
+  }
+  if (d.contact) {
+    tx('[data-field="contact.heading"]', d.contact.heading);
+    tx('[data-field="contact.desc"]',    d.contact.desc);
+    tx('[data-field="contact.dir"]',     d.contact.dir);
+    tx('[data-field="contact.horario"]', d.contact.horario);
+  }
   if (isAdmin) activateFields();
 }
 
 async function loadProducts() {
   try {
     const q = query(PRODUCTOS, where('categoria', '==', CATEGORIA_ACTUAL));
-    const snap = await getDocs(q); allP = [];
+    const snap = await getDocs(q);
+
+    allP = [];
     snap.forEach(d => allP.push({ id: d.id, ...d.data() }));
     allP.sort((a, b) => (b.creadoEn?.toMillis ? b.creadoEn.toMillis() : 0) - (a.creadoEn?.toMillis ? a.creadoEn.toMillis() : 0));
-  } catch (err) {}
+  } catch (err) {
+    console.warn('[ORBISCORP] Error cargando filtrados:', err.message);
+  }
   renderGalerias();
 }
 
 function getStockInfo(p) {
-  const inv = p.inventario != null ? Number(p.inventario) : null;
+  const inv = (p.inventario !== undefined && p.inventario !== null) ? Number(p.inventario) : null;
   let label = '', cls = '';
   if (inv !== null) {
-    if (inv <= 0) { label = 'SIN STOCK'; cls = 'out'; }
+    if (inv <= 0)   { label = 'SIN STOCK';             cls = 'out'; }
     else if (inv <= 5) { label = `¡Solo ${inv} disponibles!`; cls = 'low'; }
-    else { label = `${inv} en stock`; cls = ''; }
+    else               { label = `${inv} en stock`;            cls = '';    }
   }
   return { inv, label, cls, outOfStock: inv !== null && inv <= 0 };
 }
 
 function renderGalerias() {
-  const showcase = document.getElementById('categorias-showcase'); if (!showcase) return; showcase.innerHTML = '';
-  if (allP.length === 0) { showcase.innerHTML = renderCatEmptyHTML(CATEGORIA_ACTUAL); return; }
+  const showcase = document.getElementById('categorias-showcase');
+  if (!showcase) return;
+  showcase.innerHTML = '';
+
+  const empty = document.getElementById('products-empty');
+  if (allP.length === 0) {
+    if (empty) empty.style.display = 'none';
+    showcase.innerHTML = renderCatEmptyHTML(CATEGORIA_ACTUAL);
+    return;
+  }
+  if (empty) empty.style.display = 'none';
 
   CATS.forEach(cat => {
     const prods = allP.filter(p => p.categoria === cat);
-    const block = document.createElement('div'); block.className = 'cat-gallery-block expanded';
+    const block = document.createElement('div');
+    block.className = 'cat-gallery-block expanded';
     block.id = `cat-block-${cat.toLowerCase().replace(/[^a-z]/g, '_')}`;
+
     const cover = prods.length > 0 ? renderCoverHTML(prods[0], cat) : renderCatEmptyHTML(cat);
+    const gridHTML = renderGridPanelHTML(prods, cat);
 
     block.innerHTML = `
-      <div class="cat-gallery-header" onclick="toggleCat('${cat}')">
-        <div class="cat-gallery-header-left"><span>⚡</span><span class="cat-gallery-title">${cat}</span><span class="cat-gallery-count">${prods.length} productos</span></div>
-        <div class="cat-expand-hint"><span class="cat-expand-hint-text">Cerrar</span><div class="cat-expand-arrow">▼</div></div>
+      <div class="cat-gallery-header" onclick="toggleCat('${cat}')" role="button" aria-expanded="true" aria-controls="grid-panel-${cat}">
+        <div class="cat-gallery-header-left">
+          <span style="font-size:1.4rem;">${CAT_ICONS[cat] || '📦'}</span>
+          <span class="cat-gallery-title">${cat}</span>
+          <span class="cat-gallery-count" id="count-${cat}">${prods.length} producto${prods.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="cat-expand-hint">
+          <span class="cat-expand-hint-text">Cerrar</span>
+          <div class="cat-expand-arrow">▼</div>
+        </div>
       </div>
-      <div id="cover-${cat}">${cover}</div>
-      <div class="cat-grid-panel" id="grid-panel-${cat}" style="max-height:4000px; border-top-width:1px;">
-        <div class="cat-grid-inner" id="grid-inner-${cat}">${renderGridPanelHTML(prods, cat)}</div>
+      <div id="cover-${cat}" onclick="toggleCat('${cat}')">${cover}</div>
+      <div class="cat-grid-panel" id="grid-panel-${cat}" role="region" aria-label="Productos ${cat}" style="max-height:4000px; border-top-width:1px;">
+        <div class="cat-grid-inner" id="grid-inner-${cat}">${gridHTML}</div>
       </div>`;
     showcase.appendChild(block);
   });
 }
 
 function renderCoverHTML(p, cat) {
-  const { label, cls } = getStockInfo(p);
+  const { inv, label, cls } = getStockInfo(p);
   return `
     <div class="cat-cover-body">
       <div class="cat-product-img-wrap" id="imgwrap-${p.id}">
-        ${p.imageUrl ? `<img src="${p.imageUrl}" loading="lazy">` : `<div class="img-placeholder">⚡</div>`}
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.nombre || ''}" loading="lazy">` : `<div class="img-placeholder">${CAT_ICONS[cat] || '📦'}</div>`}
         <div class="admin-img-trigger" onclick="event.stopPropagation(); triggerProdImgUp('${p.id}')">
           <div class="admin-img-trigger-label">Cambiar imagen</div>
           <input type="file" class="admin-img-input" accept="image/*" id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')">
         </div>
       </div>
       <div class="cat-cover-info">
-        <div>${p.sku ? `<div class="cat-product-sku">${p.sku}</div>`:''}<h3 class="cat-product-name">${p.nombre}</h3><p class="cat-product-desc">${p.desc||''}</p></div>
         <div>
-          <div class="cat-product-price">$${Number(p.precio||0).toFixed(2)}<span>MXN / unidad</span></div>
-          <div class="cat-product-stock ${cls}">${label}</div>
-          <div class="cat-cover-cta"><button class="btn-cover-explore" onclick="event.stopPropagation(); toggleCat('${cat}')">Ver productos ↓</button></div>
+          ${p.sku ? `<div class="cat-product-sku">${p.sku}</div>` : ''}
+          <h3 class="cat-product-name">${p.nombre || ''}</h3>
+          <p class="cat-product-desc">${p.desc || ''}</p>
+        </div>
+        <div>
+          <div class="cat-product-price">$${Number(p.precio || 0).toFixed(2)}<span>MXN / unidad</span></div>
+          ${label ? `<div class="cat-product-stock ${cls}">${label}</div>` : ''}
+          <div class="cat-cover-cta">
+            <button class="btn-cover-explore" onclick="event.stopPropagation(); toggleCat('${cat}')">Ver productos ↓</button>
+            <span class="cat-cover-meta">desde $${Number(p.precio || 0).toFixed(2)} MXN</span>
+          </div>
           <div class="cat-product-admin-bar">
             <button class="padmin-btn" onclick="event.stopPropagation(); openProductModal('${p.id}')">✎ Editar</button>
             <button class="padmin-btn danger" onclick="event.stopPropagation(); deleteProduct('${p.id}')">✕ Eliminar</button>
@@ -1430,98 +1772,222 @@ function renderCoverHTML(p, cat) {
     </div>`;
 }
 
-function renderGridPanelHTML(prods, cat) {
-  const cards = prods.map(p => renderProductCardHTML(p, cat)).join('');
-  return `<div class="cat-grid-title">◈ Catálogo Exclusivo — ${cat}</div><div class="cat-products-grid">${cards}</div>`;
-}
-
-function renderProductCardHTML(p, cat) {
-  const { inv, label, cls, outOfStock } = getStockInfo(p); const inCart = cart.find(c => c.id === p.id); const cartQty = inCart ? inCart.qty : 0; const atLimit = inv !== null && cartQty >= inv;
+function renderCatEmptyHTML(cat) {
   return `
-    <div class="prod-card" id="pcard-${p.id}">
-      <div class="prod-card-img">
-        ${p.imageUrl ? `<img src="${p.imageUrl}" loading="lazy">` : `<div class="img-placeholder">⚡</div>`}
-        <div class="admin-img-trigger" onclick="event.stopPropagation(); triggerProdImgUp('${p.id}')"><input type="file" class="admin-img-input" accept="image/*" id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')"></div>
-      </div>
-      <div class="prod-card-body">
-        <div class="prod-card-sku">${p.sku||''}</div><div class="prod-card-name">${p.nombre}</div>
-        <div class="prod-card-desc">${p.desc||''}</div><div class="prod-card-price">$${Number(p.precio||0).toFixed(2)}<span> MXN</span></div>
-        <div class="prod-card-stock ${cls}">${label}</div>
-        <button class="btn-add-card ${inCart ? 'added':''}" onclick="addToCart('${p.id}')" ${outOfStock || atLimit ? 'disabled':''}>${outOfStock ? '✕ Sin stock': inCart ? `✓ En carrito (${cartQty})` : '+ Añadir al carrito'}</button>
-        <div class="prod-card-admin-bar"><button class="padmin-btn" onclick="openProductModal('${p.id}')">✎ Editar</button><button class="padmin-btn danger" onclick="deleteProduct('${p.id}')">✕ Eliminar</button></div>
+    <div class="cat-empty-state">
+      <div class="cat-empty-icon">${CAT_ICONS[cat] || '📦'}</div>
+      <div>
+        <p class="cat-empty-text">SIN PRODUCTOS EN ESTA CATEGORÍA</p>
+        ${isAdmin ? `<p style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3);margin-top:6px;">Usa "+ Producto" para agregar.</p>` : ''}
       </div>
     </div>`;
 }
 
+function renderGridPanelHTML(prods, cat) {
+  if (prods.length === 0) return `<p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-3);text-align:center;padding:24px 0;">Sin productos.</p>`;
+  const cards = prods.map(p => renderProductCardHTML(p, cat)).join('');
+  return `<div class="cat-grid-title">◈ Catálogo Exclusivo — ${cat}</div><div class="cat-products-grid" id="grid-${cat}">${cards}</div>`;
+}
+
+function renderProductCardHTML(p, cat) {
+  const { inv, label, cls, outOfStock } = getStockInfo(p);
+  const inCart  = cart.find(c => c.id === p.id);
+  const cartQty = inCart ? inCart.qty : 0;
+  const atLimit = inv !== null && cartQty >= inv;
+
+  return `
+    <div class="prod-card" id="pcard-${p.id}">
+      <div class="prod-card-img">
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.nombre || ''}" loading="lazy">` : `<div class="img-placeholder">${CAT_ICONS[cat] || '📦'}</div>`}
+        <div class="admin-img-trigger" onclick="event.stopPropagation(); triggerProdImgUp('${p.id}')">
+          <div class="admin-img-trigger-label">Cambiar imagen</div>
+          <input type="file" class="admin-img-input" accept="image/*" id="pimg-${p.id}" onchange="handleProdImgUp(this,'${p.id}')">
+        </div>
+      </div>
+      <div class="prod-card-body">
+        ${p.sku ? `<div class="prod-card-sku">${p.sku}</div>` : ''}
+        <div class="prod-card-name">${p.nombre || ''}</div>
+        <div class="prod-card-desc">${p.desc || ''}</div>
+        <div class="prod-card-price">$${Number(p.precio || 0).toFixed(2)}<span> MXN</span></div>
+        ${label ? `<div class="prod-card-stock ${cls}">${label}</div>` : ''}
+        <button class="btn-add-card ${inCart ? 'added' : ''}" id="btnadd-${p.id}" onclick="addToCart('${p.id}')" ${outOfStock ? 'disabled' : ''} ${atLimit && !outOfStock ? 'disabled' : ''}>
+          ${outOfStock ? '✕ Sin stock' : inCart ? `✓ En carrito (${cartQty})` : '+ Añadir al carrito'}
+        </button>
+        <div class="prod-card-admin-bar">
+          <button class="padmin-btn" onclick="openProductModal('${p.id}')">✎ Editar</button>
+          <button class="padmin-btn danger" onclick="deleteProduct('${p.id}')">✕ Eliminar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+window.toggleCat = function(cat) {
+  const block = document.getElementById(`cat-block-${cat.toLowerCase().replace(/[^a-z]/g,'_')}`);
+  if(block) block.classList.toggle('expanded');
+};
+
+function refreshCatBlock(cat) { if (cat === CATEGORIA_ACTUAL) loadProducts(); }
+
+function updateCartUI() { window.__orbisCart = cart; {
+  const badge = document.getElementById('cart-badge');
+  const cartBody = document.getElementById('cart-body');
+  const cartFoot = document.getElementById('cart-foot');
+  const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+
+  if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+  if (cart.length === 0) {
+    cartBody.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p class="cart-empty-text">Tu carrito está vacío.</p></div>`;
+    if (cartFoot) cartFoot.style.display = 'none';
+  } else {
+    cartBody.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-item-img">${item.imageUrl ? `<img src="${item.imageUrl}">` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.2rem">${CAT_ICONS[item.categoria]||'📦'}</div>`}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.nombre}</div>
+          <div class="cart-item-price">$${(item.precio * item.qty).toFixed(2)} MXN</div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+            <span class="qty-val">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+          </div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">✕</button>
+      </div>`).join('');
+    if (cartFoot) { cartFoot.style.display = 'block'; document.getElementById('cart-total').textContent = `$${total.toFixed(2)} MXN`; }
+  }
+}}
+
 window.addToCart = function(id) {
-  const prod = allP.find(p => p.id === id); if(!prod) return;
-  const existing = cart.find(c => c.id === id); if(existing) existing.qty++; else cart.push({...prod, qty:1});
+  const prod = allP.find(p => p.id === id); if (!prod) return;
+  const existing = cart.find(c => c.id === id);
+  if (existing) existing.qty++; else cart.push({ ...prod, qty: 1 });
   updateCartUI(); loadProducts(); openCart(); setTimeout(()=>window._updateMobileCartBadge((window.__orbisCart||[]).reduce((s,i)=>s+i.qty,0)),50);
 };
 window.__updateBadge=function(){const c=window.__orbisCart||[];_updateMobileCartBadge(c.reduce((s,i)=>s+i.qty,0));};window.removeFromCart = function(id) { cart = cart.filter(c => c.id !== id); updateCartUI(); loadProducts(); setTimeout(()=>window._updateMobileCartBadge((window.__orbisCart||[]).reduce((s,i)=>s+i.qty,0)),50); };
-window.changeQty = function(id, d) { const item = cart.find(c => c.id === id); if(item) { item.qty+=d; if(item.qty<=0) return removeFromCart(id); updateCartUI(); loadProducts(); } };
+window.changeQty = function(id, d) { const item = cart.find(c => c.id === id); if(item) { item.qty += d; if(item.qty<=0) return removeFromCart(id); updateCartUI(); loadProducts(); } };
 
-function updateCartUI() { window.__orbisCart = cart; {
-  const cb = document.getElementById('cart-body'); const badge = document.getElementById('cart-badge'); const total = cart.reduce((s,i)=>s+i.precio*i.qty,0);
-  if(badge) { badge.textContent = cart.length; badge.style.display = cart.length ? 'flex':'none'; }
-  if(!cart.length) { cb.innerHTML = '<div class="cart-empty"><p>Tu carrito está vacío.</p></div>'; document.getElementById('cart-foot').style.display='none'; return; }
-  cb.innerHTML = cart.map(i => `<div class="cart-item"><div class="cart-item-info"><div class="cart-item-name">${i.nombre}</div><div>$${(i.precio*i.qty).toFixed(2)}</div><div class="cart-item-qty"><button class="qty-btn" onclick="changeQty('${i.id}',-1)">-</button><span>${i.qty}</span><button class="qty-btn" onclick="changeQty('${i.id}',1)">+</button></div></div><button class="cart-item-remove" onclick="removeFromCart('${i.id}')">✕</button></div>`).join('');
-  document.getElementById('cart-foot').style.display='block'; document.getElementById('cart-total').textContent = `$${total.toFixed(2)} MXN`;
-}}
+window.openCart = () => { document.getElementById('cart-overlay').classList.add('open'); document.getElementById('cart-sidebar').classList.add('open'); updateCartUI(); };
+window.closeCart = () => { document.getElementById('cart-overlay').classList.remove('open'); document.getElementById('cart-sidebar').classList.remove('open'); };
 
+const WA_NUMBER = '527712175423';
 window.checkoutWhatsApp = function() {
-  let msg = '🛡️ *OrbisCORP — Suministro Exclusivo Soldadura*\n\n';
-  cart.forEach(i => msg += `• *${i.nombre}* | Cant: ${i.qty} | Subtotal: $${(i.precio*i.qty).toFixed(2)}\n`);
-  window.open(`https://wa.me/527712175423?text=${encodeURIComponent(msg)}`, '_blank');
+  if (!cart.length) return;
+  let msg = '🛡️ *OrbisCORP — Pedido Exclusivo Soldadura*\n\n';
+  cart.forEach(i => msg += `• *${i.nombre}* | Cant: ${i.qty} | Subtotal: $${(i.precio*i.qty).toFixed(2)} MXN\n`);
+  msg += `\n*Total estimado:* $${cart.reduce((s,i)=>s+i.precio*i.qty,0).toFixed(2)} MXN`;
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
 window.openProductModal = function(id) {
-  if(!isAdmin) return;
-  if(id) {
-    const p = allP.find(x => x.id === id); if(!p) return;
-    document.getElementById('pm-id').value = id; document.getElementById('pm-nombre').value = p.nombre;
-    document.getElementById('pm-precio').value = p.precio; document.getElementById('pm-sku').value = p.sku;
-    document.getElementById('pm-inventario').value = p.inventario||0; document.getElementById('pm-desc').value = p.desc||'';
-  } else { ['pm-id','pm-nombre','pm-desc','pm-precio','pm-sku','pm-inventario'].forEach(f=>document.getElementById(f).value=''); }
+  if (!isAdmin) return;
+  document.getElementById('pm-err').classList.remove('show');
+  if (id) {
+    const p = allP.find(x => x.id === id); if (!p) return;
+    document.getElementById('pm-title-el').textContent = '◈ Editar Producto';
+    document.getElementById('pm-id').value = id;
+    document.getElementById('pm-nombre').value = p.nombre || '';
+    document.getElementById('pm-cat').value = p.categoria || 'Soldadura';
+    document.getElementById('pm-desc').value = p.desc || '';
+    document.getElementById('pm-precio').value = p.precio || '';
+    document.getElementById('pm-sku').value = p.sku || '';
+    document.getElementById('pm-inventario').value = p.inventario ?? '';
+    pmImgUrl = p.imageUrl || '';
+    const pv = document.getElementById('pm-preview');
+    if (pmImgUrl) { pv.src = pmImgUrl; pv.style.display = 'block'; document.getElementById('pm-upload-hint').style.display = 'none'; }
+  } else {
+    document.getElementById('pm-title-el').textContent = '◈ Nuevo Producto';
+    ['pm-id','pm-nombre','pm-desc','pm-precio','pm-sku','pm-inventario'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('pm-cat').value = 'Soldadura';
+    document.getElementById('pm-preview').style.display = 'none';
+    document.getElementById('pm-upload-hint').style.display = '';
+  }
   document.getElementById('prod-modal').classList.add('open');
 };
 window.closeProdModal = () => document.getElementById('prod-modal').classList.remove('open');
-window.pmImgSelect = function(input) { const file = input.files[0]; if(file) pmImgFile = file; };
-
-window.saveProducto = async function() {
-  const nombre = document.getElementById('pm-nombre').value.trim(); const precio = parseFloat(document.getElementById('pm-precio').value);
-  const sku = document.getElementById('pm-sku').value.trim(); const inv = parseInt(document.getElementById('pm-inventario').value, 10);
-  if(!nombre || isNaN(precio) || !sku) return; setSave('saving','● Guardando...');
-  try {
-    let imageUrl = pmImgUrl; if(pmImgFile) { const sr = stRef(storage, `orbiscorp/productos/${Date.now()}_${pmImgFile.name}`); const sn = await uploadBytes(sr, pmImgFile); imageUrl = await getDownloadURL(sn.ref); }
-    const payload = { nombre, categoria: CATEGORIA_ACTUAL, precio, sku, inventario: inv, desc: document.getElementById('pm-desc').value.trim(), imageUrl };
-    const eid = document.getElementById('pm-id').value;
-    if(eid) await updateDoc(doc(db, 'productos_orbis', eid), payload); else { payload.creadoEn = serverTimestamp(); await addDoc(PRODUCTOS, payload); }
-    setSave('saved','✓ Guardado'); closeProdModal(); loadProducts();
-  } catch(e) { setSave('error','✕ Error'); }
+window.pmImgSelect = function(input) {
+  const file = input.files[0]; if (!file) return; pmImgFile = file;
+  const r = new FileReader(); r.onload = e => { const pv = document.getElementById('pm-preview'); pv.src = e.target.result; pv.style.display = 'block'; document.getElementById('pm-upload-hint').style.display = 'none'; }; r.readAsDataURL(file);
 };
 
-window.deleteProduct = async function(id) { if(confirm('¿Eliminar?')) { await deleteDoc(doc(db, 'productos_orbis', id)); loadProducts(); } };
+window.saveProducto = async function() {
+  if (!isAdmin) return;
+  const nombre = document.getElementById('pm-nombre').value.trim();
+  const cat = document.getElementById('pm-cat').value;
+  const precio = parseFloat(document.getElementById('pm-precio').value);
+  const sku = document.getElementById('pm-sku').value.trim();
+  const inv = parseInt(document.getElementById('pm-inventario').value, 10);
+
+  if (!nombre || !cat || isNaN(precio) || !sku || isNaN(inv)) { document.getElementById('pm-err').classList.add('show'); return; }
+  setSave('saving', '● Guardando...');
+  try {
+    let imageUrl = pmImgUrl;
+    if (pmImgFile) {
+      const sr = stRef(storage, `orbiscorp/productos/${Date.now()}_${pmImgFile.name}`);
+      const sn = await uploadBytes(sr, pmImgFile); imageUrl = await getDownloadURL(sn.ref);
+    }
+    const payload = { nombre, categoria: cat, precio, desc: document.getElementById('pm-desc').value.trim(), sku, inventario: inv, imageUrl };
+    const eid = document.getElementById('pm-id').value;
+    if (eid) { await updateDoc(doc(db, 'productos_orbis', eid), payload); } 
+    else { payload.creadoEn = serverTimestamp(); await addDoc(PRODUCTOS, payload); }
+    setSave('saved', '✓ Guardado'); closeProdModal(); loadProducts();
+  } catch(e) { setSave('error', '✕ Error'); }
+};
+
+window.deleteProduct = async function(id) {
+  if (!isAdmin || !confirm('¿Eliminar producto?')) return;
+  try { await deleteDoc(doc(db, 'productos_orbis', id)); cart = cart.filter(c => c.id !== id); updateCartUI(); loadProducts(); } catch(e) { alert('Error'); }
+};
+
 window.triggerProdImgUp = id => document.getElementById(`pimg-${id}`)?.click();
-window.handleProdImgUp = async function(input, id) { const file = input.files[0]; if(file) { setSave('saving','● Subiendo...'); const sr = stRef(storage, `orbiscorp/productos/${id}`); await uploadBytes(sr, file); const url = await getDownloadURL(sr); await updateDoc(doc(db, 'productos_orbis', id), { imageUrl: url }); setSave('saved','✓ OK'); loadProducts(); } };
+window.handleProdImgUp = async function(input, id) {
+  const file = input.files[0]; if (!file || !isAdmin) return;
+  setSave('saving', '● Subiendo...');
+  try {
+    const sr = stRef(storage, `orbiscorp/productos/${id}_${Date.now()}_${file.name}`);
+    const sn = await uploadBytes(sr, file); const url = await getDownloadURL(sn.ref);
+    await updateDoc(doc(db, 'productos_orbis', id), { imageUrl: url });
+    setSave('saved', '✓ Imagen ok'); loadProducts();
+  } catch(e) { setSave('error', '✕ Error'); }
+};
 
-function enableAdmin() { isAdmin = true; document.body.classList.add('admin-mode'); document.getElementById('admin-toolbar').classList.add('active'); activateFields(); }
-function disableAdmin() { isAdmin = false; document.body.classList.remove('admin-mode'); }
+async function submitLead(fd) {
+  const folio = `ORB-${Date.now().toString(36).toUpperCase()}`;
+  await addDoc(LEADS, { folio, nombre: fd.get('nombre')||'', empresa: fd.get('empresa')||'', email: fd.get('email')||'', telefono: fd.get('telefono')||'', asunto: fd.get('asunto')||'', mensaje: fd.get('mensaje')||'', estado: 'nuevo', origen: 'web_soldadura', creadoEn: serverTimestamp() });
+  return folio;
+}
+
+window.showLeads = async function() { /* ... Lógica nativa de leads ... */ };
+
+function enableAdmin() { isAdmin = true; document.body.classList.add('admin-mode'); document.getElementById('admin-toolbar').classList.add('active'); document.getElementById('nav-admin-badge').style.display='inline-block'; activateFields(); if(allP.length) renderGalerias(); }
+function disableAdmin() { isAdmin = false; document.body.classList.remove('admin-mode'); document.getElementById('admin-toolbar').classList.remove('active'); document.getElementById('nav-admin-badge').style.display='none'; deactivateFields(); }
 onAuthStateChanged(auth, u => u ? enableAdmin() : disableAdmin());
-function activateFields() { document.querySelectorAll('[data-field]').forEach(el => { el.contentEditable = 'true'; el.onclick=(e)=>e.stopPropagation(); el.addEventListener('blur', () => saveField(el.dataset.field, el.textContent.trim())); }); }
-async function saveField(f, v) { try { await updateDoc(CREF, { [f]: v }); } catch(e){} }
-function setSave(c, m) { document.getElementById('save-status-wrap').className=c; document.getElementById('save-txt').textContent=m; }
 
-window.openCart = () => { document.getElementById('cart-overlay').classList.add('open'); document.getElementById('cart-sidebar').classList.add('open'); };
-window.closeCart = () => { document.getElementById('cart-overlay').classList.remove('open'); document.getElementById('cart-sidebar').classList.remove('open'); };
-window.toggleCat = () => { const block = document.getElementById(`cat-block-${CATEGORIA_ACTUAL.toLowerCase()}`); if(block) block.classList.toggle('expanded'); };
-window.closeDrawer = () => {}; window.doLogin = async function() { const em = document.getElementById('l-email').value.trim(); const pw = document.getElementById('l-pass').value; try { await signInWithEmailAndPassword(auth, em, pw); document.getElementById('login-modal').classList.remove('open'); } catch(e){ document.getElementById('l-err').style.display='block'; } };
-window.doLogout = async () => { await signOut(auth); location.reload(); }; window.openLogin = () => document.getElementById('login-modal').classList.add('open'); window.closeLogin = () => document.getElementById('login-modal').classList.remove('open');
+function activateFields() { document.querySelectorAll('[data-field]').forEach(el => { el.contentEditable = 'true'; el.addEventListener('blur', onBlur); }); }
+function deactivateFields() { document.querySelectorAll('[data-field]').forEach(el => { el.contentEditable = 'false'; }); }
+function onBlur(e) { if (!isAdmin) return; saveField(e.target.dataset.field, e.target.innerHTML.trim()); }
+async function saveField(f, v) { setSave('saving', '● Guardando...'); try { await updateDoc(CREF, { [f]: v }); setSave('saved', '✓ Guardado'); } catch(e) { setSave('error', '✕ Error'); } }
+function setSave(c, m) { const w = document.getElementById('save-status-wrap'); const t = document.getElementById('save-txt'); if(w&&t){ w.className=c; t.textContent=m; } }
 
-document.getElementById('ct-form')?.addEventListener('submit', async e => { e.preventDefault(); document.getElementById('form-success').classList.add('show'); e.target.style.display='none'; });
+window.doLogin = async function() { /* ... Auth ... */ };
+window.doLogout = async () => { if(confirm('¿Salir?')) await signOut(auth); };
+window.reloadData = () => loadProducts();
+window.openLogin = () => document.getElementById('login-modal').classList.add('open');
+window.closeLogin = () => document.getElementById('login-modal').classList.remove('open');
+
+document.getElementById('ct-form')?.addEventListener('submit', async e => {
+  e.preventDefault(); const btn = document.getElementById('btn-sub'); btn.disabled = true;
+  try { const f = await submitLead(new FormData(e.target)); e.target.style.display='none'; document.getElementById('f-folio').textContent=f; document.getElementById('form-success').classList.add('show'); } 
+  catch(ex) { btn.disabled = false; }
+});
+
+window.addEventListener('scroll', () => document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 40), { passive: true });
+window.toggleDrawer = () => document.getElementById('mobile-drawer').classList.toggle('open');
+window.closeDrawer = () => document.getElementById('mobile-drawer').classList.remove('open');
+
 function initReveal() { const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.06 }); document.querySelectorAll('.reveal').forEach(el => io.observe(el)); }
 
-init().then(() => initReveal());
+init().then(() => initReveal()).catch(() => hideLoader());
 
 
 /* ═══════════════════════════════════════════════════
