@@ -2191,7 +2191,21 @@ const CREF = doc(db, 'web_content', 'orbiscorp'); const PRODUCTOS = collection(d
 const CATEGORIA_ACTUAL = 'Herramientas';
 const CATS = [CATEGORIA_ACTUAL]; const CAT_ICONS = { Herramientas: '🔧' }; const expandedCats = new Set([CATEGORIA_ACTUAL]);
 
-let data = null; let isAdmin = false; let allP = []; let cart = []; let pmImgFile = null; let pmImgUrl = '';
+let data = null; let isAdmin = false; let allP = []; let cart = [];
+const LS_CART = 'orbiscorp_cart_v4';
+
+function persistCart() {
+  try { localStorage.setItem(LS_CART, JSON.stringify(cart)); } catch(_) {}
+}
+
+function restoreCart() {
+  try { 
+    const r = localStorage.getItem(LS_CART); 
+    cart = r ? JSON.parse(r) : []; 
+  } catch(_) { 
+    cart = []; 
+  }
+} let pmImgFile = null; let pmImgUrl = '';
 
 async function init() {
   onSnapshot(CREF, snap => { data = snap.exists() ? snap.data() : {}; renderAll(data); hideLoader(); }, () => hideLoader());

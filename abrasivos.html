@@ -2843,6 +2843,20 @@ let data      = null;
 let isAdmin   = false;
 let allP      = [];
 let cart      = [];
+const LS_CART = 'orbiscorp_cart_v4';
+
+function persistCart() {
+  try { localStorage.setItem(LS_CART, JSON.stringify(cart)); } catch(_) {}
+}
+
+function restoreCart() {
+  try { 
+    const r = localStorage.getItem(LS_CART); 
+    cart = r ? JSON.parse(r) : []; 
+  } catch(_) { 
+    cart = []; 
+  }
+}
 let pmImgFile = null;
 let pmImgUrl  = '';
 let unsaved   = 0;
@@ -2850,6 +2864,9 @@ let unsaved   = 0;
 const expandedCats = new Set([CATEGORIA_ACTUAL]);
 
 async function init() {
+  restoreCart(); // <--- Cargar carrito guardado
+  updateCartUI(); // <--- Actualizar la interfaz
+  
   try {
     const snap = await getDoc(CREF);
     if (!snap.exists()) await setDoc(CREF, DEFAULT);
