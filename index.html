@@ -1889,7 +1889,21 @@ window.toggleCat = function(cat) {
 // ═══════════════════════════════════════════
 // CART
 // ═══════════════════════════════════════════
-function persistCart() { try{localStorage.setItem(LS_CART,JSON.stringify(cart));}catch(_){} }
+async function persistCart() { 
+  // Guardado local (para velocidad inmediata)
+  try { localStorage.setItem(LS_CART, JSON.stringify(cart)); } catch(_) {} 
+
+  // Sincronización en la nube (si el cliente está logueado)
+  if (currentCustomer && currentCustomer.uid) {
+    try {
+      await updateDoc(doc(db, 'clientes', currentCustomer.uid), { 
+        carrito: cart 
+      });
+    } catch (e) {
+      console.error("No se pudo sincronizar el carrito con la nube", e);
+    }
+  }
+}
 function restoreCart()  { try{const r=localStorage.getItem(LS_CART);cart=r?JSON.parse(r):[];}catch(_){cart=[];} }
 
 function updateCartUI() {
@@ -2351,51 +2365,34 @@ onAuthStateChanged(auth, async user => {
   if (_unsubPerfil) { _unsubPerfil(); _unsubPerfil = null; }
 
   if (user) {
-    const clienteRef = doc(db, 'clientes', user.uid);
-    const docSnap = await getDoc(clienteRef);
-
-    if (docSnap.exists() && docSnap.data().rol === 'cliente') {
-      // Es un Cliente
-      isAdmin = false;
-      document.body.classList.remove('admin-mode');
-      document.getElementById('admin-toolbar')?.classList.remove('active');
-      document.getElementById('nav-admin-badge').style.display = 'none';
-      deactivateFields();
-
-      _unsubPerfil = onSnapshot(clienteRef, snap => {
-        if (snap.exists()) {
-          currentCustomer = { uid: snap.id, ...snap.data() };
-          updateCustomerUI(currentCustomer);
-
-          const av = document.getElementById('perfil-avatar');
-          const nameEl = document.getElementById('perfil-nombre-header');
-          const mailEl = document.getElementById('perfil-email-header');
-          const badge = document.getElementById('perfil-fiscal-badge');
-          
-          if(av) av.textContent = (currentCustomer.nombre || currentCustomer.email).charAt(0).toUpperCase();
-          if(nameEl) nameEl.textContent = `${currentCustomer.nombre||''} ${currentCustomer.apellido||''}`.trim() || 'Sin Nombre';
-          if(mailEl) mailEl.textContent = currentCustomer.email;
-
-          if(badge) {
-            if(currentCustomer.empresa || currentCustomer.rfc) {
-              badge.className = 'fiscal-badge ok'; badge.textContent = '✓ Datos fiscales listos';
-            } else {
-              badge.className = 'fiscal-badge pending'; badge.textContent = '⚠ Datos fiscales incompletos';
-            }
-          }
-        }
-      });
-    } else {
-      // Es el Administrador OrbisCORP
+    // 1. IDENTIFICACIÓN DE ADMINISTRADOR (Hardcoded por seguridad)
+    if (user.uid === 'NTzo9WQuD5XayDet6qUlATGE1t43') {
       isAdmin = true;
       currentCustomer = null;
       updateCustomerUI(null);
       document.body.classList.add('admin-mode');
       document.getElementById('admin-toolbar')?.classList.add('active');
-      document.getElementById('nav-admin-badge').style.display = 'block';
       document.documentElement.style.setProperty('--toolbar-h','44px');
       activateFields();
+      return; 
     }
+
+    // 2. IDENTIFICACIÓN DE CLIENTE
+    const clienteRef = doc(db, 'clientes', user.uid);
+    _unsubPerfil = onSnapshot(clienteRef, (snap) => {
+      if (snap.exists()) {
+        isAdmin = false;
+        currentCustomer = { uid: snap.id, ...snap.data() };
+        updateCustomerUI(currentCustomer);
+        
+        // RECUPERAR CARRITO DE LA NUBE
+        if (currentCustomer.carrito) {
+          cart = currentCustomer.carrito;
+          persistCart();
+          updateCartUI();
+        }
+      }
+    });
   } else {
     // Sesión cerrada
     isAdmin = false;
@@ -2403,9 +2400,10 @@ onAuthStateChanged(auth, async user => {
     updateCustomerUI(null);
     document.body.classList.remove('admin-mode');
     document.getElementById('admin-toolbar')?.classList.remove('active');
-    document.getElementById('nav-admin-badge').style.display = 'none';
     document.documentElement.style.setProperty('--toolbar-h','0px');
     deactivateFields();
+    cart = [];
+    updateCartUI();
   }
 });
 
