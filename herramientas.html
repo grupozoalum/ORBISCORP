@@ -56,7 +56,7 @@ a { text-decoration: none; color: inherit; }
 nav { position: sticky; top: 0; z-index: 200; height: var(--nav-h); background: rgba(255,255,255,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); }
 .nav-inner { max-width: 1280px; margin: 0 auto; height: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
 .nav-logo { display: flex; align-items: center; gap: 10px; }
-.nav-logo-img { width: 36px; height: 36px; background: var(--orbis); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; }
+.nav-logo-img { width: 36px; height: 36px; background: transparent; border-radius: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; } .nav-logo-img img { width: 100%; height: 100%; object-fit: contain; }
 .nav-logo-name { font-family: var(--font-display); font-size: 1.25rem; color: var(--orbis); } .nav-logo-name span { color: var(--safety-dark); }
 .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
 .nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--text-2); padding: 6px 14px; border-radius: var(--r-sm); }
@@ -727,14 +727,12 @@ nav#main-nav.scrolled {
 }
 
 .nav-logo-mark, .nav-logo-img {
-  background: linear-gradient(135deg, var(--orbis) 0%, var(--orbis-dark) 100%);
-  box-shadow: 0 2px 8px rgba(47, 59, 162, 0.35);
-  transition: transform 0.3s var(--transition-spring), box-shadow 0.3s ease;
+  background: transparent;
+  transition: transform 0.3s var(--transition-spring);
 }
 .nav-logo:hover .nav-logo-mark,
 .nav-logo:hover .nav-logo-img {
   transform: scale(1.08) rotate(-2deg);
-  box-shadow: 0 4px 16px rgba(47, 59, 162, 0.45);
 }
 .nav-logo-name {
   font-size: 1.3rem;
@@ -2008,24 +2006,45 @@ footer .footer-badges {
   </div>
 </div>
 
+<!-- CARRITO SIDEBAR -->
 <div id="cart-overlay" class="cart-overlay" onclick="closeCart()"></div>
-<div id="cart-sidebar" class="cart-sidebar">
-  <div class="cart-head"><div class="cart-title">🛒 Carrito de Compras</div><button class="cart-close" onclick="closeCart()">✕</button></div>
-  <div class="cart-body" id="cart-body"><div class="cart-empty"><p class="cart-empty-text">Tu carrito está vacío.</p></div></div>
-  <div class="cart-foot" id="cart-foot" style="display:none">
-    <div class="cart-subtotal"><span class="cart-subtotal-label">Total estimado</span><span class="cart-subtotal-val" id="cart-total">$0.00</span></div>
-    <button class="btn-checkout ripple-host" onclick="checkoutWhatsApp()">Pedir por WhatsApp</button>
+<div id="cart-sidebar" class="cart-sidebar" role="dialog" aria-label="Carrito de compras">
+  <div class="cart-head">
+    <div class="cart-title">🛒 Carrito de Compras</div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p class="cart-empty-text">Tu carrito está vacío.<br>Explora nuestro catálogo.</p>
+    </div>
+  </div>
+  <button class="btn-checkout ripple-host" style="background: linear-gradient(135deg, var(--orbis) 0%, var(--orbis-dark) 100%); margin-bottom: 8px;" onclick="window.abrirModalCotizacion()">
+      📄 Generar Cotización en PDF
+    </button>
+    <button class="btn-checkout ripple-host" onclick="checkoutWhatsApp()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">...</svg>
+      Pedir por WhatsApp
+    </button>
   </div>
 </div>
 
-<nav id="main-nav">
+<!-- NAV -->
+<nav id="main-nav" role="navigation" aria-label="Navegación principal">
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo">
-      <div class="nav-logo-img"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8" stroke="white" stroke-width="1.5"/><circle cx="11" cy="11" r="4" fill="white" opacity="0.9"/><path d="M3 11 L19 11" stroke="#FFD700" stroke-width="1"/></svg></div>
+    <a href="index.html" class="nav-logo" aria-label="OrbisCORP inicio">
+      <div class="nav-logo-img">
+        <img src="orbis_b.jpeg" alt="OrbisCORP Logo" onerror="this.style.display='none';">
+      </div>
       <span class="nav-logo-name">ORBIS<span>CORP</span></span>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Inicio</a></li><li><a href="epp.html">EPP</a></li><li><a href="abrasivos.html">Abrasivos</a></li><li><a href="soldadura.html">Soldadura</a></li><li><a href="herramientas.html" class="active">Herramientas</a></li><li><a href="ferreteria.html">Ferretería</a></li>
+      <li><a href="index.html">Inicio</a></li>
+      <li><a href="epp.html">EPP</a></li>
+      <li><a href="abrasivos.html">Abrasivos</a></li>
+      <li><a href="soldadura.html" class="active">Soldadura</a></li>
+      <li><a href="herramientas.html">Herramientas</a></li>
+      <li><a href="ferreteria.html">Ferretería</a></li>
     </ul>
     <div class="nav-right">
       <span id="nav-admin-badge">◈ Admin</span>
@@ -2033,13 +2052,28 @@ footer .footer-badges {
         🛒 Carrito
         <span class="cart-badge" id="cart-badge" style="display:none">0</span>
       </button>
-      <a href="#catalogo" class="nav-cta">Ver Herramientas →</a>
+      <a href="#catalogo" class="nav-cta">Ver Catálogo →</a>
       <button class="hamburger" id="ham-btn" aria-label="Menú" aria-expanded="false" onclick="toggleDrawer()">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
 </nav>
+<div id="modal-cotizacion" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <span class="modal-head-title" style="color: white;">📄 Solicitar Cotización</span>
+      <button class="modal-close" onclick="window.cerrarModalCotizacion()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size: 0.9rem; color: var(--text-2); margin-bottom: 16px;">Te enviaremos tu cotización formal en PDF al correo que nos indiques.</p>
+      <div class="mfield"><label for="cot-email">Correo electrónico *</label><input type="email" id="cot-email" placeholder="tu@correo.com" required></div>
+      <div class="merror" id="cot-err" style="margin-top: 8px;">Por favor ingresa un correo válido.</div>
+      <p id="cot-success" style="color: var(--success); font-size: 0.85rem; font-weight: bold; display: none; margin-top: 8px;">¡Cotización enviada con éxito!</p>
+      <button class="msave-btn ripple-host" style="width:100%; margin-top:16px;" id="btn-enviar-cot" onclick="window.enviarCotizacionPDF()">Enviar a mi correo →</button>
+    </div>
+  </div>
+</div>
 
 <section id="hero">
   <div class="hero-floating-orb hero-floating-orb-1"></div>
@@ -2192,6 +2226,8 @@ const CATEGORIA_ACTUAL = 'Herramientas';
 const CATS = [CATEGORIA_ACTUAL]; const CAT_ICONS = { Herramientas: '🔧' }; const expandedCats = new Set([CATEGORIA_ACTUAL]);
 
 let data = null; let isAdmin = false; let allP = []; let cart = [];
+
+
 const LS_CART = 'orbiscorp_cart_v4';
 
 function persistCart() {
@@ -2208,6 +2244,7 @@ function restoreCart() {
 } let pmImgFile = null; let pmImgUrl = '';
 
 async function init() {
+  restoreCart(); // <-- 1. AGREGA ESTA LÍNEA AQUÍ
   onSnapshot(CREF, snap => { data = snap.exists() ? snap.data() : {}; renderAll(data); hideLoader(); }, () => hideLoader());
   loadProducts();
 }
@@ -2305,19 +2342,77 @@ window.addToCart = function(id) {
   updateCartUI(); openCart();
 };
 
-function updateCartUI() { window.__orbisCart = cart; {
+function updateCartUI() { 
+  window.__orbisCart = cart;
   const cb = document.getElementById('cart-body'); const badge = document.getElementById('cart-badge');
   badge.textContent = cart.length; badge.style.display = cart.length ? 'flex' : 'none';
   if(!cart.length) { cb.innerHTML = '<div class="cart-empty">Carrito vacío</div>'; document.getElementById('cart-foot').style.display='none'; return; }
   cb.innerHTML = cart.map(i => `<div><strong>${i.nombre}</strong> - $${i.precio} MXN</div>`).join('');
   document.getElementById('cart-foot').style.display='block';
   document.getElementById('cart-total').textContent = `$${cart.reduce((s,i)=>s+i.precio,0).toFixed(2)} MXN`;
-}}
+  persistCart();
+}
 
 window.checkoutWhatsApp = function() {
   let msg = '🛡️ *Pedido Especializado de Herramientas OrbisCORP*\n\n';
   cart.forEach(i => msg += `• *${i.nombre}* - Precio: $${i.precio}\n`);
   window.open(`https://wa.me/527712175423?text=${encodeURIComponent(msg)}`, '_blank');
+};
+window.abrirModalCotizacion = function() {
+  if(!cart.length) return;
+  document.getElementById('modal-cotizacion').classList.add('open');
+  document.getElementById('cot-email').focus();
+};
+
+window.cerrarModalCotizacion = function() {
+  document.getElementById('modal-cotizacion').classList.remove('open');
+  document.getElementById('cot-email').value = '';
+  document.getElementById('cot-err').classList.remove('show');
+  document.getElementById('cot-success').style.display = 'none';
+};
+
+window.enviarCotizacionPDF = async function() {
+  const emailInput = document.getElementById('cot-email').value.trim();
+  const err = document.getElementById('cot-err');
+  const btn = document.getElementById('btn-enviar-cot');
+  const success = document.getElementById('cot-success');
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput)) {
+    err.textContent = "Por favor ingresa un correo válido.";
+    err.classList.add('show');
+    return;
+  }
+  err.classList.remove('show');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    const payload = {
+      data: {
+        // Mapea usando qty (que sí lo usa el script de herramientas) 
+        items: cart.map(item => ({ productId: item.sku || item.id, cantidad: item.qty || 1 })),
+        correoInvitado: emailInput
+      }
+    };
+    const resp = await fetch("https://us-central1-oracles-99bc3.cloudfunctions.net/generarCotizacion", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const res = await resp.json();
+    if (res.error) throw new Error(res.error.message);
+    success.textContent = `✓ Cotización ${res.result.folio} enviada a ${emailInput}`;
+    success.style.display = 'block';
+    if (window.showToast) window.showToast("Cotización enviada exitosamente", "📄");
+    setTimeout(() => { window.cerrarModalCotizacion(); window.closeCart(); }, 3000);
+  } catch (e) {
+    console.error(e);
+    err.textContent = "Error al enviar. Intenta de nuevo.";
+    err.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Enviar a mi correo →';
+  }
 };
 
 window.openProductModal = function(id) {
@@ -2369,7 +2464,19 @@ window.doLogin = async function() {
 window.doLogout = async () => { await signOut(auth); location.reload(); };
 
 document.getElementById('ct-form')?.addEventListener('submit', async e => {
-  e.preventDefault(); document.getElementById('form-success').classList.add('show'); e.target.style.display='none';
+  e.preventDefault();
+  const btn = document.getElementById('btn-sub'), txt = document.getElementById('sub-txt'), err = document.getElementById('form-err');
+  err.classList.remove('show');
+  if (!document.getElementById('f-nom').value.trim() || !document.getElementById('f-mail').value.trim() || !document.getElementById('f-asunto').value) { err.classList.add('show'); return; }
+  btn.disabled = true; txt.textContent = '⟳ Enviando...';
+  try {
+    const fd = new FormData(e.target);
+    const folio = `ORB-${Date.now().toString(36).toUpperCase()}`;
+    await addDoc(LEADS, { folio, nombre: fd.get('nombre')||'', empresa: fd.get('empresa')||'', email: fd.get('email')||'', telefono: fd.get('telefono')||'', asunto: fd.get('asunto')||'', mensaje: fd.get('mensaje')||'', estado: 'nuevo', origen: 'web_herramientas', creadoEn: serverTimestamp() });
+    e.target.style.display = 'none';
+    document.getElementById('f-folio').textContent = folio;
+    document.getElementById('form-success').classList.add('show');
+  } catch(ex) { btn.disabled = false; txt.textContent = 'Enviar Cotización'; document.getElementById('form-err').textContent = '⚠ Error al enviar.'; err.classList.add('show'); }
 });
 
 function initReveal() { const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.06 }); document.querySelectorAll('.reveal').forEach(el => io.observe(el)); }

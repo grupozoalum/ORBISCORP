@@ -128,8 +128,8 @@ nav.scrolled { box-shadow: var(--shadow); }
   padding: 0 24px; gap: 16px;
 }
 .nav-logo { display: flex; align-items: center; gap: 10px; }
-.nav-logo-img { width: 36px; height: 36px; background: var(--orbis); border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; }
-.nav-logo-img svg { width: 22px; height: 22px; }
+.nav-logo-img { width: 36px; height: 36px; background: transparent; border-radius: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+.nav-logo-img img { width: 100%; height: 100%; object-fit: contain; }
 .nav-logo-name { font-family: var(--font-display); font-size: 1.25rem; letter-spacing: 0.05em; color: var(--orbis); }
 .nav-logo-name span { color: var(--safety-dark); }
 .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; }
@@ -1253,14 +1253,12 @@ nav#main-nav.scrolled {
 }
 
 .nav-logo-mark, .nav-logo-img {
-  background: linear-gradient(135deg, var(--orbis) 0%, var(--orbis-dark) 100%);
-  box-shadow: 0 2px 8px rgba(47, 59, 162, 0.35);
-  transition: transform 0.3s var(--transition-spring), box-shadow 0.3s ease;
+  background: transparent;
+  transition: transform 0.3s var(--transition-spring);
 }
 .nav-logo:hover .nav-logo-mark,
 .nav-logo:hover .nav-logo-img {
   transform: scale(1.08) rotate(-2deg);
-  box-shadow: 0 4px 16px rgba(47, 59, 162, 0.45);
 }
 .nav-logo-name {
   font-size: 1.3rem;
@@ -2606,11 +2604,7 @@ footer .footer-badges {
   <div class="nav-inner">
     <a href="index.html" class="nav-logo" aria-label="OrbisCORP inicio">
       <div class="nav-logo-img">
-        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="11" cy="11" r="8" stroke="white" stroke-width="1.5"/>
-          <circle cx="11" cy="11" r="4" fill="white" opacity="0.9"/>
-          <path d="M3 11 L19 11" stroke="#FFD700" stroke-width="1"/>
-        </svg>
+        <img src="orbis_b.jpeg" alt="OrbisCORP Logo" onerror="this.style.display='none';">
       </div>
       <span class="nav-logo-name">ORBIS<span>CORP</span></span>
     </a>
