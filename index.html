@@ -986,6 +986,28 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
   .cat-product-price { font-size: 1.1rem !important; }
   .btn-cover-explore { font-size: 0.75rem !important; min-height: 34px !important; padding: 6px 12px !important; margin-top: 4px !important;}
 }
+/* ─────────────────────────────────────────────────
+   FIX 8 · RECUPERAR CARRITO TOP Y AJUSTAR BOTTOM NAV
+───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Resucita el ícono del carrito en la barra superior */
+  .btn-cart span:first-child { 
+    display: inline-block !important; 
+    font-size: 1.2rem;
+  }
+  /* Achica el botón del carrito para que sea un cuadro limpio */
+  .btn-cart { 
+    padding: 8px !important; 
+    min-width: 40px; 
+    justify-content: center;
+  }
+  
+  /* Ajustes para que quepan 6 botones en la barra inferior perfectamente */
+  .mbn-items { gap: 0; }
+  .mbn-item { padding: 0 !important; }
+  .mbn-label { font-size: 0.5rem !important; letter-spacing: 0; }
+  .mbn-icon { font-size: 1.15rem !important; }
+}
 </style>
 </head>
 <body>
@@ -1049,11 +1071,13 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
   </div>
 </div>
 <!-- MOBILE BOTTOM NAV -->
+<!-- MOBILE BOTTOM NAV -->
 <nav id="mobile-bottom-nav" aria-label="Navegación móvil">
   <div class="mbn-items">
     <button class="mbn-item" data-route="home" onclick="navigate('home')" aria-label="Inicio">
       <div class="mbn-icon">🏠</div><div class="mbn-label">Inicio</div><div class="mbn-active-dot"></div>
-    </button><button class="mbn-item" data-route="catalog" onclick="toggleCatalogPopup()" aria-label="Catálogo">
+    </button>
+    <button class="mbn-item" data-route="catalog" onclick="toggleCatalogPopup()" aria-label="Catálogo">
       <div class="mbn-icon">📦</div><div class="mbn-label">Catálogo</div><div class="mbn-active-dot"></div>
     </button>
     <button class="mbn-item" onclick="openSearch()" aria-label="Buscar">
@@ -1062,6 +1086,10 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
     <button class="mbn-item" id="mbn-cart-btn" onclick="openCart()" aria-label="Carrito">
       <div class="mbn-icon">🛒<span class="mbn-badge" id="mbn-cart-badge" style="display:none">0</span></div>
       <div class="mbn-label">Carrito</div><div class="mbn-active-dot"></div>
+    </button>
+    <!-- NUEVO BOTÓN DE MI CUENTA -->
+    <button class="mbn-item" onclick="handleMobileAuthNav()" aria-label="Mi Cuenta">
+      <div class="mbn-icon">👤</div><div class="mbn-label">Perfil</div><div class="mbn-active-dot"></div>
     </button>
     <button class="mbn-item" onclick="scrollToContact()" aria-label="Contacto">
       <div class="mbn-icon">💬</div><div class="mbn-label">Contacto</div><div class="mbn-active-dot"></div>
