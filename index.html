@@ -840,8 +840,52 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
   #cat-hero .hero-stats    { display: none !important; }
   #cat-hero .hero-actions  { margin-bottom: 0 !important; gap: 8px !important; }
   #cat-hero .hero-badge    { margin-bottom: 10px !important; }
-  #cat-hero .hero-diag     { height: 16px !important; }
+#cat-hero .hero-diag       { height: 16px !important; }
 }
+
+/* ── CATÁLOGO POPUP (MENÚ TIPO BAGUETTE) ── */
+#catalog-popup-backdrop { display: none; position: fixed; inset: 0; z-index: 798; }
+#catalog-popup-backdrop.open { display: block; }
+#catalog-popup {
+  position: fixed;
+  bottom: calc(var(--mobile-nav-h) + var(--safe-bottom) + 12px);
+  left: 16px; right: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: var(--r-xl);
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(47,59,162,.15), 0 4px 12px rgba(0,0,0,.08);
+  z-index: 799;
+  transform: translateY(120%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.35s var(--ease-spring), opacity 0.3s, visibility 0s 0.35s;
+  border: 1px solid rgba(221,227,240,.8);
+}
+#catalog-popup.open {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.35s var(--ease-spring), opacity 0.3s, visibility 0s 0s;
+}
+.cp-title {
+  font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 12px;
+  text-align: center;
+}
+.cp-grid { display: flex; flex-direction: column; gap: 6px; }
+.cp-grid a {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; background: var(--surface2);
+  border-radius: var(--r); color: var(--text-2);
+  font-weight: 500; font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer; border: none; box-shadow: none;
+}
+.cp-grid a:active { transform: scale(0.98); }
+.cp-grid a:hover { background: var(--orbis-light); color: var(--orbis); }
+
 </style>
 </head>
 <body>
@@ -893,14 +937,23 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
     <div id="search-results" role="listbox"><div class="search-empty">Escribe para buscar productos</div></div>
   </div>
 </div>
-
+<div id="catalog-popup-backdrop" onclick="closeCatalogPopup()"></div>
+<div id="catalog-popup" role="menu">
+  <div class="cp-title">Selecciona una categoría</div>
+  <div class="cp-grid">
+    <a onclick="navigate('epp'); closeCatalogPopup()">🦺 EPP</a>
+    <a onclick="navigate('abrasivos'); closeCatalogPopup()">🔴 Abrasivos</a>
+    <a onclick="navigate('soldadura'); closeCatalogPopup()">⚡ Soldadura</a>
+    <a onclick="navigate('herramientas'); closeCatalogPopup()">🔧 Herramientas</a>
+    <a onclick="navigate('ferreteria'); closeCatalogPopup()">🔩 Ferretería</a>
+  </div>
+</div>
 <!-- MOBILE BOTTOM NAV -->
 <nav id="mobile-bottom-nav" aria-label="Navegación móvil">
   <div class="mbn-items">
     <button class="mbn-item" data-route="home" onclick="navigate('home')" aria-label="Inicio">
       <div class="mbn-icon">🏠</div><div class="mbn-label">Inicio</div><div class="mbn-active-dot"></div>
-    </button>
-    <button class="mbn-item" data-route="catalog" onclick="navigate(window._currentCat||'epp')" aria-label="Catálogo">
+    </button><button class="mbn-item" data-route="catalog" onclick="toggleCatalogPopup()" aria-label="Catálogo">
       <div class="mbn-icon">📦</div><div class="mbn-label">Catálogo</div><div class="mbn-active-dot"></div>
     </button>
     <button class="mbn-item" onclick="openSearch()" aria-label="Buscar">
