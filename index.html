@@ -764,11 +764,55 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
 }
 
 @media(max-width:420px) {
-  #hero, #cat-hero { min-height: 50vh; }
-  .hero-title { font-size:1.9rem!important; }
-  .hero-stats { gap:14px; }
-  .nav-logo-name { font-size:1rem; }
-  .nav-inner { padding:0 14px; }
+  #hero, #cat-hero { min-height: 50vh; }
+  .hero-title { font-size:1.9rem!important; }
+  .hero-stats { gap:14px; }
+  .nav-logo-name { font-size:1rem; }
+  .nav-inner { padding:0 14px; }
+}
+
+/* ─────────────────────────────────────────────────
+   FIX 1 · SEARCH → VISTA DE PANTALLA COMPLETA
+───────────────────────────────────────────────── */
+.mobile-search-bar {  display: none;  position: fixed;  inset: 0;  z-index: 700;  background: var(--bg);  flex-direction: column;}
+.mobile-search-bar.open { display: flex; }
+.search-panel {  display: flex;  flex-direction: column;  flex: 1;  background: var(--surface);  border-radius: 0;  width: 100%;  max-width: 100%;  overflow: hidden;  box-shadow: none;  margin: 0;  animation: none;}
+.search-input-wrap {  display: flex;  align-items: center;  padding: 14px 16px;  gap: 10px;  background: var(--surface);  border-bottom: 2px solid var(--orbis);  flex-shrink: 0;}
+#search-results {  flex: 1;  overflow-y: auto;  -webkit-overflow-scrolling: touch;  padding: 8px 0;  max-height: none;}
+
+/* ─────────────────────────────────────────────────
+   FIX 3 · DRAWER → PANEL LATERAL DESLIZANTE
+───────────────────────────────────────────────── */
+#drawer-backdrop {  display: none;  position: fixed;  top: calc(var(--toolbar-h) + var(--nav-h));  left: 0; right: 0; bottom: 0;  z-index: 198;  background: rgba(26,31,60,.55);  backdrop-filter: blur(3px);  -webkit-backdrop-filter: blur(3px);}
+#drawer-backdrop.open { display: block; }
+#mobile-drawer {  display: none;  position: fixed;  top: calc(var(--toolbar-h) + var(--nav-h));  left: 0; bottom: 0;  right: auto !important;  z-index: 199;  width: min(300px, 78vw);  background: var(--surface);  padding: 16px 0 calc(24px + var(--safe-bottom));  flex-direction: column;  gap: 0;  overflow-y: auto;  -webkit-overflow-scrolling: touch;  border-right: 1px solid var(--border);  box-shadow: 6px 0 40px rgba(47,59,162,.2);  transform: translateX(-100%);  visibility: hidden;  transition: transform .35s var(--ease-smooth), visibility 0s .36s;}
+@media(max-width:768px) {  #mobile-drawer { display: flex; } }
+#mobile-drawer.open {  transform: translateX(0);  visibility: visible;  transition: transform .35s var(--ease-smooth), visibility 0s 0s;}
+#mobile-drawer a {  font-size: .975rem;  font-weight: 500;  color: var(--text-2);  padding: 16px 20px;  border-bottom: 1px solid var(--border);  border-radius: 0;  background: transparent;  box-shadow: none;  display: flex;  align-items: center;  gap: 12px;  cursor: pointer;  transition: background .18s, color .18s;}
+#mobile-drawer a::after {  content: '›';  font-size: 1.35rem;  font-weight: 300;  color: var(--text-3);  margin-left: auto;  flex-shrink: 0;  transition: transform .2s var(--ease-spring), color .2s;}
+#mobile-drawer a:hover,#mobile-drawer a.active {  color: var(--orbis);  background: var(--orbis-light);  box-shadow: none;}
+#mobile-drawer a:hover::after,#mobile-drawer a.active::after {  transform: translateX(4px);  color: var(--orbis-mid);}
+
+/* ─────────────────────────────────────────────────
+   FIX 4 · CARRITO → TOUCH TARGET 44px + PIE ANCLADO
+───────────────────────────────────────────────── */
+.cart-item-remove {  background: transparent;  border: none;  color: var(--text-3);  cursor: pointer;  font-size: 1rem;  padding: 0;  border-radius: 50%;  transition: background .15s, color .15s;  flex-shrink: 0;  width: 44px;  height: 44px;  display: flex;  align-items: center;  justify-content: center;}
+.cart-item-remove:hover { background: var(--danger); color: #fff; }
+.cart-body {  flex: 1;  overflow-y: auto;  padding: 16px;  -webkit-overflow-scrolling: touch;  min-height: 0;}
+
+/* ─────────────────────────────────────────────────
+   FIX 2 + FIX 5 · MÓVIL: FAB OCULTO + HERO COMPACTO
+───────────────────────────────────────────────── */
+@media(max-width:768px) {
+  #wa-fab { display: none !important; }
+  #cat-hero                { min-height: 0 !important; }
+  #cat-hero .hero-inner    { padding: 20px 16px 28px !important; }
+  #cat-hero .hero-title    { font-size: 1.5rem !important; margin-bottom: 8px !important; line-height: 1.15; }
+  #cat-hero .hero-desc     { font-size: .82rem !important; line-height: 1.5 !important; margin-bottom: 12px !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  #cat-hero .hero-stats    { display: none !important; }
+  #cat-hero .hero-actions  { margin-bottom: 0 !important; gap: 8px !important; }
+  #cat-hero .hero-badge    { margin-bottom: 10px !important; }
+  #cat-hero .hero-diag     { height: 16px !important; }
 }
 </style>
 </head>
@@ -1011,6 +1055,7 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
 </nav>
 
 <!-- MOBILE DRAWER -->
+<div id="drawer-backdrop" onclick="closeDrawer()"></div>
 <div id="mobile-drawer" role="navigation" aria-label="Menú móvil">
   <a data-route="home"         onclick="navigate('home');closeDrawer()">🏠 Inicio</a>
   <a data-route="epp"          onclick="navigate('epp');closeDrawer()">🦺 EPP</a>
@@ -3123,14 +3168,17 @@ window.waFabClick = () => {
 };
 
 window.toggleDrawer = () => {
-  const d = document.getElementById('mobile-drawer');
-  const b = document.getElementById('ham-btn');
-  const open = d?.classList.toggle('open');
-  if (b) { b.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open)); }
+  const d        = document.getElementById('mobile-drawer');
+  const b        = document.getElementById('ham-btn');
+  const backdrop = document.getElementById('drawer-backdrop');
+  const open     = d?.classList.toggle('open');
+  if (b)        { b.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open)); }
+  if (backdrop)   backdrop.classList.toggle('open', open);
   document.body.style.overflow = open ? 'hidden' : '';
 };
 window.closeDrawer = () => {
   document.getElementById('mobile-drawer')?.classList.remove('open');
+  document.getElementById('drawer-backdrop')?.classList.remove('open');
   const b = document.getElementById('ham-btn');
   if (b) { b.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); }
   document.body.style.overflow = '';
