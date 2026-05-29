@@ -423,7 +423,8 @@ footer::before { content:''; position:absolute; inset:0; pointer-events:none; ba
 #admin-trigger:hover { color:var(--safety); }
 
 /* ── MODALS ── */
-.modal { display:none; position:fixed; inset:0; z-index:500; background:rgba(26,31,60,.65); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px; }
+/* ── MODALS ── */
+.modal { display:none; position:fixed; inset:0; z-index:2000; /* ¡Aumentado a 2000! */ background:rgba(26,31,60,.65); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px; }
 .modal.open { display:flex; }
 .modal-panel { background:var(--surface); border-radius:var(--r-xl); width:100%; max-width:440px; overflow:hidden; box-shadow:var(--shadow-lg); animation:modalIn .35s var(--ease-spring); max-height:calc(100vh - 32px); display:flex; flex-direction:column; }
 .modal-panel.wide { max-width:620px; }
@@ -2208,6 +2209,7 @@ window.checkoutWhatsApp = function() {
 
 window.abrirModalCotizacion = function() {
   if (!cart.length) return;
+  closeCart();
 
   const card      = document.getElementById('cot-cliente-card');
   const nombreEl  = document.getElementById('cot-cliente-nombre');
