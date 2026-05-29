@@ -454,13 +454,24 @@ footer::before { content:''; position:absolute; inset:0; pointer-events:none; ba
 .prod-preview { width:100%; max-height:120px; object-fit:cover; border-radius:var(--r-sm); margin-bottom:8px; display:none; }
 
 /* ── CHANGE #6: Cart sidebar — inverted button hierarchy ── */
-.cart-overlay { display:none; position:fixed; inset:0; z-index:399; background:rgba(26,31,60,.5); backdrop-filter:blur(4px); }
+.cart-overlay { 
+  display:none; position:fixed; inset:0; z-index:399; 
+  background:rgba(26,31,60,.5); backdrop-filter:blur(4px); 
+  touch-action: none; /* Bloquea interacciones táctiles en el fondo */
+}
 .cart-overlay.open { display:block; }
-.cart-sidebar { position:fixed; top:0; right:-100%; bottom:0; z-index:400; width:min(420px,100vw); background:var(--surface); display:flex; flex-direction:column; box-shadow:-8px 0 48px rgba(47,59,162,.2); transition:right .4s var(--ease-smooth); }
+.cart-sidebar { 
+  position:fixed; top:0; right:-100%; 
+  height: 100dvh; /* MAGIA MÓVIL: Altura dinámica que respeta la barra del navegador */
+  z-index:400; width:min(420px,100vw); 
+  background:var(--surface); display:flex; flex-direction:column; 
+  box-shadow:-8px 0 48px rgba(47,59,162,.2); transition:right .4s var(--ease-smooth); 
+  overscroll-behavior: contain; /* Atrapa el scroll para que el fondo no se mueva */
+}
 .cart-sidebar.open { right:0; }
 .cart-head { background:linear-gradient(135deg,var(--orbis-deep) 0%,var(--orbis) 100%); padding:20px 24px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--safety); flex-shrink:0; }
 .cart-title { font-family:var(--font-display); font-size:1.1rem; color:#fff; letter-spacing:.02em; }
-.cart-close { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.7); width:36px; height:36px; border-radius:50%; cursor:pointer; transition:all .15s; font-size:.9rem; display:flex; align-items:center; justify-content:center; }
+.cart-close { background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); color:rgba(255,255,255,.7); width:36px; height:36px; border-radius:50%; cursor:pointer; transition:all .15s; font-size:.9rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .cart-close:hover { background:rgba(255,255,255,.2); color:#fff; }
 .cart-body { flex:1; overflow-y:auto; padding:16px; -webkit-overflow-scrolling:touch; }
 .cart-empty { text-align:center; padding:48px 20px; }
@@ -481,14 +492,18 @@ footer::before { content:''; position:absolute; inset:0; pointer-events:none; ba
 .cart-item-remove { background:transparent; border:none; color:var(--text-3); cursor:pointer; font-size:.9rem; padding:6px; border-radius:var(--r-sm); transition:all .15s; flex-shrink:0; }
 .cart-item-remove:hover { background:var(--danger); color:#fff; }
 
-/* ★ CHANGE #6: Cart foot — flex column with ordered buttons ── */
-.cart-foot { padding:16px; border-top:2px solid var(--border); flex-shrink:0; }
-/* Override JS display:block with flex when visible — safe-area aware */
+/* ★ FOOTER DEL CARRITO: Siempre fijo abajo */
+.cart-foot { 
+  padding: 16px 16px calc(16px + var(--safe-bottom)); /* Respeta la barra de iPhone */
+  border-top: 2px solid var(--border); 
+  flex-shrink: 0; 
+  background: var(--surface); /* Fondo sólido para que no se trasluzca */
+  box-shadow: 0 -4px 16px rgba(0,0,0,.04); /* Sombra hacia arriba */
+}
 #cart-foot:not([style*="none"]) {
   display: flex !important;
   flex-direction: column;
 }
-/* Explicit ordering so WhatsApp always floats above PDF */
 .cart-sync-chip { order: -3; }
 .cart-subtotal  { order: -2; }
 .cart-note      { order: -1; }
@@ -500,6 +515,20 @@ footer::before { content:''; position:absolute; inset:0; pointer-events:none; ba
 
 .btn-checkout { width:100%; color:#fff; font-weight:700; font-size:.95rem; border:none; border-radius:var(--r-lg); padding:16px; cursor:pointer; transition:all .3s var(--ease-spring); display:flex; align-items:center; justify-content:center; gap:10px; min-height:52px; }
 
+.btn-checkout.whatsapp {
+  order: 1;
+  background: linear-gradient(135deg,#25D366 0%,#1ebe5d 100%);
+  box-shadow: 0 4px 16px rgba(37,211,102,.35);
+  margin-bottom: 10px;
+}
+.btn-checkout.whatsapp:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(37,211,102,.45); }
+
+.btn-checkout.cotizacion {
+  order: 2;
+  background: transparent; color: var(--orbis); border: 2px solid var(--orbis);
+  box-shadow: none; margin-bottom: 0; font-size: .88rem;
+}
+.btn-checkout.cotizacion:hover { background: var(--orbis-light); }
 /* ★ PRIMARY: WhatsApp — solid green, rendered first via order */
 .btn-checkout.whatsapp {
   order: 1;
@@ -1015,7 +1044,7 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
       <span class="cart-sync-dot"></span><span id="cart-sync-txt">Sin sincronizar</span>
     </div>
     <div class="cart-subtotal">
-      <span class="cart-subtotal-label">Total estimado</span>
+      <span class="cart-subtotal-label">Total estimado + IVA</span>
       <span class="cart-subtotal-val" id="cart-total">$0.00</span>
     </div>
     <p class="cart-note">Precio orientativo. El vendedor confirmará el precio final.</p>
@@ -2138,15 +2167,17 @@ function _refreshProductCardBtn(productId) {
 }
 
 window.openCart  = () => {
-  document.getElementById('cart-overlay').classList.add('open');
-  document.getElementById('cart-sidebar').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  updateCartUI();
+  document.getElementById('cart-overlay').classList.add('open');
+  document.getElementById('cart-sidebar').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden'; /* <- Nuevo: Bloquea scroll en iOS */
+  updateCartUI();
 };
 window.closeCart = () => {
-  document.getElementById('cart-overlay').classList.remove('open');
-  document.getElementById('cart-sidebar').classList.remove('open');
-  document.body.style.overflow = '';
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.getElementById('cart-sidebar').classList.remove('open');
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = ''; /* <- Nuevo: Libera scroll en iOS */
 };
 
 window.checkoutWhatsApp = function() {
