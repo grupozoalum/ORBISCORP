@@ -2667,18 +2667,30 @@ function setupContactForm(formId, errId, successId, folioId, btnId, txtId) {
 
 function updateCustomerNavBtn(customer) {
   const btn = document.getElementById('nav-client-auth');
+  const mobBtn = document.getElementById('nav-mobile-auth'); // El nuevo botón móvil
   if (!btn) return;
+  
   if (customer) {
     const firstName = (customer.nombre || customer.email || 'Mi Cuenta').split(' ')[0];
     btn.textContent  = `👤 ${firstName}`;
     btn.className    = 'nav-auth-btn logged-in';
     btn.setAttribute('aria-label', `Perfil de ${firstName}`);
     btn.onclick = openPerfilModal;
+    
+    // Le pone un punto verde al ícono del celular
+    if (mobBtn) {
+      mobBtn.innerHTML = `<span aria-hidden="true">👤</span><span class="cart-badge" style="background:var(--success); color:transparent; width:12px; height:12px; top:-2px; right:-2px; border-color:#fff;"></span>`;
+    }
   } else {
     btn.textContent = '🔑 Entrar';
     btn.className   = 'nav-auth-btn';
     btn.setAttribute('aria-label', 'Iniciar sesión');
     btn.onclick = openLoginCliente;
+    
+    // Lo regresa a estado normal (sin punto verde)
+    if (mobBtn) {
+      mobBtn.innerHTML = `<span aria-hidden="true">👤</span>`;
+    }
   }
 }
 
