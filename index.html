@@ -1890,10 +1890,10 @@ window.toggleCat = function(cat) {
 // CART
 // ═══════════════════════════════════════════
 async function persistCart() { 
-  // Guardado local (para velocidad inmediata)
+  // 1. Guardamos localmente para que la web no pierda datos al recargar
   try { localStorage.setItem(LS_CART, JSON.stringify(cart)); } catch(_) {} 
 
-  // Sincronización en la nube (si el cliente está logueado)
+  // 2. Sincronizamos con la nube si el cliente está logueado
   if (currentCustomer && currentCustomer.uid) {
     try {
       await updateDoc(doc(db, 'clientes', currentCustomer.uid), { 
@@ -2365,31 +2365,36 @@ onAuthStateChanged(auth, async user => {
   if (_unsubPerfil) { _unsubPerfil(); _unsubPerfil = null; }
 
   if (user) {
-    // 1. IDENTIFICACIÓN DE ADMINISTRADOR (Hardcoded por seguridad)
+    // 1. VERIFICACIÓN ESTRICTA DE ADMINISTRADOR
     if (user.uid === 'NTzo9WQuD5XayDet6qUlATGE1t43') {
       isAdmin = true;
       currentCustomer = null;
       updateCustomerUI(null);
       document.body.classList.add('admin-mode');
       document.getElementById('admin-toolbar')?.classList.add('active');
-      document.documentElement.style.setProperty('--toolbar-h','44px');
+      document.documentElement.style.setProperty('--toolbar-h', '44px');
       activateFields();
       return; 
     }
 
-    // 2. IDENTIFICACIÓN DE CLIENTE
+    // 2. VERIFICACIÓN DE CLIENTE
+    isAdmin = false;
+    document.body.classList.remove('admin-mode');
+    document.getElementById('admin-toolbar')?.classList.remove('active');
+    document.documentElement.style.setProperty('--toolbar-h', '0px');
+    deactivateFields();
+
     const clienteRef = doc(db, 'clientes', user.uid);
     _unsubPerfil = onSnapshot(clienteRef, (snap) => {
       if (snap.exists()) {
-        isAdmin = false;
         currentCustomer = { uid: snap.id, ...snap.data() };
         updateCustomerUI(currentCustomer);
         
-        // RECUPERAR CARRITO DE LA NUBE
-        if (currentCustomer.carrito) {
+        // SINCRONIZACIÓN DE CARRITO: Si el cliente tiene un carrito en la nube, lo cargamos.
+        if (currentCustomer.carrito && currentCustomer.carrito.length > 0) {
           cart = currentCustomer.carrito;
-          persistCart();
-          updateCartUI();
+          persistCart(); // Guardamos localmente
+          updateCartUI(); // Refrescamos vista
         }
       }
     });
@@ -2400,9 +2405,9 @@ onAuthStateChanged(auth, async user => {
     updateCustomerUI(null);
     document.body.classList.remove('admin-mode');
     document.getElementById('admin-toolbar')?.classList.remove('active');
-    document.documentElement.style.setProperty('--toolbar-h','0px');
+    document.documentElement.style.setProperty('--toolbar-h', '0px');
     deactivateFields();
-    cart = [];
+    cart = []; // Limpiamos carrito local al salir
     updateCartUI();
   }
 });
