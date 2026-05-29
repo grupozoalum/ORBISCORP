@@ -3250,6 +3250,25 @@ window.waFabClick = () => {
   if (cart.length) { window.checkoutWhatsApp(); return; }
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hola OrbisCORP, me interesa conocer su catálogo de productos de seguridad industrial.')}`, '_blank');
 };
+window.toggleCatalogPopup = () => {
+  const popup = document.getElementById('catalog-popup');
+  const backdrop = document.getElementById('catalog-popup-backdrop');
+  const isOpen = popup?.classList.contains('open');
+  
+  if (isOpen) {
+    window.closeCatalogPopup();
+  } else {
+    popup?.classList.add('open');
+    backdrop?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+};
+
+window.closeCatalogPopup = () => {
+  document.getElementById('catalog-popup')?.classList.remove('open');
+  document.getElementById('catalog-popup-backdrop')?.classList.remove('open');
+  document.body.style.overflow = '';
+};
 
 window.toggleDrawer = () => {
   const d        = document.getElementById('mobile-drawer');
@@ -3289,11 +3308,12 @@ window.addEventListener('scroll', () => {
 
 /* ── Keyboard shortcuts ── */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeQV();
-    closeSearch();
-    window.closeCart?.();
-    window.closeDrawer?.();
+  if (e.key === 'Escape') {
+    closeQV();
+    closeSearch();
+    window.closeCart?.();
+    window.closeDrawer?.();
+    window.closeCatalogPopup?.();
     document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
     document.body.style.overflow = '';
   }
