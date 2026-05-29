@@ -948,7 +948,44 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
   /* Hacer la etiqueta flotante azul más chiquita */
   .sc-img-badge { font-size: 0.5rem !important; padding: 4px 6px !important; }
 }
-
+/* ─────────────────────────────────────────────────
+   FIX 7 · CATÁLOGOS INTERNOS A 2 COLUMNAS (NO GIGANTES)
+───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* 1. Cuadrícula de 2 columnas para la lista general de productos */
+  .cat-products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  
+  /* 2. Tarjetas de producto individuales más compactas */
+  .prod-card-body { padding: 10px 8px !important; }
+  .prod-card-name { font-size: 0.78rem !important; margin-bottom: 4px !important; line-height: 1.25 !important; }
+  .prod-card-desc { display: none !important; } /* Ocultamos la descripción larga en móvil para limpiar la vista */
+  .prod-card-price { font-size: 1rem !important; margin-bottom: 6px !important; }
+  .prod-card-stock { font-size: 0.55rem !important; padding: 3px 6px !important; margin-bottom: 8px !important; }
+  .btn-add-card { font-size: 0.7rem !important; min-height: 32px !important; padding: 6px !important; }
+  
+  /* 3. Imágenes de los productos completas (sin recortes) con fondo blanco */
+  .prod-card-img { aspect-ratio: 1 / 1 !important; background: #ffffff !important; }
+  .prod-card-img img { 
+    object-fit: contain !important; 
+    padding: 12px !important; 
+  }
+  
+  /* 4. Arreglar el producto DESTACADO (Portada) para que no sea un bloque vertical gigante */
+  .cat-cover-body { 
+    grid-template-columns: 120px 1fr !important; /* Diseño horizontal en celular */
+    min-height: auto !important; 
+  }
+  .cat-product-img-wrap { aspect-ratio: 1 / 1 !important; background: #ffffff !important; }
+  .cat-product-img-wrap img { object-fit: contain !important; padding: 12px !important; }
+  .cat-cover-info { padding: 12px !important; gap: 6px !important; justify-content: center !important; }
+  .cat-product-name { font-size: 0.95rem !important; margin-bottom: 2px !important; line-height: 1.2 !important; }
+  .cat-product-desc { display: none !important; } 
+  .cat-product-price { font-size: 1.1rem !important; }
+  .btn-cover-explore { font-size: 0.75rem !important; min-height: 34px !important; padding: 6px 12px !important; margin-top: 4px !important;}
+}
 </style>
 </head>
 <body>
