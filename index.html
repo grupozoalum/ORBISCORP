@@ -1021,11 +1021,25 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
   }
   
   /* Ajusta los 5 botones inferiores para que respiren mejor */
-  .mbn-items { gap: 0; }
-  .mbn-item { padding: 0 !important; }
-  .mbn-label { font-size: 0.55rem !important; letter-spacing: 0; }
-  .mbn-icon { font-size: 1.25rem !important; }
+.mbn-label { font-size: 0.55rem !important; letter-spacing: 0; }
+  .mbn-icon { font-size: 1.25rem !important; }
 }
+
+/* ─────────────────────────────────────────────────
+   FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
+───────────────────────────────────────────────── */
+.btn-cart {
+  overflow: visible !important; 
+}
+.btn-cart::before {
+  border-radius: inherit !important; 
+}
+.cart-badge {
+  top: -6px !important;
+  right: -6px !important;
+  z-index: 10 !important;
+}
+
 </style>
 </head>
 <body>
