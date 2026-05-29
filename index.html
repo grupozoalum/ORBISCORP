@@ -1024,6 +1024,29 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
 .mbn-label { font-size: 0.55rem !important; letter-spacing: 0; }
   .mbn-icon { font-size: 1.25rem !important; }
 }
+/* ─────────────────────────────────────────────────
+   FIX 9 · AJUSTAR TARJETAS DE ESTADÍSTICAS EN MÓVIL
+───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero-stats {
+    gap: 8px !important; /* Reduce el hueco entre las tarjetas */
+    width: 100%; /* Evita que el contenedor rebase la pantalla */
+  }
+  .hero-stat {
+    flex: 1; /* Obliga a las 3 tarjetas a dividirse el 100% del ancho por igual */
+    min-width: 0; /* Permite que se compriman sin romperse */
+    padding: 12px 4px !important; /* Relleno lateral más delgado en celular */
+    align-items: center; /* Centra el contenido */
+    text-align: center;
+  }
+  .hero-stat-num {
+    font-size: 1.25rem !important; /* Achica un poco el número */
+  }
+  .hero-stat-label {
+    font-size: 0.5rem !important; /* Texto pequeñito para que quepa perfecto */
+    letter-spacing: 0.05em !important;
+  }
+}
 
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
