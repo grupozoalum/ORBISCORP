@@ -566,74 +566,89 @@ footer::before { content:''; position:absolute; inset:0; pointer-events:none; ba
 .cart-sync-chip.syncing .cart-sync-dot { animation:pulse .8s infinite; }
 
 /* ── QUICK VIEW ── */
-#quick-view-modal { 
-  display: none; 
-  position: fixed; 
-  inset: 0; 
-  z-index: 2000; /* Asegura que esté encima de todo */
-  background: rgba(26, 31, 60, 0.4); 
-  backdrop-filter: blur(8px); 
-  align-items: center; 
-  justify-content: center; 
+/* ════════════════════════════════════════════════════════
+   QUICK VIEW v2.0 — Premium two-column product showcase
+════════════════════════════════════════════════════════ */
+#quick-view-modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(10, 15, 56, 0.6); backdrop-filter: blur(14px) saturate(180%); -webkit-backdrop-filter: blur(14px) saturate(180%); align-items: center; justify-content: center; padding: 20px; }
+#quick-view-modal.open { display: flex; }
+.qv-backdrop { position: absolute; inset: 0; cursor: default; }
+.qv-panel { position: relative; z-index: 1; background: var(--surface); border-radius: var(--r-xl); width: 100%; max-width: 900px; display: grid; grid-template-columns: 42% 58%; overflow: hidden; box-shadow: 0 40px 100px rgba(21, 30, 107, .32), 0 10px 30px rgba(0, 0, 0, .18), 0 0 0 1px rgba(47, 59, 162, .1); animation: qvIn .42s var(--ease-spring) both; max-height: min(90vh, 660px); }
+@keyframes qvIn { from { opacity: 0; transform: scale(.91) translateY(24px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.qv-image-col { position: relative; background: linear-gradient(160deg, var(--orbis-deep) 0%, var(--orbis) 55%, #4B5CC4 100%); overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 440px; }
+.qv-image-col::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 28px 28px; pointer-events: none; z-index: 0; }
+.qv-image-col-watermark { position: absolute; bottom: -28px; right: -16px; font-family: var(--font-display); font-size: 11rem; font-weight: 800; color: rgba(255,255,255,.042); line-height: 1; pointer-events: none; user-select: none; letter-spacing: -.06em; z-index: 0; }
+.qv-img-stage { position: relative; z-index: 1; width: calc(100% - 48px); aspect-ratio: 1 / 1; background: #ffffff; border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 12px 48px rgba(0, 0, 0, .22), 0 4px 12px rgba(0, 0, 0, .14), inset 0 0 0 1px rgba(0,0,0,.04); transition: transform .5s var(--ease-elegant); }
+.qv-panel:hover .qv-img-stage { transform: scale(1.025); }
+.qv-img-stage img { width: 100%; height: 100%; object-fit: contain; padding: 20px; transition: transform .6s var(--ease-elegant); }
+.qv-img-placeholder-new { font-size: 6rem; opacity: .2; user-select: none; }
+.qv-cat-badge { position: absolute; top: 20px; left: 20px; z-index: 10; display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, .13); border: 1px solid rgba(255, 255, 255, .22); border-radius: 100px; padding: 8px 16px; backdrop-filter: blur(12px); box-shadow: 0 2px 12px rgba(0,0,0,.12); }
+.qv-cat-badge-icon { font-size: .95rem; line-height: 1; }
+.qv-cat-badge-name { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.88); font-weight: 600; }
+.qv-sku-tag { position: absolute; bottom: 20px; left: 20px; z-index: 10; font-family: var(--font-mono); font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; color: var(--safety); background: rgba(15, 22, 80, .7); border: 1px solid rgba(245, 158, 11, .28); border-radius: 6px; padding: 5px 12px; backdrop-filter: blur(8px); }
+.qv-close-fab { position: absolute; top: 18px; right: 18px; z-index: 20; width: 38px; height: 38px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.24); color: rgba(255,255,255,.8); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .88rem; transition: all .22s var(--ease-spring); backdrop-filter: blur(8px); }
+.qv-close-fab:hover { background: rgba(255,255,255,.26); color: #fff; transform: scale(1.1) rotate(90deg); border-color: rgba(255,255,255,.4); }
+.qv-details-col { display: flex; flex-direction: column; overflow-y: auto; padding: 32px 30px; gap: 0; position: relative; }
+.qv-details-col::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--orbis-deep) 0%, var(--orbis) 25%, var(--safety) 50%, var(--orbis) 75%, var(--orbis-deep) 100%); background-size: 300% 100%; animation: accentShift 5s ease-in-out infinite; }
+.qv-breadcrumb { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--orbis-mid); margin-bottom: 12px; margin-top: 4px; }
+.qv-breadcrumb-sep { opacity: .4; }
+.qv-product-name { font-family: var(--font-display); font-size: clamp(1.25rem, 2.4vw, 1.65rem); color: var(--text); line-height: 1.15; letter-spacing: -.025em; margin-bottom: 22px; font-weight: 800; }
+.qv-price-block { background: linear-gradient(135deg, var(--orbis-light) 0%, rgba(232,235,250,.45) 100%); border: 1px solid rgba(47,59,162,.1); border-radius: var(--r-lg); padding: 16px 20px; margin-bottom: 16px; position: relative; overflow: hidden; }
+.qv-price-block::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--orbis) 0%, var(--orbis-mid) 100%); }
+.qv-price-label-small { font-family: var(--font-mono); font-size: .6rem; letter-spacing: .18em; text-transform: uppercase; color: var(--orbis-mid); margin-bottom: 5px; }
+.qv-price-display { display: flex; align-items: baseline; gap: 2px; line-height: 1; margin-bottom: 6px; }
+.qv-price-currency { font-family: var(--font-display); font-size: 1.3rem; color: var(--orbis); font-weight: 700; align-self: flex-start; margin-top: 6px; }
+.qv-price-number { font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; background: linear-gradient(135deg, var(--orbis) 0%, var(--orbis-dark) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -.04em; line-height: 1; }
+.qv-price-unit-label { font-family: var(--font-mono); font-size: .68rem; color: var(--text-3); letter-spacing: .12em; margin-left: 6px; margin-bottom: 4px; }
+.qv-iva-note { font-family: var(--font-mono); font-size: .58rem; color: var(--text-3); letter-spacing: .06em; }
+.qv-stock-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.qv-stock-pill { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: .63rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; border-radius: 100px; padding: 6px 14px; border: 1px solid transparent; }
+.qv-stock-pill.in  { color: var(--success); background: #D1FAE5; border-color: rgba(16,185,129,.2); }
+.qv-stock-pill.low { color: var(--safety-dark); background: #FEF3C7; border-color: rgba(245,158,11,.2); }
+.qv-stock-pill.out { color: var(--danger); background: #FEE2E2; border-color: rgba(239,68,68,.2); }
+.qv-stock-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.qv-stock-pill.in .qv-stock-dot,.qv-stock-pill.low .qv-stock-dot { animation: pulse 2s infinite; }
+.qv-product-desc { font-size: .875rem; color: var(--text-2); line-height: 1.78; font-weight: 300; margin-bottom: 22px; letter-spacing: .005em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.qv-qty-section { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.qv-qty-label { font-family: var(--font-mono); font-size: .64rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text-3); flex-shrink: 0; }
+.qv-qty-controls { display: flex; align-items: stretch; border: 1.5px solid var(--border); border-radius: var(--r); overflow: hidden; background: var(--surface2); transition: border-color .15s; }
+.qv-qty-controls:focus-within { border-color: var(--orbis); box-shadow: 0 0 0 3px rgba(47,59,162,.08); }
+.qv-qty-dec, .qv-qty-inc { width: 42px; height: 42px; background: transparent; border: none; color: var(--orbis); font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: background .15s var(--ease-elegant), color .15s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; line-height: 1; }
+.qv-qty-dec:hover:not(:disabled),.qv-qty-inc:hover:not(:disabled) { background: var(--orbis); color: #fff; }
+.qv-qty-dec:disabled,.qv-qty-inc:disabled { opacity: .32; cursor: not-allowed; }
+.qv-qty-number { min-width: 46px; text-align: center; font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; color: var(--text); border-left: 1px solid var(--border); border-right: 1px solid var(--border); padding: 0 6px; line-height: 42px; height: 42px; background: var(--surface); transition: background .15s; }
+.qv-qty-total { font-family: var(--font-display); font-size: 1.05rem; color: var(--orbis); font-weight: 700; letter-spacing: -.01em; white-space: nowrap; margin-left: auto; flex-shrink: 0; }
+.qv-actions-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.btn-qv-add { width: 100%; background: linear-gradient(135deg, var(--orbis) 0%, var(--orbis-dark) 100%); color: #fff; font-family: var(--font-body); font-weight: 800; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; border: none; border-radius: var(--r); padding: 16px 22px; cursor: pointer; transition: all .25s var(--ease-spring); display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; position: relative; overflow: hidden; box-shadow: 0 4px 18px rgba(47,59,162,.3), inset 0 1px 0 rgba(255,255,255,.12); }
+.btn-qv-add::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 55%); pointer-events: none; }
+.btn-qv-add:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(47,59,162,.44), inset 0 1px 0 rgba(255,255,255,.12); }
+.btn-qv-add:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-qv-add.added { background: linear-gradient(135deg, var(--success) 0%, #059669 100%); box-shadow: 0 4px 18px rgba(16,185,129,.3); }
+.btn-qv-whatsapp { width: 100%; background: transparent; color: #1aaa55; border: 2px solid #25D366; font-family: var(--font-body); font-weight: 700; font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; border-radius: var(--r); padding: 13px 22px; cursor: pointer; transition: all .22s var(--ease-spring); display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; }
+.btn-qv-whatsapp:hover { background: #25D366; color: #fff; box-shadow: 0 6px 22px rgba(37,211,102,.28); transform: translateY(-1px); }
+.qv-trust-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 12px; }
+.qv-trust-item { font-family: var(--font-mono); font-size: .58rem; letter-spacing: .07em; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+@media (max-width: 600px) {
+  #quick-view-modal { align-items: flex-end; padding: 0; }
+  .qv-panel { grid-template-columns: 1fr; max-height: 94dvh; border-radius: var(--r-xl) var(--r-xl) 0 0; margin-bottom: 0; align-self: flex-end; animation: qvSlideUp .42s var(--ease-spring) both; max-width: 100%; }
+  @keyframes qvSlideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+  .qv-panel::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; background: rgba(255,255,255,.35); border-radius: 2px; z-index: 30; pointer-events: none; }
+  .qv-image-col { min-height: 200px; max-height: 240px; }
+  .qv-img-stage { width: calc(100% - 36px); }
+  .qv-image-col-watermark { display: none; }
+  .qv-details-col { padding: 20px 18px; max-height: 56dvh; overflow-y: auto; }
+  .qv-product-name { font-size: 1.3rem; margin-bottom: 16px; }
+  .qv-price-number { font-size: 2.1rem; }
+  .qv-product-desc { -webkit-line-clamp: 2; font-size: .82rem; }
+  .qv-qty-section  { gap: 10px; }
+  .qv-qty-total    { font-size: .9rem; }
+  .qv-trust-row    { gap: 8px; }
+  .qv-trust-item   { font-size: .54rem; }
 }
-
-.qv-panel { 
-  background: var(--surface); 
-  border-radius: var(--r-xl); 
-  width: 95%; 
-  max-width: 500px; 
-  max-height: 85vh; /* Limitamos la altura para evitar scrolls innecesarios */
-  overflow-y: auto; 
-  display: flex; 
-  flex-direction: column;
-  animation: modalIn .35s var(--ease-spring); 
+@media (min-width: 601px) and (max-width: 860px) {
+  .qv-panel { max-width: 95%; max-height: min(88vh, 580px); grid-template-columns: 38% 62%; }
+  .qv-product-name { font-size: 1.4rem; }
+  .qv-price-number { font-size: 2.2rem; }
 }
-
-.qv-img-wrap { 
-  position: relative; 
-  width: 100%;
-  aspect-ratio: 1 / 1; /* Forzamos un contenedor cuadrado para la imagen */
-  background: #ffffff; 
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.qv-img-wrap img { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: contain !important; /* IMPORTANTE: Esto evita que se recorte */
-  padding: 15px; /* Espacio para que no toque los bordes */
-}
-@media(min-width:600px){#quick-view-modal{align-items:center;}}
-#quick-view-modal.open { display:flex; }
-.qv-panel { background:var(--surface); border-radius:var(--r-xl) var(--r-xl) 0 0; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling:touch; animation:slideUp .4s var(--ease-spring); }
-@media(min-width:600px){.qv-panel{border-radius:var(--r-xl);max-height:85vh;animation:modalIn .35s var(--ease-spring);}}
-@keyframes slideUp{from{transform:translateY(80px);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.qv-close-row { display:flex; justify-content:flex-end; padding:16px 24px 0; }
-.qv-close { background:var(--orbis-light); border:none; color:var(--orbis); width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.9rem; }
-.qv-img-wrap { position:relative; aspect-ratio:16/9; background:var(--orbis-light); overflow:hidden; }
-.qv-img-wrap img { width:100%; height:100%; object-fit:cover; }
-.qv-img-placeholder { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:5rem; opacity:.15; }
-.qv-drag-handle { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:36px; height:4px; background:rgba(255,255,255,.4); border-radius:2px; }
-.qv-body { padding:24px; }
-.qv-cat { font-family:var(--font-mono); font-size:.65rem; letter-spacing:.15em; text-transform:uppercase; color:var(--orbis-mid); margin-bottom:6px; }
-.qv-name { font-family:var(--font-display); font-size:1.4rem; color:var(--text); margin-bottom:8px; line-height:1.2; }
-.qv-sku { font-family:var(--font-mono); font-size:.65rem; letter-spacing:.14em; color:var(--text-3); margin-bottom:12px; }
-.qv-desc { font-size:.9rem; color:var(--text-2); line-height:1.7; margin-bottom:16px; font-weight:300; }
-.qv-price-row { display:flex; align-items:baseline; gap:12px; margin-bottom:20px; }
-.qv-price { font-family:var(--font-display); font-size:2rem; color:var(--orbis); }
-.qv-price-unit { font-size:.8rem; color:var(--text-3); }
-.qv-stock { font-family:var(--font-mono); font-size:.68rem; letter-spacing:.08em; color:var(--success); padding:3px 8px; background:#D1FAE5; border-radius:100px; }
-.qv-stock.low { color:var(--safety-dark); background:#FEF3C7; }
-.qv-stock.out { color:var(--danger); background:#FEE2E2; }
-.qv-actions { display:flex; flex-direction:column; gap:10px; }
-.btn-qv-atc { width:100%; background:linear-gradient(135deg,var(--orbis) 0%,var(--orbis-dark) 100%); color:#fff; font-weight:700; font-size:1rem; border:none; border-radius:var(--r-lg); padding:16px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:10px; min-height:54px; }
-.btn-qv-atc:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 24px rgba(47,59,162,.4); }
-.btn-qv-atc:disabled { opacity:.5; cursor:not-allowed; }
-.btn-qv-wa { width:100%; background:#25D366; color:#fff; font-weight:700; font-size:.95rem; border:none; border-radius:var(--r-lg); padding:14px; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px; min-height:50px; }
-.btn-qv-wa:hover { background:#1ebe5d; }
 
 /* ── SEARCH ── */
 .mobile-search-bar { display:none; position:fixed; inset:0; z-index:700; background:rgba(26,31,60,.7); backdrop-filter:blur(8px); padding:20px 16px; align-items:flex-start; justify-content:center; }
@@ -1087,6 +1102,55 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
     font-size: 0.5rem !important; /* Texto pequeñito para que quepa perfecto */
     letter-spacing: 0.05em !important;
   }
+}
+/* ─────────────────────────────────────────────────
+   FIX 10 · CORRECCIÓN DEL QUICK VIEW (TIPOGRAFÍA Y SCROLL)
+───────────────────────────────────────────────── */
+.qv-panel {
+  align-items: stretch !important; 
+}
+
+.qv-details-col {
+  padding: 24px !important; /* Reducimos el margen interno gigante */
+  min-height: 0 !important; /* Clave técnica para activar el scroll interno */
+  overflow-y: auto !important;
+}
+
+.qv-product-name {
+  font-family: var(--font-body) !important; /* Usamos DM Sans que es limpia y legible */
+  font-size: 1.3rem !important; 
+  font-weight: 700 !important;
+  line-height: 1.3 !important; /* Altura de línea correcta para que respire */
+  letter-spacing: 0 !important; /* Quitamos el aplastamiento de letras */
+  margin-bottom: 14px !important;
+}
+
+.qv-price-number {
+  font-size: 2.2rem !important; /* Achicamos ligeramente el precio */
+}
+
+.qv-price-block {
+  padding: 12px 16px !important;
+  margin-bottom: 14px !important;
+}
+
+.qv-product-desc {
+  margin-bottom: 14px !important;
+  line-height: 1.6 !important;
+}
+
+.qv-qty-section {
+  padding: 10px 0 !important;
+  margin-bottom: 14px !important;
+}
+
+.qv-actions-stack {
+  margin-bottom: 12px !important;
+}
+
+.btn-qv-add, .btn-qv-whatsapp {
+  min-height: 48px !important; /* Botones estéticos pero no excesivamente altos */
+  padding: 10px 16px !important;
 }
 
 /* ─────────────────────────────────────────────────
@@ -1705,32 +1769,66 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
 <div class="ptr-hint" id="ptr-hint"><div class="ptr-spinner"></div><span>Actualizando catálogo...</span></div>
 
 <!-- QUICK VIEW -->
-<div id="quick-view-modal" role="dialog" aria-modal="true" aria-label="Vista rápida del producto">
+<div id="quick-view-modal" role="dialog" aria-modal="true" aria-labelledby="qv-product-name-el">
+  <div class="qv-backdrop" onclick="closeQV()"></div>
   <div class="qv-panel">
-    <div class="qv-close-row"><button class="qv-close" onclick="closeQV()" aria-label="Cerrar">✕</button></div>
-    <div class="qv-img-wrap">
-      <img id="qv-img" src="" alt="" style="display:none">
-      <div class="qv-img-placeholder" id="qv-placeholder">📦</div>
-      <div class="qv-drag-handle"></div>
-    </div>
-    <div class="qv-body">
-      <div class="qv-cat"  id="qv-cat"></div>
-      <div class="qv-name" id="qv-name"></div>
-      <div class="qv-sku"  id="qv-sku"></div>
-      <div class="qv-desc" id="qv-desc"></div>
-      <div class="qv-price-row">
-        <div class="qv-price" id="qv-price"></div>
-        <div class="qv-price-unit">MXN</div>
-        <span class="qv-stock" id="qv-stock"></span>
+    <div class="qv-image-col" id="qv-image-col">
+      <div class="qv-image-col-watermark" id="qv-image-watermark" aria-hidden="true">1</div>
+      <div class="qv-cat-badge" id="qv-cat-badge">
+        <span class="qv-cat-badge-icon" id="qv-cat-badge-icon" aria-hidden="true">📦</span>
+        <span class="qv-cat-badge-name" id="qv-cat-badge-name">Categoría</span>
       </div>
-      <div class="qv-actions">
-        <button class="btn-qv-atc ripple-host" id="qv-atc-btn">🛒 Agregar al Carrito</button>
-        <button class="btn-qv-wa" id="qv-wa-btn">💬 Consultar por WhatsApp</button>
+      <button class="qv-close-fab" onclick="closeQV()" aria-label="Cerrar vista rápida del producto">✕</button>
+      <div class="qv-img-stage" id="qv-img-stage">
+        <img id="qv-img" src="" alt="" style="display:none" loading="lazy">
+        <div class="qv-img-placeholder-new" id="qv-placeholder" aria-hidden="true">📦</div>
+      </div>
+      <div class="qv-sku-tag" id="qv-sku-tag" aria-label="Código de producto">◈ OrbisCORP</div>
+    </div>
+    <div class="qv-details-col">
+      <div class="qv-breadcrumb" aria-label="Ruta de navegación">
+        <span>OrbisCORP</span><span class="qv-breadcrumb-sep" aria-hidden="true">›</span><span id="qv-breadcrumb-cat">—</span>
+      </div>
+      <h2 class="qv-product-name" id="qv-product-name-el">—</h2>
+      <div class="qv-price-block" role="region" aria-label="Precio del producto">
+        <div class="qv-price-label-small">Precio por unidad</div>
+        <div class="qv-price-display">
+          <span class="qv-price-currency" aria-hidden="true">$</span>
+          <span class="qv-price-number" id="qv-price-number">0.00</span>
+          <span class="qv-price-unit-label">MXN</span>
+        </div>
+        <div class="qv-iva-note">+ IVA · El vendedor confirma el precio final.</div>
+      </div>
+      <div class="qv-stock-row">
+        <div class="qv-stock-pill in" id="qv-stock-pill" role="status">
+          <span class="qv-stock-dot" aria-hidden="true"></span>
+          <span id="qv-stock-text">En stock</span>
+        </div>
+      </div>
+      <p class="qv-product-desc" id="qv-product-desc-el">—</p>
+      
+      <div class="qv-qty-section" role="group" aria-label="Seleccionar cantidad">
+        <span class="qv-qty-label">Cantidad</span>
+        <div class="qv-qty-controls">
+          <button class="qv-qty-dec ripple-host" id="qv-qty-dec" onclick="qvChangeQty(-1)" aria-label="Reducir cantidad">−</button>
+          <span class="qv-qty-number" id="qv-qty-num" aria-live="polite" aria-atomic="true">1</span>
+          <button class="qv-qty-inc ripple-host" id="qv-qty-inc" onclick="qvChangeQty(1)" aria-label="Aumentar cantidad">+</button>
+        </div>
+        <span class="qv-qty-total" id="qv-qty-total" aria-live="polite">$0.00 MXN</span>
+      </div>
+
+      <div class="qv-actions-stack">
+        <button class="btn-qv-add ripple-host" id="qv-atc-btn">🛒 Agregar al Carrito</button>
+        <button class="btn-qv-whatsapp ripple-host" id="qv-wa-btn">💬 Consultar por WhatsApp</button>
+      </div>
+      <div class="qv-trust-row" aria-label="Garantías OrbisCORP">
+        <span class="qv-trust-item">🚚 Envíos · Hidalgo, MX</span>
+        <span class="qv-trust-item">✓ Distribuidores autorizados</span>
+        <span class="qv-trust-item">🏭 Stock verificado</span>
       </div>
     </div>
   </div>
 </div>
-
 <!-- MOBILE SEARCH -->
 <div id="mobile-search-bar" class="mobile-search-bar" role="search" aria-label="Buscar productos">
   <div class="search-panel">
@@ -3247,10 +3345,21 @@ window.enviarCotizacionPDF = async function() {
    QUICK VIEW
 ═══════════════════════════════════════════════ */
 
+/* ══════════════════════════════════════════════
+   QUICK VIEW Y SELECTOR DE CANTIDAD
+═══════════════════════════════════════════════ */
+
+let currentQvProductId = null;
+let currentQvQty = 1;
+
 window.openQV = function(productId) {
   const p = allProducts.find(x => x.id === productId);
   if (!p) return;
+  
+  currentQvProductId = productId;
+  currentQvQty = 1; // Reseteamos la cantidad siempre a 1 al abrir
 
+  // Actualizar imagen
   const img = document.getElementById('qv-img');
   const ph  = document.getElementById('qv-placeholder');
   if (p.imageUrl) {
@@ -3258,27 +3367,68 @@ window.openQV = function(productId) {
     if (ph) ph.style.display = 'none';
   } else {
     img.style.display = 'none';
-    if (ph) { ph.textContent = CAT_META[p.categoria]?.icon || '📦'; ph.style.display = 'flex'; }
+    if (ph) { ph.textContent = CAT_META[p.categoria]?.icon || '📦'; ph.style.display = 'block'; }
   }
 
+  // Textos básicos
   const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-  setEl('qv-cat',   p.categoria || '');
-  setEl('qv-name',  p.nombre || '');
-  setEl('qv-sku',   `SKU: ${p.sku || '—'}`);
-  setEl('qv-desc',  p.desc || 'Producto OrbisCORP de alta calidad industrial.');
-  setEl('qv-price', fmtPrice(p.precio));
-
-  const stockEl = document.getElementById('qv-stock');
-  const { label, cls, out } = getStockInfo(p);
-  if (stockEl) { stockEl.textContent = label || 'En stock'; stockEl.className = `qv-stock${cls ? ' ' + cls : ''}`; }
-
+  setEl('qv-cat-badge-icon', CAT_META[p.categoria]?.icon || '📦');
+  setEl('qv-cat-badge-name', p.categoria || 'Categoría');
+  setEl('qv-breadcrumb-cat', p.categoria || 'Catálogo');
+  setEl('qv-product-name-el', p.nombre || '');
+  setEl('qv-sku-tag', `SKU: ${p.sku || 'N/A'}`);
+  setEl('qv-product-desc-el', p.desc || 'Producto de alta calidad industrial OrbisCORP.');
+  
+  // Precio unitario
+  setEl('qv-price-number', Number(p.precio || 0).toFixed(2));
+  
+  // Stock y botón
+  const stockPill = document.getElementById('qv-stock-pill');
+  const stockText = document.getElementById('qv-stock-text');
   const atcBtn = document.getElementById('qv-atc-btn');
-  const waBtn  = document.getElementById('qv-wa-btn');
-  if (atcBtn) { atcBtn.disabled = out; atcBtn.onclick = () => { window.addToCart(productId); closeQV(); }; }
+  const qtyDec = document.getElementById('qv-qty-dec');
+  const qtyInc = document.getElementById('qv-qty-inc');
+  
+  const inv = (p.inventario !== undefined && p.inventario !== null) ? Number(p.inventario) : null;
+  const inCartItem = cart.find(c => c.id === productId);
+  const cartQty = inCartItem ? inCartItem.qty : 0;
+  
+  if (inv !== null && inv <= 0) {
+    stockPill.className = 'qv-stock-pill out';
+    stockText.textContent = 'SIN STOCK';
+    atcBtn.disabled = true;
+    atcBtn.innerHTML = '✕ SIN STOCK DISPONIBLE';
+    qtyInc.disabled = true;
+  } else if (inv !== null && inv <= 5) {
+    stockPill.className = 'qv-stock-pill low';
+    stockText.textContent = `¡Solo ${inv} disponibles!`;
+    atcBtn.disabled = false;
+    atcBtn.innerHTML = inCartItem ? `✓ EN CARRITO (${cartQty})` : '🛒 Agregar al Carrito';
+    qtyInc.disabled = currentQvQty + cartQty >= inv;
+  } else {
+    stockPill.className = 'qv-stock-pill in';
+    stockText.textContent = 'EN STOCK';
+    atcBtn.disabled = false;
+    atcBtn.innerHTML = inCartItem ? `✓ EN CARRITO (${cartQty})` : '🛒 Agregar al Carrito';
+    qtyInc.disabled = false;
+  }
+
+  // Actualizar cantidad UI
+  _updateQvQtyUI(p.precio, inv, cartQty);
+
+  // WhatsApp
+  const waBtn = document.getElementById('qv-wa-btn');
   if (waBtn) {
     waBtn.onclick = () => {
       const msg = `🛡️ *OrbisCORP* — Consulta de producto\n\n*${p.nombre}*\nSKU: ${p.sku || '—'}\nPrecio: ${fmtPrice(p.precio)} MXN\n\n¿Está disponible este producto?`;
       window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+  }
+
+  // Re-mapear el botón de añadir
+  if (atcBtn) {
+    atcBtn.onclick = () => {
+      _addQvToCart(p, inv);
     };
   }
 
@@ -3290,9 +3440,58 @@ window.closeQV = () => {
   document.getElementById('quick-view-modal')?.classList.remove('open');
   document.body.style.overflow = '';
 };
-document.getElementById('quick-view-modal')?.addEventListener('click', e => {
-  if (e.target.id === 'quick-view-modal') closeQV();
-});
+
+// Funciones para manejar la cantidad
+window.qvChangeQty = function(delta) {
+  const p = allProducts.find(x => x.id === currentQvProductId);
+  if (!p) return;
+  
+  const inCartItem = cart.find(c => c.id === currentQvProductId);
+  const cartQty = inCartItem ? inCartItem.qty : 0;
+  const inv = (p.inventario !== undefined && p.inventario !== null) ? Number(p.inventario) : null;
+  
+  let newQty = currentQvQty + delta;
+  
+  if (newQty < 1) newQty = 1;
+  if (inv !== null && (newQty + cartQty) > inv) {
+    newQty = inv - cartQty;
+    if (newQty < 1) newQty = 1; 
+    showToast(`Solo quedan ${inv} unidades`, '⚠️');
+  }
+  
+  currentQvQty = newQty;
+  _updateQvQtyUI(p.precio, inv, cartQty);
+};
+
+function _updateQvQtyUI(precio, inv, cartQty) {
+  document.getElementById('qv-qty-num').textContent = currentQvQty;
+  document.getElementById('qv-qty-total').textContent = `${fmtPrice(precio * currentQvQty)} MXN`;
+  document.getElementById('qv-qty-dec').disabled = (currentQvQty <= 1);
+  if (inv !== null && (currentQvQty + cartQty) >= inv) {
+    document.getElementById('qv-qty-inc').disabled = true;
+  } else {
+    document.getElementById('qv-qty-inc').disabled = false;
+  }
+}
+
+function _addQvToCart(p, inv) {
+  const existing = cart.find(c => c.id === p.id);
+  if (existing) {
+    if (inv !== null && (existing.qty + currentQvQty) > inv) {
+      showToast('Máximo de stock alcanzado', '⚠️');
+      return;
+    }
+    existing.qty += currentQvQty;
+  } else {
+    cart.push({ ...p, qty: currentQvQty });
+  }
+
+  persistCart();
+  updateCartUI();
+  _refreshProductCardBtn(p.id);
+  showToast(`"${p.nombre}" añadido`, '✅');
+  closeQV(); 
+}
 
 /* ══════════════════════════════════════════════
    BÚSQUEDA
