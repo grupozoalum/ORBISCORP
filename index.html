@@ -1000,12 +1000,24 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
     display: inline-block !important; 
     font-size: 1.25rem;
   }
-  /* Achica los botones top para que sean cuadros perfectos */
+/* Achica los botones top para que sean cuadros perfectos */
   .btn-cart, .mobile-profile-icon { 
     padding: 8px !important; 
     min-width: 42px; 
     height: 42px;
     justify-content: center;
+    overflow: visible !important; /* ¡MAGIA! Deja que el globito salga del borde */
+  }
+  
+  /* Aseguramos que la animación de fondo no se salga de las curvas */
+  .btn-cart::before { 
+    border-radius: inherit !important; 
+  }
+  
+  /* Empujamos el globito a la esquina perfecta */
+  .cart-badge {
+    top: -5px !important;
+    right: -5px !important;
   }
   
   /* Ajusta los 5 botones inferiores para que respiren mejor */
