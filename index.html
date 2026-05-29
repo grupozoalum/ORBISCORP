@@ -336,7 +336,9 @@ body.admin-mode .cat-product-admin-bar { display:flex; }
 .prod-card:hover::before { transform:scaleX(1); }
 .prod-card-img { position:relative; aspect-ratio:4/3; background:linear-gradient(135deg,var(--orbis-light) 0%,#e2e8f8 100%); overflow:hidden; }
 .prod-card-img img { width:100%; height:100%; object-fit:cover; transition:transform .6s var(--ease-elegant); }
-.prod-card:hover .prod-card-img img { transform:scale(1.08); }
+.prod-card:hover .prod-card-img img { 
+  transform: none !important; /* Desactiva el zoom */
+}
 .prod-card-body { padding:16px; }
 .prod-card-sku { font-family:var(--font-mono); font-size:.62rem; letter-spacing:.14em; color:var(--orbis-mid); text-transform:uppercase; margin-bottom:4px; }
 .prod-card-name { font-size:.95rem; font-weight:600; color:var(--text); margin-bottom:6px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -564,7 +566,46 @@ footer::before { content:''; position:absolute; inset:0; pointer-events:none; ba
 .cart-sync-chip.syncing .cart-sync-dot { animation:pulse .8s infinite; }
 
 /* ── QUICK VIEW ── */
-#quick-view-modal { display:none; position:fixed; inset:0; z-index:700; background:rgba(26,31,60,.65); backdrop-filter:blur(6px); align-items:flex-end; justify-content:center; }
+#quick-view-modal { 
+  display: none; 
+  position: fixed; 
+  inset: 0; 
+  z-index: 2000; /* Asegura que esté encima de todo */
+  background: rgba(26, 31, 60, 0.4); 
+  backdrop-filter: blur(8px); 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.qv-panel { 
+  background: var(--surface); 
+  border-radius: var(--r-xl); 
+  width: 95%; 
+  max-width: 500px; 
+  max-height: 85vh; /* Limitamos la altura para evitar scrolls innecesarios */
+  overflow-y: auto; 
+  display: flex; 
+  flex-direction: column;
+  animation: modalIn .35s var(--ease-spring); 
+}
+
+.qv-img-wrap { 
+  position: relative; 
+  width: 100%;
+  aspect-ratio: 1 / 1; /* Forzamos un contenedor cuadrado para la imagen */
+  background: #ffffff; 
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qv-img-wrap img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain !important; /* IMPORTANTE: Esto evita que se recorte */
+  padding: 15px; /* Espacio para que no toque los bordes */
+}
 @media(min-width:600px){#quick-view-modal{align-items:center;}}
 #quick-view-modal.open { display:flex; }
 .qv-panel { background:var(--surface); border-radius:var(--r-xl) var(--r-xl) 0 0; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; -webkit-overflow-scrolling:touch; animation:slideUp .4s var(--ease-spring); }
@@ -2689,8 +2730,8 @@ function _renderProductCard(p, catName, meta) {
 
   const btnTxt = out ? '✕ Sin stock' : inCartItem ? `✓ En carrito (${cartQty})` : '+ Añadir al carrito';
 
-  return `<div class="prod-card" id="pcard-${p.id}">
-    <div class="prod-card-img">
+  return `<div class="prod-card" id="pcard-${p.id}" onclick="openQV('${p.id}')" style="cursor: pointer;">
+    <div class="prod-card-img">
       ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.nombre || ''}" loading="lazy">` : `<div class="img-placeholder" aria-hidden="true">${meta.icon}</div>`}
       <div class="admin-img-trigger" onclick="event.stopPropagation();triggerProdImgUp('${p.id}')">
         <div class="admin-img-trigger-label">Cambiar imagen</div>
