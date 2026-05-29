@@ -1039,6 +1039,338 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
   right: -6px !important;
   z-index: 10 !important;
 }
+/* ═══════════════════════════════════════════════════════════
+   ORBISCORP — MEJORAS ESTÉTICAS v1.0
+   Pega este bloque al FINAL de tu stylesheet existente.
+   No cambia la paleta de colores, solo añade carácter visual.
+═══════════════════════════════════════════════════════════ */
+
+
+/* ══════════════════════════════════════
+   1. SECTION LABELS → Pill badge con dot pulsante
+   Afecta: .section-label (home + todas las vistas de categoría)
+══════════════════════════════════════ */
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--orbis-light);
+  border: 1px solid rgba(47, 59, 162, .2);
+  border-radius: 100px;
+  padding: 6px 16px;
+  /* Color y fuente igual que antes */
+  color: var(--orbis);
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  /* Sin background por defecto -> ahora siempre tiene fondo */
+}
+
+/* Dot azul pulsante antes del texto */
+.section-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--orbis);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+
+
+/* ══════════════════════════════════════
+   2. SHOWCASE CARD HEADER → Fondo gradiente suave + icono en caja
+   Afecta: .sc-cat-header, .sc-cat-icon, .sc-cat-name, .sc-cat-arrow
+══════════════════════════════════════ */
+
+.sc-cat-header {
+  background: linear-gradient(135deg, var(--orbis-light) 0%, rgba(232, 235, 250, .5) 100%);
+  border-bottom: 2px solid rgba(47, 59, 162, .1);
+  padding: 12px 16px;
+}
+
+/* El ícono ahora vive en una "tarjetita" blanca elevada */
+.sc-cat-icon {
+  font-size: 1.2rem;
+  width: 36px;
+  height: 36px;
+  background: var(--surface);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(47, 59, 162, .14), 0 1px 3px rgba(0, 0, 0, .05);
+  flex-shrink: 0;
+}
+
+/* Nombre de categoría con más peso tipográfico (usa Syne, la font display que ya tienes) */
+.sc-cat-name {
+  font-family: var(--font-display);
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--orbis-dark);
+  /* El text-transform uppercase lo mantiene aunque cambie de monospace a display */
+  text-transform: uppercase;
+}
+
+/* Flecha como botón circular sólido */
+.sc-cat-arrow {
+  width: 28px;
+  height: 28px;
+  background: var(--orbis);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .82rem;
+  flex-shrink: 0;
+  transition: transform .2s var(--ease-spring), background .2s;
+}
+
+.showcase-card:hover .sc-cat-arrow {
+  transform: translateX(3px) scale(1.1);
+  background: var(--orbis-dark);
+}
+
+
+/* ══════════════════════════════════════
+   3. SKU CHIPS → Pastilla estilo "tag"
+   Afecta: .sc-sku, .prod-card-sku, .cat-product-sku, .qv-sku
+══════════════════════════════════════ */
+
+.sc-sku,
+.prod-card-sku,
+.cat-product-sku {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--orbis-light);
+  border: 1px solid rgba(47, 59, 162, .15);
+  color: var(--orbis);
+  border-radius: 100px;
+  padding: 3px 10px;
+  /* Tamaño y font sin cambio */
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+/* Símbolo # tenue antes del código */
+.sc-sku::before,
+.prod-card-sku::before,
+.cat-product-sku::before {
+  content: '#';
+  opacity: .4;
+}
+
+/* Quick View — misma pastilla pero un poco más grande */
+.qv-sku {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--orbis-light);
+  border: 1px solid rgba(47, 59, 162, .15);
+  color: var(--orbis);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  margin-bottom: 12px;
+}
+
+.qv-sku::before {
+  content: '#';
+  opacity: .4;
+}
+
+
+/* ══════════════════════════════════════
+   4. HERO STATS → Glass cards
+   Afecta: .hero-stat (sección de estadísticas en el hero)
+══════════════════════════════════════ */
+
+.hero-stat {
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: var(--r-lg);
+  padding: 14px 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background .25s, border-color .25s;
+}
+
+.hero-stat:hover {
+  background: rgba(255, 255, 255, .16);
+  border-color: rgba(255, 255, 255, .28);
+}
+
+
+/* ══════════════════════════════════════
+   5. BREADCRUMB → Pill nav
+   Afecta: .breadcrumb-inner, .bc-item a, .bc-current
+══════════════════════════════════════ */
+
+.breadcrumb-inner {
+  gap: 6px;
+}
+
+.bc-item a {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: var(--orbis-light);
+  border: 1px solid rgba(47, 59, 162, .12);
+  border-radius: 100px;
+  color: var(--orbis);
+  font-weight: 500;
+  font-size: .83rem;
+  transition: background .15s, color .15s;
+}
+
+.bc-item a:hover {
+  background: var(--orbis);
+  color: #fff;
+  text-decoration: none;
+}
+
+.bc-current {
+  display: inline-flex;
+  padding: 4px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: .83rem;
+}
+
+
+/* ══════════════════════════════════════
+   6. CATÁLOGO INTERNO — TÍTULO DE GRID → Badge dark
+   Afecta: .cat-grid-title ("◈ Catálogo Exclusivo — EPP")
+══════════════════════════════════════ */
+
+.cat-grid-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--orbis-deep) 0%, var(--orbis) 100%);
+  color: var(--safety);
+  border-radius: var(--r-sm);
+  padding: 6px 14px;
+  font-family: var(--font-mono);
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(47, 59, 162, .22);
+}
+
+
+/* ══════════════════════════════════════
+   7. HERO BADGE → Más prominente (ya existe, solo se refuerza)
+   Afecta: .hero-badge
+══════════════════════════════════════ */
+
+.hero-badge {
+  background: rgba(255, 255, 255, .14);
+  border-color: rgba(255, 255, 255, .28);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+}
+
+
+/* ══════════════════════════════════════
+   8. CDATA ICON → Caja para el ícono de contacto
+   Afecta: .cdata-icon (📍 📞 ✉️ 🕐 en la sección de contacto)
+══════════════════════════════════════ */
+
+.cdata-icon {
+  font-size: 1.2rem;
+  width: 42px;
+  height: 42px;
+  background: rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .2s, border-color .2s;
+}
+
+.cdata-item:hover .cdata-icon {
+  background: rgba(255, 255, 255, .18);
+  border-color: rgba(255, 255, 255, .28);
+}
+
+
+/* ══════════════════════════════════════
+   9. FOOTER BADGES → Más polished
+   Afecta: .fbadge ("ISO 9001", "Est. 2000")
+══════════════════════════════════════ */
+
+.fbadge {
+  background: rgba(255, 255, 255, .05);
+  border-color: rgba(255, 255, 255, .18);
+  cursor: default;
+  transition: border-color .2s, color .2s, background .2s;
+}
+
+.fbadge:hover {
+  border-color: var(--safety);
+  color: var(--safety);
+  background: rgba(245, 158, 11, .08);
+}
+
+
+/* ══════════════════════════════════════
+   10. TRUST BAR DOT → Glow sutil
+   Afecta: .trust-chip-dot
+══════════════════════════════════════ */
+
+.trust-chip-dot {
+  width: 7px;
+  height: 7px;
+  background: linear-gradient(135deg, var(--orbis) 0%, var(--orbis-mid) 100%);
+  box-shadow: 0 0 6px rgba(47, 59, 162, .4);
+}
+
+
+/* ══════════════════════════════════════
+   MOBILE — Ajustes para que los pills no sean pesados en pantallas chicas
+══════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Las pastillas de breadcrumb en móvil son más compactas */
+  .bc-item a,
+  .bc-current {
+    padding: 3px 9px;
+    font-size: .78rem;
+  }
+
+  /* El stat glass card sin backdrop-filter en móvil bajo (ahorra batería) */
+  .hero-stat {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255, 255, 255, .12);
+  }
+
+  /* La pastilla del cat-grid-title más ajustada */
+  .cat-grid-title {
+    font-size: .6rem;
+    padding: 5px 11px;
+  }
+}
 
 </style>
 </head>
