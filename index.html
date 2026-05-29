@@ -1152,6 +1152,30 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
   min-height: 48px !important; /* Botones estéticos pero no excesivamente altos */
   padding: 10px 16px !important;
 }
+/* ─────────────────────────────────────────────────
+   FIX 11 · EVITAR QUE EL PRECIO Y TEXTOS SE APLASTEN EN MÓVIL
+───────────────────────────────────────────────── */
+.qv-details-col > * {
+  flex-shrink: 0 !important; /* Obliga al navegador a respetar el tamaño real de los elementos */
+}
+
+@media (max-width: 768px) {
+  .qv-details-col {
+    display: block !important; /* Apaga la caja flexible que estaba causando la compresión */
+    max-height: 58dvh !important; /* Permite hacer scroll interno fluido */
+    padding: 20px 16px !important; /* Márgenes perfectos para celular */
+  }
+  
+  .qv-image-col {
+    min-height: 180px !important; /* Evitamos que la foto coma toda la pantalla */
+    max-height: 220px !important;
+  }
+
+  .qv-price-block {
+    min-height: 85px !important; /* Fuerza a que el bloque del precio siempre se dibuje completo */
+    overflow: visible !important;
+  }
+}
 
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
