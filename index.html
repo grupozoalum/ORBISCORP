@@ -1553,11 +1553,15 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
       <button class="msave-btn ripple-host" id="lc-btn" style="width:100%" onclick="doLoginCliente()" type="button">
         Entrar a mi cuenta →
       </button>
-      <div class="auth-divider"><span class="auth-divider-lbl">O</span></div>
-      <div class="auth-switch">
-        ¿No tienes cuenta?
-        <button class="auth-switch-link" onclick="switchToRegister()" type="button">Regístrate gratis</button>
+      
+      <!-- NUEVA SECCIÓN DE REGISTRO MUCHO MÁS VISIBLE -->
+      <div style="margin-top: 24px; padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); text-align: center;">
+        <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 12px; font-weight: 600;">¿Aún no eres cliente OrbisCORP?</p>
+        <button class="mcancel-btn ripple-host" style="width: 100%; border: 2px solid var(--orbis); color: var(--orbis); font-weight: bold; background: #fff;" onclick="switchToRegister()" type="button">
+          ✨ Crear una cuenta nueva
+        </button>
       </div>
+
     </div>
   </div>
 </div>
@@ -1566,7 +1570,60 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
 <div id="register-cliente-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rc-title">
   <div class="modal-panel" style="max-width:520px">
     <div class="modal-head">
-      <span class="modal-head-title" id="rc-title">✨ Crear Cuenta</span>
+      <span class="modal-head-title" id="rc-title">Crear Cuenta</span>
+      <button class="modal-close" onclick="closeRegisterCliente()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:var(--text-2);line-height:1.6;margin-bottom:16px">
+        Guarda tus datos fiscales para agilizar futuras cotizaciones y pedidos.
+      </p>
+      <p class="auth-section-title">Datos Personales</p>
+      <div class="mfield-row">
+        <div class="mfield"><label for="rc-nombre">Nombre(s) *</label><input type="text" id="rc-nombre" placeholder="Juan" autocomplete="given-name"></div>
+        <div class="mfield"><label for="rc-apellido">Apellido(s) *</label><input type="text" id="rc-apellido" placeholder="García López" autocomplete="family-name"></div>
+      </div>
+      <div class="mfield"><label for="rc-email">Correo electrónico *</label><input type="email" id="rc-email" placeholder="juan@empresa.com" autocomplete="email"></div>
+      <div class="mfield">
+        <label for="rc-pass">Contraseña * <span style="font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0;font-size:.78rem">(mín. 6 caracteres)</span></label>
+        <input type="password" id="rc-pass" placeholder="••••••••" autocomplete="new-password" oninput="evalPassStrength(this.value)">
+        <div class="pass-strength-wrap">
+          <div class="pass-strength-track"><div class="pass-strength-fill" id="pass-strength-bar"></div></div>
+          <div class="pass-strength-hint" id="pass-strength-hint">Introduce una contraseña</div>
+        </div>
+      </div>
+      <div class="mfield"><label for="rc-pass2">Confirmar contraseña *</label><input type="password" id="rc-pass2" placeholder="••••••••" autocomplete="new-password"></div>
+      <p class="auth-section-title">Datos Fiscales <span style="font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0;font-size:.75rem">(opcionales)</span></p>
+      <div class="fiscal-info-note">💡 Se incluyen automáticamente en tus cotizaciones PDF y mensajes de WhatsApp.</div>
+      <div class="mfield-row">
+        <div class="mfield"><label for="rc-empresa">Empresa</label><input type="text" id="rc-empresa" placeholder="Mi Empresa SA de CV" autocomplete="organization"></div>
+        <div class="mfield"><label for="rc-puesto">Puesto</label><input type="text" id="rc-puesto" placeholder="Jefe de Compras" autocomplete="organization-title"></div>
+      </div>
+      <div class="mfield">
+        <label for="rc-rfc">RFC</label>
+        <input type="text" id="rc-rfc" placeholder="XAXX010101000" maxlength="13" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="merror" id="rc-err" role="alert"></div>
+      <button class="msave-btn ripple-host" id="rc-btn" style="width:100%;margin-top:8px" onclick="doRegisterCliente()" type="button">
+        Crear mi cuenta →
+      </button>
+      
+      <!-- NUEVA SECCIÓN DE LOGIN DESTACADA -->
+      <div style="margin-top: 24px; padding: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r); text-align: center;">
+        <p style="font-size: 0.85rem; color: var(--text-2); margin-bottom: 12px; font-weight: 600;">¿Ya tienes una cuenta?</p>
+        <button class="mcancel-btn ripple-host" style="width: 100%; border: 2px solid var(--orbis); color: var(--orbis); font-weight: bold; background: #fff;" onclick="switchToLogin()" type="button">
+          🔑 Iniciar sesión
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRO CLIENTE -->
+<div id="register-cliente-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="rc-title">
+  <div class="modal-panel" style="max-width:520px">
+    <div class="modal-head">
+      <span class="modal-head-title" id="rc-title">Crear Cuenta</span>
       <button class="modal-close" onclick="closeRegisterCliente()" aria-label="Cerrar">✕</button>
     </div>
     <div class="modal-body">
