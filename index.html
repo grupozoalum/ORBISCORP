@@ -1176,6 +1176,27 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
     overflow: visible !important;
   }
 }
+/* ─────────────────────────────────────────────────
+   FIX 12 · MEJORAR CONTRASTE DE TEXTOS SECUNDARIOS
+───────────────────────────────────────────────── */
+.qv-breadcrumb,
+.qv-price-label-small,
+.qv-iva-note,
+.qv-qty-label,
+.qv-trust-item {
+  color: var(--text-2) !important; /* Cambiamos a un azul grisáceo mucho más oscuro */
+  font-weight: 600 !important; /* Hacemos la letra ligeramente más gruesa para que resalte */
+}
+
+.qv-breadcrumb-sep {
+  opacity: 0.8 !important; /* Hacemos que la flechita '>' se vea clara */
+}
+
+@media (max-width: 768px) {
+  .qv-details-col {
+    padding-bottom: 40px !important; /* Le damos espacio extra al final para que las letras de "Envíos" no queden al ras del borde */
+  }
+}
 
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
