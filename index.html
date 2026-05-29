@@ -3509,28 +3509,6 @@ document.addEventListener('keydown', e => {
   orig.parentElement.appendChild(clone);
 })();
 
-/* ── Pull to Refresh ── */
-(function initPTR() {
-  let startY = 0;
-  document.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, { passive: true });
-  document.addEventListener('touchmove', e => {
-    if (window.scrollY > 0 || _ptrActive) return;
-    if (e.touches[0].clientY - startY > 72) {
-      document.getElementById('ptr-hint')?.classList.
-      add('show');
-      _ptrActive = true;
-      // Llamar la recarga de datos y luego ocultar el indicador
-      reloadData().then(() => {
-        document.getElementById('ptr-hint')?.classList.remove('show');
-        _ptrActive = false;
-      }).catch(err => {
-        console.error('[PTR Error]', err);
-        document.getElementById('ptr-hint')?.classList.remove('show');
-        _ptrActive = false;
-      });
-    }
-  }, { passive: true });
-})();
 
 /* ══════════════════════════════════════════════
    INICIALIZACIÓN DE LA APLICACIÓN
