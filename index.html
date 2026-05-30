@@ -1469,6 +1469,47 @@ body.admin-mode .admin-img-trigger {
     pointer-events: none;
   }
 }
+
+/* ─────────────────────────────────────────────────
+   FIX 21 · INDICADOR EXPLÍCITO DE SCROLL EN MÓVIL
+───────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Creamos la pastilla flotante animada */
+  .qv-actions-stack::after {
+    content: 'Desliza para leer más ↓';
+    position: absolute;
+    top: -34px; /* Flotando justo encima de los botones */
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    color: var(--orbis); /* Letra azul para llamar la atención */
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(47, 59, 162, 0.12);
+    pointer-events: none; /* Para que no estorbe si lo tocan por error */
+    animation: bounceHint 2s infinite ease-in-out;
+    z-index: 101;
+    white-space: nowrap;
+  }
+
+  /* Animación de rebote suave hacia abajo */
+  @keyframes bounceHint {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(4px); }
+  }
+  
+  /* Le damos un poco más de espacio al final del texto para que al hacer scroll 
+     hasta el fondo, la pastillita no tape la última línea de la descripción */
+  .qv-details-col {
+     padding-bottom: 50px !important;
+  }
+}
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
 ───────────────────────────────────────────────── */
