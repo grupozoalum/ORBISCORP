@@ -1418,6 +1418,57 @@ body.admin-mode .admin-img-trigger {
     box-shadow: 0 -12px 16px -12px rgba(0,0,0,0.12) !important; 
   }
 }
+
+/* ─────────────────────────────────────────────────
+   FIX 20 · UX EN MÓVIL (Botón X visible, Contraste y Scroll)
+───────────────────────────────────────────────── */
+/* 1. Hacer visible la palabra de la categoría (EPP) con fondo azul sólido corporativo */
+.qv-cat-badge {
+  background: var(--orbis) !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(47, 59, 162, 0.25) !important;
+}
+.qv-cat-badge-name, .qv-cat-badge-icon {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* 2. Hacer muy visible el botón de cerrar (X) poniéndole fondo blanco y letra oscura */
+.qv-close-fab {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  z-index: 9999 !important;
+  opacity: 1 !important;
+}
+
+/* 3. Indicador visual de Scroll para el celular */
+@media (max-width: 768px) {
+  /* Quitamos la rayita superior grisácea que confunde, ya que la "X" será la forma principal de cerrar */
+  .qv-panel::before {
+    display: none !important;
+  }
+  
+  /* Elevamos la caja de botones con una sombra sutil pero marcada */
+  .qv-actions-stack {
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08) !important;
+    border-top: 1px solid rgba(221,227,240,.6) !important;
+  }
+
+  /* LA MAGIA: Creamos un degradado blanco que se desvanece hacia arriba justo encima de los botones,
+     esto le dice al cerebro instintivamente: "el texto sigue por debajo de los botones, desliza" */
+  .qv-actions-stack::before {
+    content: '';
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to top, var(--surface) 0%, transparent 100%);
+    pointer-events: none;
+  }
+}
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
 ───────────────────────────────────────────────── */
