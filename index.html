@@ -1207,7 +1207,48 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
 body.admin-mode .admin-img-trigger {
   pointer-events: auto !important; /* Vuelve la capa sólida y funcional solo cuando entras como Admin */
 }
+/* ─────────────────────────────────────────────────
+   FIX 14 · ELIMINAR CABECERA AZUL EN CATEGORÍAS (Ir directo a productos)
+───────────────────────────────────────────────── */
+#cat-hero {
+  display: none !important; /* Oculta TODO el cuadro azul gigante de las categorías */
+}
 
+#cat-trust-bar {
+  display: none !important; /* Oculta la barra de marcas inferior para limpiar aún más la vista */
+}
+
+/* Opcional: Le damos un poquito de margen al pan de migas (breadcrumb) para que respire con el menú de arriba */
+.breadcrumb {
+  padding-top: 10px; 
+}
+
+/* ─────────────────────────────────────────────────
+   FIX 15 · IR DIRECTO A LA CUADRÍCULA (Ocultar barra y producto gigante)
+───────────────────────────────────────────────── */
+/* Oculta la barra azul superior, el producto gigante y el subtítulo */
+.cat-gallery-header,
+.cat-cover-body,
+.cat-grid-title {
+  display: none !important; 
+}
+
+/* Quitamos los bordes y el fondo blanco del gran contenedor para que los productos floten limpiamente sobre tu fondo principal */
+.cat-gallery-block {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Forzamos a que la cuadrícula siempre esté visible y le quitamos los márgenes estorbosos */
+.cat-grid-panel {
+  max-height: none !important; 
+  border: none !important;
+}
+
+.cat-grid-inner {
+  padding: 0 !important; 
+}
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
 ───────────────────────────────────────────────── */
