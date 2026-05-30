@@ -1197,6 +1197,16 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
     padding-bottom: 40px !important; /* Le damos espacio extra al final para que las letras de "Envíos" no queden al ras del borde */
   }
 }
+/* ─────────────────────────────────────────────────
+   FIX 13 · DESBLOQUEAR CLICS EN LAS FOTOS DE PRODUCTOS
+───────────────────────────────────────────────── */
+.admin-img-trigger {
+  pointer-events: none !important; /* Vuelve la capa un "fantasma" para que el clic pase a la tarjeta */
+}
+
+body.admin-mode .admin-img-trigger {
+  pointer-events: auto !important; /* Vuelve la capa sólida y funcional solo cuando entras como Admin */
+}
 
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
@@ -2873,8 +2883,9 @@ function _renderProductCard(p, catName, meta) {
 
   const btnTxt = out ? '✕ Sin stock' : inCartItem ? `✓ En carrito (${cartQty})` : '+ Añadir al carrito';
 
+  /* Se agregó el onclick="openQV" al div principal y event.stopPropagation() a los botones */
   return `<div class="prod-card" id="pcard-${p.id}" onclick="openQV('${p.id}')" style="cursor: pointer;">
-    <div class="prod-card-img">
+    <div class="prod-card-img">
       ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.nombre || ''}" loading="lazy">` : `<div class="img-placeholder" aria-hidden="true">${meta.icon}</div>`}
       <div class="admin-img-trigger" onclick="event.stopPropagation();triggerProdImgUp('${p.id}')">
         <div class="admin-img-trigger-label">Cambiar imagen</div>
@@ -2887,13 +2898,15 @@ function _renderProductCard(p, catName, meta) {
       <div class="prod-card-desc">${p.desc || ''}</div>
       <div class="prod-card-price">${fmtPrice(p.precio)}<span> MXN</span></div>
       ${label ? `<div class="prod-card-stock ${cls}">${label}</div>` : ''}
+      
       <button class="btn-add-card${inCartItem ? ' added' : ''}" id="btnadd-${p.id}"
-              onclick="addToCart('${p.id}')" ${disabled ? 'disabled aria-disabled="true"' : ''}>
+              onclick="event.stopPropagation(); addToCart('${p.id}')" ${disabled ? 'disabled aria-disabled="true"' : ''}>
         ${btnTxt}
       </button>
+      
       <div class="prod-card-admin-bar">
-        <button class="padmin-btn" onclick="openProductModal('${p.id}')">✎ Editar</button>
-        <button class="padmin-btn danger" onclick="deleteProduct('${p.id}')">✕ Eliminar</button>
+        <button class="padmin-btn" onclick="event.stopPropagation(); openProductModal('${p.id}')">✎ Editar</button>
+        <button class="padmin-btn danger" onclick="event.stopPropagation(); deleteProduct('${p.id}')">✕ Eliminar</button>
       </div>
     </div>
   </div>`;
