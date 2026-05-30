@@ -1249,6 +1249,126 @@ body.admin-mode .admin-img-trigger {
 .cat-grid-inner {
   padding: 0 !important; 
 }
+
+/* ─────────────────────────────────────────────────
+   FIX 16 · UX DE TARJETAS (Saber más + Botones alineados)
+───────────────────────────────────────────────── */
+/* 1. Convertimos la tarjeta en una columna flexible */
+.prod-card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.prod-card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important; /* Hace que el cuerpo tome todo el alto disponible */
+}
+
+/* 2. Empujamos el precio y el botón siempre hacia el fondo para alinear todo perfecto */
+.prod-card-price {
+  margin-top: auto !important; 
+}
+
+/* 3. Aseguramos que la descripción larga siga oculta... */
+.prod-card-desc {
+  display: none !important; 
+}
+
+/* 4. ...y la reemplazamos inyectando un indicador de "Saber más" debajo del título */
+.prod-card-name::after {
+  content: 'Ver detalles ›';
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--orbis-mid); /* Un tono azul claro y elegante */
+  margin-top: 6px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ─────────────────────────────────────────────────
+   FIX 17 · BOTÓN "VER DETALLES" SOBRE LA IMAGEN
+───────────────────────────────────────────────── */
+/* 1. Apagamos el texto fallido del FIX 16 para limpiar el error */
+.prod-card-name::after {
+  display: none !important;
+}
+
+/* 2. Creamos el botón azul flotante sobre la imagen */
+.prod-card-img::after {
+  content: 'Ver detalles ↗';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--orbis) !important; /* Azul de tu marca */
+  color: #ffffff !important; /* Letras blancas */
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  padding: 8px 18px !important;
+  border-radius: 100px !important;
+  opacity: 0; /* Invisible por defecto en PC */
+  pointer-events: none; /* Para que el clic atraviese hacia la tarjeta */
+  transition: all 0.3s var(--ease-spring) !important;
+  box-shadow: 0 4px 12px rgba(47, 59, 162, 0.4) !important;
+  z-index: 5 !important;
+  white-space: nowrap !important;
+}
+
+/* 3. Mostrar el botón con una animación suave al pasar el mouse (PC) */
+.prod-card:hover .prod-card-img::after {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+/* 4. En celulares: Siempre visible (estático) para que la gente sepa que se puede picar */
+@media (max-width: 768px) {
+  .prod-card-img::after {
+    opacity: 0.95 !important;
+    transform: translateX(-50%) translateY(0) !important;
+    bottom: 8px !important;
+    font-size: 0.6rem !important;
+    padding: 5px 12px !important;
+  }
+}
+/* ─────────────────────────────────────────────────
+   FIX 18 · ENLACE "VER DETALLES" DEBAJO DEL BOTÓN
+───────────────────────────────────────────────── */
+/* 1. Apagamos el botón azul flotante de la imagen (FIX 17) para limpiar la vista */
+.prod-card-img::after {
+  display: none !important;
+}
+
+/* 2. Creamos el texto de "Ver detalles" al final de la tarjeta */
+.prod-card-body::after {
+  content: 'Ver detalles del producto ›';
+  display: block;
+  text-align: center;
+  margin-top: 14px !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem !important;
+  color: var(--text-3) !important; /* Un gris sutil para no competir con el botón azul */
+  font-weight: 600 !important;
+  transition: color 0.2s ease !important;
+  order: 99; /* Lo mandamos al fondo */
+}
+
+/* 3. Al pasar el cursor por CUALQUIER parte de la tarjeta, el texto se vuelve azul para invitar al clic */
+.prod-card:hover .prod-card-body::after {
+  color: var(--orbis) !important;
+  text-decoration: underline !important;
+}
+
+/* 4. Si entras como Admin, mandamos tus botones de editar/eliminar por debajo de este texto */
+.prod-card-admin-bar {
+  order: 100 !important; 
+  margin-top: 14px !important;
+}
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
 ───────────────────────────────────────────────── */
