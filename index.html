@@ -1369,6 +1369,55 @@ body.admin-mode .admin-img-trigger {
   order: 100 !important; 
   margin-top: 14px !important;
 }
+
+/* ─────────────────────────────────────────────────
+   FIX 19 · DESCRIPCIÓN COMPLETA Y BOTONES SIEMPRE VISIBLES EN MÓVIL
+───────────────────────────────────────────────── */
+/* 1. Liberamos la descripción para que muestre todo el texto sin los "..." */
+.qv-product-desc {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
+
+@media (max-width: 768px) {
+  /* 2. Obligamos al modal a respetar el alto de la pantalla del celular */
+  .qv-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 85vh !important; /* Altura máxima segura */
+    height: 85dvh !important; /* Soporte para navegadores modernos */
+    max-height: 85dvh !important;
+  }
+  
+  /* 3. La foto mantiene un tamaño exacto y no empuja las cosas hacia abajo */
+  .qv-image-col {
+    flex: 0 0 auto !important; 
+    height: 220px !important; 
+    min-height: 220px !important;
+  }
+
+  /* 4. Esta es la caja mágica: tomará el espacio sobrante y hará scroll interno */
+  .qv-details-col {
+    flex: 1 1 auto !important; 
+    max-height: none !important; 
+    overflow-y: auto !important;
+    padding: 20px 16px 20px !important;
+    position: relative !important;
+  }
+
+  /* 5. Hacemos que los botones floten sobre el texto mientras scrolleas */
+  .qv-actions-stack {
+    position: sticky !important;
+    bottom: -20px !important; /* Se pega al piso del modal */
+    background: var(--surface) !important; /* Fondo blanco para tapar el texto que pasa por debajo */
+    margin: 0 -16px !important; /* Se expande para tocar los bordes */
+    padding: 16px 16px 20px !important;
+    z-index: 100 !important;
+    /* Sombreamos sutilmente hacia arriba para dar efecto de profundidad */
+    box-shadow: 0 -12px 16px -12px rgba(0,0,0,0.12) !important; 
+  }
+}
 /* ─────────────────────────────────────────────────
    FIX FINAL · LIBERAR GLOBO DEL CARRITO (PC Y MÓVIL)
 ───────────────────────────────────────────────── */
