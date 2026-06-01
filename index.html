@@ -1099,10 +1099,46 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
     font-size: 1.25rem !important; /* Achica un poco el número */
   }
   .hero-stat-label {
-    font-size: 0.5rem !important; /* Texto pequeñito para que quepa perfecto */
+    font-size: 0.5rem !important; 
     letter-spacing: 0.05em !important;
   }
 }
+
+/* ── BOTONES DE PAGINACIÓN NUMÉRICA ── */
+.page-num-btn {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-2);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-spring);
+  padding: 0;
+}
+.page-num-btn:hover {
+  border-color: var(--orbis);
+  color: var(--orbis);
+  transform: translateY(-2px);
+}
+.page-num-btn.active {
+  background: var(--orbis);
+  color: #fff;
+  border-color: var(--orbis);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(47, 59, 162, 0.25);
+}
+@media (max-width: 768px) {
+  .page-num-btn { width: 30px; height: 30px; font-size: 0.8rem; }
+}
+
+
 /* ─────────────────────────────────────────────────
    FIX 10 · CORRECCIÓN DEL QUICK VIEW (TIPOGRAFÍA Y SCROLL)
 ───────────────────────────────────────────────── */
@@ -2922,6 +2958,7 @@ const storage  = getStorage(fbApp);
 const REF_CONTENT  = doc(db,        'web_content',   'orbiscorp');
 const COL_LEADS    = collection(db, 'leads_orbiscorp');
 const COL_PRODS    = collection(db, 'productos_orbis');
+const COL_PRODS_MASIVOS = collection(db, 'productos'); // <-- NUEVA COLECCIÓN ERP
 const COL_CLIENTS  = collection(db, 'clientes');
 
 /* ══ CONSTANTES ══ */
@@ -2932,11 +2969,11 @@ const LS_CART_KEY = 'orbiscorp_cart_v5';
 /* ══ CATEGORÍAS ══ */
 const CATS = ['EPP','Abrasivos','Soldadura','Herramientas','Ferretería'];
 const CAT_META = {
-  'EPP':          { icon:'🦺', slug:'epp' },
-  'Abrasivos':    { icon:'🔴', slug:'abrasivos' },
-  'Soldadura':    { icon:'⚡', slug:'soldadura' },
-  'Herramientas': { icon:'🔧', slug:'herramientas' },
-  'Ferretería':   { icon:'🔩', slug:'ferreteria' }
+  'EPP':          { icon:'🦺', slug:'epp', coverImg: 'https://i0.wp.com/www.segusa.com.mx/wp-content/uploads/2023/07/equipo-de-proteccion-personal-1.jpg?resize=1140%2C641&ssl=1' },
+  'Abrasivos':    { icon:'🔴', slug:'abrasivos', coverImg: 'https://img.freepik.com/fotos-premium/conjunto-herramientas-abrasivas-sobre-fondo-metalico_275559-21886.jpg?w=2000' },
+  'Soldadura':    { icon:'⚡', slug:'soldadura', coverImg: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800&auto=format&fit=crop' },
+  'Herramientas': { icon:'🔧', slug:'herramientas', coverImg: 'https://ferreterialider.com/wp-content/uploads/2022/08/Herramientas-para-la-casa-C-1.jpg' },
+  'Ferretería':   { icon:'🔩', slug:'ferreteria', coverImg: 'https://media.istockphoto.com/photos/showcase-of-tool-store-picture-id499783122?k=20&m=499783122&s=612x612&w=0&h=DXKcz9yPzTLx4KvL6S1SJQfBuCYAq6dR7ZyEq8tVK6Q=' }
 };
 /* Lookup inverso: slug → nombre de categoría */
 const SLUG_TO_CAT = Object.fromEntries(
@@ -3171,8 +3208,15 @@ function _renderCategoryView(route, cfg) {
 }
 
 /* ══════════════════════════════════════════════
-   RENDER DE PRODUCTOS
+   RENDER DE PRODUCTOS Y PAGINACIÓN
 ═══════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════
+   RENDER DE PRODUCTOS Y PAGINACIÓN
+═══════════════════════════════════════════════ */
+
+window._currentPage = 1;
+const ITEMS_PER_PAGE = 25; // Límite de productos por página
 
 function _renderCategoryProducts(catName) {
   const filtered = allProducts
@@ -3183,12 +3227,18 @@ function _renderCategoryProducts(catName) {
   if (!showcase) return;
   showcase.innerHTML = '';
 
-  const meta = CAT_META[catName] || { icon: '📦', slug: '' };
+  const meta = CAT_META[catName] || { icon: '📦', slug: '', coverImg: '' };
 
   if (!filtered.length) {
     showcase.innerHTML = _renderCatEmpty(catName, meta);
     return;
   }
+
+  // Guardamos las variables de entorno para que la paginación sepa dónde estamos
+  window._currentFilteredProducts = filtered;
+  window._currentMeta = meta;
+  window._currentCatName = catName;
+  window._currentPage = 1;
 
   const coverProd = categoryCovers[catName] || filtered[0];
   const blockId   = `cat-block-${catToId(catName)}`;
@@ -3211,23 +3261,116 @@ function _renderCategoryProducts(catName) {
     <div id="cover-${catToId(catName)}" onclick="toggleCat('${catName}')" style="cursor:pointer">
       ${_renderCoverHTML(coverProd, catName, meta)}
     </div>
-    <div class="cat-grid-panel" id="grid-panel-${catToId(catName)}" style="max-height:4000px;border-top-width:1px;" role="region" aria-label="Productos de ${catName}">
+    <div class="cat-grid-panel" id="grid-panel-${catToId(catName)}" style="max-height:none !important; border-top-width:1px; overflow:visible;" role="region">
       <div class="cat-grid-inner">
-        <div class="cat-grid-title">◈ Catálogo Exclusivo — ${catName}</div>
-        <div class="cat-products-grid" id="grid-${catToId(catName)}">
-          ${filtered.map(p => _renderProductCard(p, catName, meta)).join('')}
+        <div class="cat-grid-title" id="cat-grid-title-anchor">◈ Catálogo Exclusivo — ${catName}</div>
+        
+        <div class="cat-products-grid" id="grid-${catToId(catName)}"></div>
+        
+        <div id="pagination-container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-top:32px; padding:20px 0; border-top: 1px solid var(--border);">
+          <button id="btn-prev-page" class="btn-hero-secondary ripple-host" style="color:var(--orbis); border-color:var(--orbis); background:#fff; padding:10px 16px; min-height:auto;" onclick="goToPage(-1)">← Anterior</button>
+          
+          <div style="display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; min-width:200px;">
+            <div id="pagination-numbers" style="display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:wrap;"></div>
+            <div style="font-family:var(--font-mono); font-size:0.65rem; color:var(--text-3); letter-spacing:0.05em; text-align:center;" id="pagination-info">Mostrando...</div>
+          </div>
+
+          <button id="btn-next-page" class="btn-hero-secondary ripple-host" style="color:var(--orbis); border-color:var(--orbis); background:#fff; padding:10px 16px; min-height:auto;" onclick="goToPage(1)">Siguiente →</button>
         </div>
+        
       </div>
     </div>`;
 
   showcase.appendChild(block);
+  
+  // Renderizar la primera página al cargar
+  _renderCurrentPage();
 }
 
+window.goToPage = function(direction) {
+  window._currentPage += direction;
+  _renderCurrentPage();
+  const anchor = document.getElementById('cat-grid-title-anchor');
+  if (anchor) { anchor.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+};
+
+window.goToSpecificPage = function(pageNum) {
+  window._currentPage = pageNum;
+  _renderCurrentPage();
+  const anchor = document.getElementById('cat-grid-title-anchor');
+  if (anchor) { anchor.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+};
+
+function _renderCurrentPage() {
+  const grid = document.getElementById(`grid-${catToId(window._currentCatName)}`);
+  const btnPrev = document.getElementById('btn-prev-page');
+  const btnNext = document.getElementById('btn-next-page');
+  const info = document.getElementById('pagination-info');
+  const numbersContainer = document.getElementById('pagination-numbers');
+  
+  if (!grid || !window._currentFilteredProducts) return;
+
+  const totalItems = window._currentFilteredProducts.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+  
+  // Seguridad de límites
+  if (window._currentPage < 1) window._currentPage = 1;
+  if (window._currentPage > totalPages) window._currentPage = totalPages;
+
+  const startIndex = (window._currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+
+  const currentBatch = window._currentFilteredProducts.slice(startIndex, endIndex);
+  
+  // Reemplazo destructivo
+  grid.innerHTML = currentBatch.map(p => _renderProductCard(p, window._currentCatName, window._currentMeta)).join('');
+
+  if (btnPrev && btnNext && info && numbersContainer) {
+    btnPrev.style.visibility = (window._currentPage <= 1) ? 'hidden' : 'visible';
+    btnNext.style.visibility = (window._currentPage >= totalPages) ? 'hidden' : 'visible';
+    
+    if (totalItems <= ITEMS_PER_PAGE) {
+        document.getElementById('pagination-container').style.display = 'none';
+    } else {
+        document.getElementById('pagination-container').style.display = 'flex';
+        info.innerHTML = `(Mostrando ${startIndex + 1} – ${endIndex} de ${totalItems})`;
+        
+        // Generar los botones numéricos inteligentemente
+        let numbersHTML = '';
+        let startPage = Math.max(1, window._currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        
+        if (endPage - startPage < 4) {
+          startPage = Math.max(1, endPage - 4);
+        }
+
+        // Primer página y puntos suspensivos
+        if (startPage > 1) {
+          numbersHTML += `<button class="page-num-btn" onclick="goToSpecificPage(1)">1</button>`;
+          if (startPage > 2) numbersHTML += `<span style="color:var(--text-3); font-weight:bold; padding:0 4px;">...</span>`;
+        }
+        
+        // Números centrales
+        for (let i = startPage; i <= endPage; i++) {
+          const activeClass = (i === window._currentPage) ? 'active' : '';
+          numbersHTML += `<button class="page-num-btn ${activeClass}" onclick="goToSpecificPage(${i})">${i}</button>`;
+        }
+
+        // Última página y puntos suspensivos
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) numbersHTML += `<span style="color:var(--text-3); font-weight:bold; padding:0 4px;">...</span>`;
+          numbersHTML += `<button class="page-num-btn" onclick="goToSpecificPage(${totalPages})">${totalPages}</button>`;
+        }
+        
+        numbersContainer.innerHTML = numbersHTML;
+    }
+  }
+}
 function _renderCoverHTML(p, catName, meta) {
   const { label, cls } = getStockInfo(p);
   const imgHTML = p.imageUrl
     ? `<img src="${p.imageUrl}" alt="${p.nombre || catName}" loading="lazy">`
-    : `<div class="img-placeholder" aria-hidden="true">${meta.icon}</div>`;
+    : `<img src="${meta.coverImg}" alt="${catName}" loading="lazy" style="object-fit: cover !important; padding: 0 !important; width: 100%; height: 100%;">`;
 
   return `<div class="cat-cover-body">
     <div class="cat-product-img-wrap" id="imgwrap-${p.id}">
@@ -3349,16 +3492,18 @@ function renderShowroom() {
   g.innerHTML = CATS.map(catName => {
     const meta = CAT_META[catName];
     
-    // Filtramos hasta 5 productos de esta categoría que tengan imagen
-    const catProds = allProducts.filter(p => p.categoria === catName && p.imageUrl).slice(0, 5);
+    // Contamos cuántos productos hay en total en esta categoría
+    const totalCatProds = allProducts.filter(p => p.categoria === catName).length;
 
-    if (catProds.length === 0) return _renderEmptyShowcaseCard(catName, meta);
+    // Si la categoría no tiene absolutamente nada, mostramos la tarjeta vacía
+    if (totalCatProds === 0) return _renderEmptyShowcaseCard(catName, meta);
 
-    const galleryHTML = catProds.map(p => `
+    // NUEVO: Usamos SIEMPRE la imagen representativa premium de Unsplash
+    // ignorando las fotos individuales de los productos para mantener el diseño uniforme.
+    const galleryHTML = `
       <div class="sc-gallery-item">
-        <img src="${p.imageUrl}" alt="${p.nombre}" loading="lazy">
-      </div>
-    `).join('');
+        <img src="${meta.coverImg}" alt="${catName}" loading="lazy" style="object-fit: cover !important; padding: 0 !important; width: 100%; height: 100%;">
+      </div>`;
 
     return `<div class="showcase-card" onclick="navigate('${meta.slug}')" role="article" tabindex="0"
                  aria-label="Ver categoría ${catName}"
@@ -3383,7 +3528,7 @@ function renderShowroom() {
 
       <div class="sc-body" style="text-align: center; padding: 24px 20px;">
         <div class="sc-name" style="font-size: 1.25rem; margin-bottom: 6px;">Línea de ${catName}</div>
-        <div class="sc-desc" style="margin-bottom: 0;">${catProds.length} productos destacados. Desliza para ver el mostrador.</div>
+        <div class="sc-desc" style="margin-bottom: 0;">${totalCatProds} productos disponibles. Haz clic para explorar.</div>
       </div>
 
       <div class="sc-admin-bar" aria-hidden="true">
@@ -3391,6 +3536,7 @@ function renderShowroom() {
       </div>
     </div>`;
   }).join('');
+}
 
   // Temporizador para auto-deslizar las galerías cada 3.5 segundos sin errores
   if (window._galleryInterval) clearInterval(window._galleryInterval);
@@ -3409,7 +3555,7 @@ function renderShowroom() {
       gallery.scrollTo({ left: nextScroll, behavior: 'smooth' });
     });
   }, 3500); 
-}
+
 function _renderEmptyShowcaseCard(catName, meta) {
   return `<div class="showcase-card" onclick="navigate('${meta.slug}')" role="article" tabindex="0" aria-label="${catName} — Sin productos aún">
     <div class="sc-cat-header">
@@ -4764,15 +4910,76 @@ window.reloadData = async function() {
 ═══════════════════════════════════════════════ */
 
 async function loadAllProducts() {
+  allProducts = [];
+
+  // 1. INTENTAR CARGAR PRODUCTOS MANUALES (ORBIS)
   try {
-    const snap = await getDocs(COL_PRODS);
-    allProducts = [];
-    snap.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
-    window._allProductsCache = allProducts;
+    const snapOrbis = await getDocs(COL_PRODS);
+    snapOrbis.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
   } catch (e) {
-    console.warn('[PRODS]', e.message);
-    allProducts = [];
+    console.error('[PRODS MANUALES] Error:', e.message);
   }
+
+  // 2. INTENTAR CARGAR PRODUCTOS MASIVOS (ERP) CON CLASIFICACIÓN INTELIGENTE
+  try {
+    const snapMasivos = await getDocs(COL_PRODS_MASIVOS);
+    snapMasivos.forEach(d => {
+      const data = d.data();
+      
+      // 🚨 IGNORAR: Bloqueamos partidas contables para que no salgan en la tienda
+      if (data.Línea === 'CONTABLE' || data.Línea === 'Servicios') return;
+
+      let originalLine = data.Línea || 'Ferretería';
+      const lineLower = originalLine.toLowerCase();
+      
+      let finalCategory = 'Ferretería'; // Por defecto, si no cuadra, es Ferretería
+
+      // 🦺 AGRUPAR EPP
+      if (['calzado', 'casco', 'guante', 'arnes', 'arnés', 'altura', 'cuerpo completo', 'protección', 'proteccion', 'vial', 'epp', 'respiratoria'].some(w => lineLower.includes(w))) {
+        finalCategory = 'EPP';
+      } 
+      // 🔧 AGRUPAR HERRAMIENTAS
+      else if (['herramienta', 'bosch', 'dremel', 'accesorio'].some(w => lineLower.includes(w))) {
+        finalCategory = 'Herramientas';
+      }
+      // 🔴 AGRUPAR ABRASIVOS
+      else if (['abrasivo', 'desbaste'].some(w => lineLower.includes(w))) {
+        finalCategory = 'Abrasivos';
+      }
+      // ⚡ AGRUPAR SOLDADURA
+      else if (['soldadura'].some(w => lineLower.includes(w))) {
+        finalCategory = 'Soldadura';
+      }
+
+      // 🧹 LIMPIEZA DE NOMBRES Y SKU
+      let skuExtraido = '';
+      let nombreLimpio = data.Producto || 'Producto de Inventario';
+      
+      // Si el ERP junta el SKU y el nombre con un guion (Ej: "14502 - Extractor")
+      if (data.Producto && data.Producto.includes(' - ')) {
+        const partes = data.Producto.split(' - ');
+        skuExtraido = partes[0].trim(); // Toma lo de antes del guion
+        nombreLimpio = partes.slice(1).join(' - ').trim(); // Toma todo lo de después
+      }
+
+      // Construimos el producto para la tienda web
+      allProducts.push({
+        id: d.id,
+        nombre: nombreLimpio,
+        categoria: finalCategory,
+        precio: Number(data['Costo Unitario'] || 0),
+        inventario: Math.floor(Number(data.Existencia || 0)),
+        desc: data.Marca ? `Marca: ${data.Marca}` : `Línea original: ${originalLine}`,
+        sku: skuExtraido,
+        imageUrl: '', 
+        esPortada: false 
+      });
+    });
+  } catch (e) {
+    console.error('[PRODS MASIVOS] Error:', e.message);
+  }
+
+  window._allProductsCache = allProducts;
 }
 
 async function _reloadCovers() {
