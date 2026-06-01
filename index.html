@@ -3042,6 +3042,28 @@ function catToId(cat) {
 
 function fmtPrice(n) { return `$${Number(n || 0).toFixed(2)}`; }
 
+/* --- NUEVO: LÓGICA DE DESCUENTOS B2B --- */
+function getPrecioData(basePrice) {
+  // Verifica si hay cliente logueado, si el switch está activo y si tiene porcentaje
+  if (currentCustomer && currentCustomer.tiene_descuento === true && currentCustomer.porcentaje_descuento > 0) {
+    const pct = Math.min(Math.max(currentCustomer.porcentaje_descuento, 1), 100);
+    const final = basePrice - (basePrice * (pct / 100));
+    return { hasDiscount: true, original: basePrice, final: final, pct: pct };
+  }
+  return { hasDiscount: false, original: basePrice, final: basePrice, pct: 0 };
+}
+
+function renderPriceHTML(priceData) {
+  if (priceData.hasDiscount) {
+    return `<div style="display:flex; flex-direction:column; line-height:1.1;">
+              <span style="text-decoration:line-through; color:var(--text-3); font-size:0.65em; font-family:var(--font-mono);">${fmtPrice(priceData.original)}</span>
+              <span style="color:var(--success); font-weight:700;">${fmtPrice(priceData.final)} <span style="background:var(--success); color:#fff; padding:2px 4px; border-radius:4px; font-size:0.6rem; vertical-align:middle; margin-left:4px;">-${priceData.pct}%</span></span>
+            </div>`;
+  }
+  return `${fmtPrice(priceData.final)}`;
+}
+/* --------------------------------------- */
+
 function getStockInfo(product) {
   const inv = (product.inventario !== undefined && product.inventario !== null) ? Number(product.inventario) : null;
   return {
@@ -3222,11 +3244,11 @@ function _renderCoverHTML(p, catName, meta) {
         <p class="cat-product-desc">${p.desc || ''}</p>
       </div>
       <div>
-        <div class="cat-product-price">${fmtPrice(p.precio)}<span> MXN / unidad</span></div>
+        <div class="cat-product-price">${renderPriceHTML(getPrecioData(p.precio))}<span> MXN / unidad</span></div>
         ${label ? `<div class="cat-product-stock ${cls}">${label}</div>` : ''}
         <div class="cat-cover-cta">
           <button class="btn-cover-explore" onclick="event.stopPropagation();toggleCat('${catName}')">Ver todos los productos ↓</button>
-          <span class="cat-cover-meta">desde ${fmtPrice(p.precio)} MXN</span>
+          <span class="cat-cover-meta">desde ${fmtPrice(getPrecioData(p.precio).final)} MXN</span>
         </div>
         <div class="cat-product-admin-bar">
           <button class="padmin-btn" onclick="event.stopPropagation();openProductModal('${p.id}')">✎ Editar</button>
@@ -3260,7 +3282,7 @@ function _renderProductCard(p, catName, meta) {
       ${p.sku ? `<div class="prod-card-sku">${p.sku}</div>` : ''}
       <div class="prod-card-name">${p.nombre || ''}</div>
       <div class="prod-card-desc">${p.desc || ''}</div>
-      <div class="prod-card-price">${fmtPrice(p.precio)}<span> MXN</span></div>
+      <div class="prod-card-price">${renderPriceHTML(getPrecioData(p.precio))}<span> MXN</span></div>
       ${label ? `<div class="prod-card-stock ${cls}">${label}</div>` : ''}
       
       <button class="btn-add-card${inCartItem ? ' added' : ''}" id="btnadd-${p.id}"
@@ -3497,7 +3519,7 @@ function updateCartUI() {
   window.__orbisCart = cart;
 
   const count = cart.reduce((s, i) => s + i.qty, 0);
-  const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const total = cart.reduce((s, i) => s + getPrecioData(i.precio).final * i.qty, 0);
 
   // Badges de navegación
   ['cart-badge', 'mbn-cart-badge'].forEach(id => {
@@ -3536,7 +3558,7 @@ function updateCartUI() {
       <div class="cart-item-info">
         <div class="cart-item-name" title="${item.nombre}">${item.nombre}</div>
         ${item.sku ? `<div style="font-family:var(--font-mono);font-size:.62rem;color:var(--text-3);margin-bottom:2px">SKU: ${item.sku}</div>` : ''}
-        <div class="cart-item-price">${fmtPrice(item.precio * item.qty)} MXN</div>
+        <div class="cart-item-price">${renderPriceHTML({ ...getPrecioData(item.precio), original: item.precio * item.qty, final: getPrecioData(item.precio).final * item.qty })} MXN</div>
         <div class="cart-item-qty" role="group" aria-label="Cantidad de ${item.nombre}">
           <button class="qty-btn" onclick="changeQty('${item.id}',-1)" aria-label="Reducir cantidad">−</button>
           <span class="qty-val" aria-live="polite">${item.qty}</span>
@@ -3643,7 +3665,7 @@ window.closeCart = () => {
 
 window.checkoutWhatsApp = function() {
   if (!cart.length) return;
-  const total = cart.reduce((s, i) => s + i.precio * i.qty, 0);
+  const total = cart.reduce((s, i) => s + getPrecioData(i.precio).final * i.qty, 0);
 
   let msg = '🛡️ *Hola OrbisCORP — Pedido desde la Tienda en Línea*\n\n';
 
@@ -3659,9 +3681,11 @@ window.checkoutWhatsApp = function() {
 
   msg += '*Productos solicitados:*\n';
   cart.forEach(i => {
+    const pData = getPrecioData(i.precio);
     msg += `  • *${i.nombre}*`;
     if (i.sku) msg += ` (${i.sku})`;
-    msg += ` × ${i.qty} = ${fmtPrice(i.precio * i.qty)} MXN\n`;
+    if (pData.hasDiscount) msg += ` [Aplica -${pData.pct}%]`;
+    msg += ` × ${i.qty} = ${fmtPrice(pData.final * i.qty)} MXN\n`;
   });
   msg += `\n*Total estimado: ${fmtPrice(total)} MXN*\n`;
   msg += '\n¿Pueden confirmar disponibilidad y precio final? Gracias.';
@@ -3799,7 +3823,12 @@ window.openQV = function(productId) {
   setEl('qv-sku-tag', `SKU: ${p.sku || 'N/A'}`);
   setEl('qv-product-desc-el', p.desc || 'Producto de alta calidad industrial OrbisCORP.');
   
-  setEl('qv-price-number', Number(p.precio || 0).toFixed(2));
+  const pData = getPrecioData(p.precio);
+  if (pData.hasDiscount) {
+    document.getElementById('qv-price-number').innerHTML = `<span style="text-decoration:line-through; font-size:1.2rem; color:var(--text-3); margin-right:8px;">${fmtPrice(pData.original)}</span><span style="color:var(--success)">${Number(pData.final).toFixed(2)}</span>`;
+  } else {
+    setEl('qv-price-number', Number(p.precio || 0).toFixed(2));
+  }
   
   const stockPill = document.getElementById('qv-stock-pill');
   const stockText = document.getElementById('qv-stock-text');
@@ -3906,8 +3935,9 @@ window.qvChangeQty = function(delta) {
 };
 
 function _updateQvQtyUI(precio, inv, cartQty) {
+  const precioActivo = getPrecioData(precio).final;
   document.getElementById('qv-qty-num').textContent = currentQvQty;
-  document.getElementById('qv-qty-total').textContent = `${fmtPrice(precio * currentQvQty)} MXN`;
+  document.getElementById('qv-qty-total').textContent = `${fmtPrice(precioActivo * currentQvQty)} MXN`;
   document.getElementById('qv-qty-dec').disabled = (currentQvQty <= 1);
   if (inv !== null && (currentQvQty + cartQty) >= inv) {
     document.getElementById('qv-qty-inc').disabled = true;
@@ -3980,7 +4010,7 @@ document.getElementById('search-input')?.addEventListener('input', function () {
         <div class="sri-name">${p.nombre}</div>
         <div class="sri-cat">${p.categoria || ''} ${p.sku ? '· ' + p.sku : ''}</div>
       </div>
-      <div class="sri-price">${fmtPrice(p.precio)}</div>
+      <div class="sri-price">${renderPriceHTML(getPrecioData(p.precio))}</div>
     </div>`;
   }).join('');
 });
@@ -4360,6 +4390,9 @@ onAuthStateChanged(auth, async (firebaseUser) => {
     if (badge) badge.style.display = 'none';
     deactivateFields();
     updateCartUI();
+    // RE-RENDER AL SALIR:
+    if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat);
+    else renderShowroom();
     if (!_initAuthResolved) { _initAuthResolved = true; _resolveAuthReady(); }
     return;
   }
@@ -4407,6 +4440,11 @@ onAuthStateChanged(auth, async (firebaseUser) => {
     currentCustomer = data;
     updateCustomerNavBtn(currentCustomer);
     updatePerfilModalHeader(currentCustomer);
+
+    // RE-RENDER AL ENTRAR (Aplica descuentos visuales al instante):
+    if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat);
+    else renderShowroom();
+    updateCartUI();
 
     if (firstSnapshot) {
       firstSnapshot = false;
