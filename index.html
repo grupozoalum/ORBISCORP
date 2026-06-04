@@ -4801,7 +4801,13 @@ window.handleProdImgUp = async function(input, productId) {
     const ref = stRef(storage, `productos/${productId}_${Date.now()}.${ext}`);
     await uploadBytes(ref, file);
     const url = await getDownloadURL(ref);
-    await updateDoc(doc(db, 'productos_orbis', productId), { imageUrl: url });
+    
+    try {
+      await updateDoc(doc(db, 'productos_orbis', productId), { imageUrl: url });
+    } catch (err) {
+      await updateDoc(doc(db, 'productos', productId), { imageUrl: url });
+    }
+
     const idx = allProducts.findIndex(p => p.id === productId);
     if (idx > -1) allProducts[idx].imageUrl = url;
     Object.keys(categoryCovers).forEach(cat => {
@@ -4998,8 +5004,8 @@ async function loadAllProducts() {
         inventario: Math.floor(Number(data.Existencia || 0)),
         desc: data.Marca ? `Marca: ${data.Marca}` : `Línea original: ${originalLine}`,
         sku: skuExtraido,
-        imageUrl: '', 
-        esPortada: false 
+        imageUrl: data.imageUrl || '', 
+        esPortada: data.esPortada || false 
       });
     });
   } catch (e) {
