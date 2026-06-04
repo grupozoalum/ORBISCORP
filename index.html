@@ -4761,6 +4761,8 @@ window.openProductModal = function(productId) {
     const hint = document.getElementById('pm-upload-hint');
     if (hint) hint.style.display = 'block';
     pmImgFile = null; pmImgUrl = '';
+    const fileInput = document.getElementById('pm-img-file');
+    if (fileInput) fileInput.value = ''; // Vacía la selección para el nuevo producto
   }
   document.getElementById('pm-err').classList.remove('show');
   document.getElementById('prod-modal').classList.add('open');
@@ -4769,6 +4771,8 @@ window.openProductModal = function(productId) {
 window.closeProdModal = () => {
   document.getElementById('prod-modal').classList.remove('open');
   pmImgFile = null;
+  const fileInput = document.getElementById('pm-img-file');
+  if (fileInput) fileInput.value = ''; // Obliga al navegador a "olvidar" la imagen anterior
 };
 
 window.pmImgSelect = function(input) {
