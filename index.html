@@ -2479,6 +2479,11 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
     </ul>
     <div class="nav-right">
       <span id="nav-admin-badge" aria-label="Modo administrador" style="display:none">◈ Admin</span>
+      
+      <button class="nav-auth-btn" onclick="openSearch()" aria-label="Buscar productos">
+        🔍 Buscar
+      </button>
+
       <button id="nav-client-auth" class="nav-auth-btn" onclick="handleAuthBtnClick()">🔑 Entrar</button>
       
       <button id="nav-mobile-auth" class="btn-cart ripple-host mobile-profile-icon" onclick="handleAuthBtnClick()" aria-label="Mi Cuenta">
@@ -4148,6 +4153,12 @@ document.getElementById('search-input')?.addEventListener('input', function () {
   }
   res.innerHTML = matches.map(p => {
     const meta = CAT_META[p.categoria] || { icon: '📦' };
+    
+    // Botón exclusivo de Administrador para edición súper rápida
+    const adminEditBtn = isAdmin 
+      ? `<button class="padmin-btn" style="padding: 4px 10px; font-size: 0.65rem; min-height: auto; flex: 0 1 auto;" onclick="event.stopPropagation(); closeSearch(); openProductModal('${p.id}');">✎ Editar directo</button>` 
+      : '';
+
     return `<div class="search-result-item" onclick="openQV('${p.id}');closeSearch();" role="option" tabindex="0" aria-label="${p.nombre}">
       ${p.imageUrl
         ? `<img class="sri-img" src="${p.imageUrl}" alt="${p.nombre}" loading="lazy">`
@@ -4155,8 +4166,13 @@ document.getElementById('search-input')?.addEventListener('input', function () {
       <div class="sri-info">
         <div class="sri-name">${p.nombre}</div>
         <div class="sri-cat">${p.categoria || ''} ${p.sku ? '· ' + p.sku : ''}</div>
+        
+                <div style="display: flex; gap: 6px; margin-top: 6px;">
+          <button class="sc-cta" style="background: var(--surface2); color: var(--orbis); border: 1px solid var(--border); padding: 4px 10px; font-size: 0.65rem; min-height: auto;" onclick="event.stopPropagation(); closeSearch(); navigate('${meta.slug}');">Ir a la línea ↗</button>
+          ${adminEditBtn}
+        </div>
       </div>
-      <div class="sri-price">${renderPriceHTML(getPrecioData(p.precio))}</div>
+      <div class="sri-price" style="text-align: right;">${renderPriceHTML(getPrecioData(p.precio))}</div>
     </div>`;
   }).join('');
 });
@@ -4837,7 +4853,18 @@ window.saveProducto = async function() {
     const existId = document.getElementById('pm-id').value;
 
     if (existId) {
-      await updateDoc(doc(db, 'productos_orbis', existId), data);
+      try {
+        // 1. Intentamos actualizar en la colección de productos manuales
+        await updateDoc(doc(db, 'productos_orbis', existId), data);
+      } catch (error) {
+        // 2. Si tira error de que no lo encuentra, es porque viene del ERP
+        if (error.code === 'not-found') {
+          await updateDoc(doc(db, 'productos', existId), data);
+        } else {
+          throw error; // Si es otro error de red o permisos, que lo suelte
+        }
+      }
+      
       const idx = allProducts.findIndex(p => p.id === existId);
       if (idx > -1) allProducts[idx] = { ...allProducts[idx], ...data, id: existId };
     } else {
