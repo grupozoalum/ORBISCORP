@@ -5148,10 +5148,8 @@ document.addEventListener('keydown', e => {
 (function initTrustBar() {
   const orig = document.getElementById('trust-inner-orig');
   if (!orig) return;
-  const clone = orig.cloneNode(true);
-  clone.removeAttribute('id');
-  clone.setAttribute('aria-hidden', 'true');
-  orig.parentElement.appendChild(clone);
+  // Duplicamos solo el contenido interno para evitar que se apilen dos contenedores
+  orig.innerHTML += orig.innerHTML;
 })();
 
 
