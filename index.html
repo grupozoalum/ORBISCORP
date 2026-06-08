@@ -2204,7 +2204,62 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
     letter-spacing: 0.05em !important;
   }
 }
+/* ─────────────────────────────────────────────────
+   DROPDOWN MENÚ EN DESKTOP (SUB-LÍNEAS DE PRODUCTOS)
+───────────────────────────────────────────────── */
+.nav-dropdown {
+  position: relative;
+}
 
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(47,59,162,.15), 0 0 0 1px var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 0;
+  min-width: 220px;
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(15px); /* Inicia un poco abajo para el efecto de entrada */
+  transition: all 0.3s var(--ease-spring);
+  z-index: 300;
+  margin-top: 5px;
+}
+
+/* Mostrar al pasar el mouse */
+.nav-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Estilo de los enlaces internos */
+.dropdown-menu li a {
+  display: block !important;
+  padding: 10px 20px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: var(--text-2) !important;
+  background: transparent !important;
+  transition: background 0.2s, color 0.2s, padding-left 0.2s var(--ease-spring) !important;
+  border-radius: 0 !important;
+  text-align: left;
+}
+
+/* Evitar la animación original de la raya de abajo del menú principal */
+.dropdown-menu li a::after {
+  display: none !important;
+}
+
+/* Efecto hover: Cambio a color corporativo y pequeño empuje a la derecha */
+.dropdown-menu li a:hover {
+  background: var(--orbis-light) !important;
+  color: var(--orbis) !important;
+  padding-left: 26px !important; 
+}
 </style>
 </head>
 <body>
@@ -2470,12 +2525,52 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
       <span class="nav-logo-name">ORBIS<span>CORP</span></span>
     </div>
     <ul class="nav-links" role="menubar">
-      <li role="none"><a role="menuitem" data-route="home"         onclick="navigate('home')">Inicio</a></li>
-      <li role="none"><a role="menuitem" data-route="epp"          onclick="navigate('epp')">EPP</a></li>
-      <li role="none"><a role="menuitem" data-route="abrasivos"    onclick="navigate('abrasivos')">Abrasivos</a></li>
-      <li role="none"><a role="menuitem" data-route="soldadura"    onclick="navigate('soldadura')">Soldadura</a></li>
-      <li role="none"><a role="menuitem" data-route="herramientas" onclick="navigate('herramientas')">Herramientas</a></li>
-      <li role="none"><a role="menuitem" data-route="ferreteria"   onclick="navigate('ferreteria')">Ferretería</a></li>
+      <li role="none"><a role="menuitem" data-route="home" onclick="navigate('home')">Inicio</a></li>
+      
+      <li role="none" class="nav-dropdown">
+        <a role="menuitem" data-route="epp" onclick="navigate('epp')">EPP ▾</a>
+        <ul class="dropdown-menu">
+          <li><a onclick="navigate('epp', 'guante')">Guantes</a></li>
+          <li><a onclick="navigate('epp', 'calzado')">Calzado</a></li>
+          <li><a onclick="navigate('epp', 'casco')">Cascos</a></li>
+          <li><a onclick="navigate('epp', 'respiratoria')">Protección Respiratoria</a></li>
+          <li><a onclick="navigate('epp', 'altura')">Alturas</a></li>
+          <li><a onclick="navigate('epp', 'cuerpo completo')">Cuerpo Completo</a></li>
+          <li><a onclick="navigate('epp', 'vial')">Seguridad Vial</a></li>
+        </ul>
+      </li>
+
+      <li role="none" class="nav-dropdown">
+        <a role="menuitem" data-route="abrasivos" onclick="navigate('abrasivos')">Abrasivos ▾</a>
+        <ul class="dropdown-menu">
+          <li><a onclick="navigate('abrasivos', 'abrasivo')">Abrasivos (General)</a></li>
+          <li><a onclick="navigate('abrasivos', 'desbaste')">Desbaste</a></li>
+        </ul>
+      </li>
+
+      <li role="none" class="nav-dropdown">
+        <a role="menuitem" data-route="soldadura" onclick="navigate('soldadura')">Soldadura ▾</a>
+        <ul class="dropdown-menu">
+          <li><a onclick="navigate('soldadura', 'soldadura')">Equipos y Consumibles</a></li>
+        </ul>
+      </li>
+
+      <li role="none" class="nav-dropdown">
+        <a role="menuitem" data-route="herramientas" onclick="navigate('herramientas')">Herramientas ▾</a>
+        <ul class="dropdown-menu">
+          <li><a onclick="navigate('herramientas', 'herramienta')">Herramienta Eléctrica</a></li>
+          <li><a onclick="navigate('herramientas', 'bosch')">Bosch</a></li>
+          <li><a onclick="navigate('herramientas', 'dremel')">Dremel</a></li>
+          <li><a onclick="navigate('herramientas', 'accesorio')">Accesorios</a></li>
+        </ul>
+      </li>
+
+      <li role="none" class="nav-dropdown">
+        <a role="menuitem" data-route="ferreteria" onclick="navigate('ferreteria')">Ferretería ▾</a>
+        <ul class="dropdown-menu">
+          <li><a onclick="navigate('ferreteria')">Ferretería General</a></li>
+        </ul>
+      </li>
     </ul>
     <div class="nav-right">
       <span id="nav-admin-badge" aria-label="Modo administrador" style="display:none">◈ Admin</span>
@@ -3137,19 +3232,20 @@ function dismissToast(toast) {
    ROUTER SPA
 ═══════════════════════════════════════════════ */
 
-window.navigate = function(route) {
+window.navigate = function(route, subFilter = null) {
   const validRoutes = ['home', 'epp', 'abrasivos', 'soldadura', 'herramientas', 'ferreteria'];
   if (!validRoutes.includes(route)) route = 'home';
-  history.pushState({ route }, '', `#${route}`);
-  _applyRoute(route);
+  history.pushState({ route, subFilter }, '', `#${route}`);
+  _applyRoute(route, subFilter);
 };
 
-window.addEventListener('popstate', () => {
+window.addEventListener('popstate', (e) => {
   const r = location.hash.replace('#', '') || 'home';
-  _applyRoute(r);
+  const subFilter = e.state ? e.state.subFilter : null;
+  _applyRoute(r, subFilter);
 });
 
-function _applyRoute(route) {
+function _applyRoute(route, subFilter = null) {
   const homeView = document.getElementById('view-home');
   const catView  = document.getElementById('view-category');
 
@@ -3172,14 +3268,14 @@ function _applyRoute(route) {
     catView.classList.add('active');
     document.title = cfg.pageTitle;
     document.getElementById('nav-cta-btn').textContent = `Ver ${cfg.cat} →`;
-    _renderCategoryView(route, cfg);
+    _renderCategoryView(route, cfg, subFilter);
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   setTimeout(initReveal, 120);
 }
 
-function _renderCategoryView(route, cfg) {
+function _renderCategoryView(route, cfg, subFilter) {
   setText('#cat-hero-badge-text', cfg.badge);
   document.getElementById('cat-hero-title').innerHTML = cfg.title;
   document.getElementById('cat-hero-desc').textContent = cfg.desc;
@@ -3206,10 +3302,11 @@ function _renderCategoryView(route, cfg) {
   setEl('cat-contact-desc',    cfg.contactDesc);
 
   // Reset form
+  // Reset form
   document.getElementById('cat-form-success').classList.remove('show');
   document.getElementById('cat-ct-form').style.display = '';
 
-  _renderCategoryProducts(cfg.cat);
+  _renderCategoryProducts(cfg.cat, subFilter);
 }
 
 /* ══════════════════════════════════════════════
@@ -3223,10 +3320,24 @@ function _renderCategoryView(route, cfg) {
 window._currentPage = 1;
 const ITEMS_PER_PAGE = 25; // Límite de productos por página
 
-function _renderCategoryProducts(catName) {
+function _renderCategoryProducts(catName, subFilter = null) {
   const filtered = allProducts
-    .filter(p => p.categoria === catName)
+    .filter(p => {
+      // 1. Primero validamos que sea de la categoría principal (ej. EPP)
+      if (p.categoria !== catName) return false;
+      // 2. Si existe un subfiltro (ej. 'guante'), verificamos que el texto esté en su línea original o nombre
+      if (subFilter) {
+        const query = subFilter.toLowerCase();
+        const subLinea = (p.subLinea || '').toLowerCase();
+        const nombre = (p.nombre || '').toLowerCase();
+        return subLinea.includes(query) || nombre.includes(query);
+      }
+      return true; // Si no hay subfiltro, mostramos toda la categoría
+    })
     .sort((a, b) => (b.creadoEn?.toMillis?.() || 0) - (a.creadoEn?.toMillis?.() || 0));
+
+  // Cambiamos el título en pantalla para que el usuario sepa que está filtrado
+  const displayTitle = subFilter ? `${catName} — Filtrado: ${subFilter.toUpperCase()}` : catName;
 
   const showcase = document.getElementById('categorias-showcase');
   if (!showcase) return;
@@ -3255,7 +3366,7 @@ function _renderCategoryProducts(catName) {
     <div class="cat-gallery-header" onclick="toggleCat('${catName}')" role="button" aria-expanded="true" aria-controls="grid-panel-${catToId(catName)}">
       <div class="cat-gallery-header-left">
         <span style="font-size:1.4rem" aria-hidden="true">${meta.icon}</span>
-        <span class="cat-gallery-title">${catName}</span>
+        <span class="cat-gallery-title">${displayTitle}</span>
         <span class="cat-gallery-count" id="count-${catToId(catName)}">${filtered.length} producto${filtered.length !== 1 ? 's' : ''}</span>
       </div>
       <div class="cat-expand-hint">
@@ -5004,6 +5115,7 @@ async function loadAllProducts() {
         id: d.id,
         nombre: nombreLimpio,
         categoria: finalCategory,
+        subLinea: originalLine, // <--- GUARDAMOS LA LÍNEA DEL JSON PARA EL FILTRO
         precio: Number(data['Costo Unitario'] || 0),
         inventario: Math.floor(Number(data.Existencia || 0)),
         desc: data.Marca ? `Marca: ${data.Marca}` : `Línea original: ${originalLine}`,
