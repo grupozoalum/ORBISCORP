@@ -856,13 +856,74 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
 }
 
 /* ─────────────────────────────────────────────────
-   FIX 1 · SEARCH → VISTA DE PANTALLA COMPLETA
+   MEJORA · SEARCH → ESTILO SPOTLIGHT / MODAL PREMIUM
 ───────────────────────────────────────────────── */
-.mobile-search-bar {  display: none;  position: fixed;  inset: 0;  z-index: 700;  background: var(--bg);  flex-direction: column;}
+.mobile-search-bar {
+  display: none; position: fixed; inset: 0; z-index: 2500;
+  background: rgba(10, 15, 56, 0.5); /* Fondo oscuro transparente elegante */
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  flex-direction: column; align-items: center;
+  padding: 8vh 16px 16px; /* Espacio arriba para que flote agradablemente */
+}
 .mobile-search-bar.open { display: flex; }
-.search-panel {  display: flex;  flex-direction: column;  flex: 1;  background: var(--surface);  border-radius: 0;  width: 100%;  max-width: 100%;  overflow: hidden;  box-shadow: none;  margin: 0;  animation: none;}
-.search-input-wrap {  display: flex;  align-items: center;  padding: 14px 16px;  gap: 10px;  background: var(--surface);  border-bottom: 2px solid var(--orbis);  flex-shrink: 0;}
-#search-results {  flex: 1;  overflow-y: auto;  -webkit-overflow-scrolling: touch;  padding: 8px 0;  max-height: none;}
+
+.search-panel {
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--r-xl); /* Bordes bien redondeados */
+  width: 100%; max-width: 680px; /* Ancho máximo para PC */
+  max-height: 80vh; /* Que no se salga de la pantalla */
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(21, 30, 107, 0.25), 0 0 0 1px rgba(255,255,255,0.1);
+  margin: 0;
+  animation: searchModalIn 0.3s var(--ease-spring);
+}
+@keyframes searchModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-15px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.search-input-wrap {
+  display: flex; align-items: center;
+  padding: 16px 24px; gap: 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border); /* Raya sutil en vez de la azul gruesa */
+  flex-shrink: 0;
+}
+.search-icon { font-size: 1.3rem; opacity: 0.6; }
+
+#search-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: var(--font-body);
+  font-size: 1.15rem !important; /* Letra más grande y legible */
+  color: var(--text); padding: 4px 0;
+}
+#search-input::placeholder { color: var(--text-3); font-weight: 400; }
+
+/* Botón cancelar convertido en una pastilla elegante */
+.search-cancel {
+  background: var(--surface2); color: var(--text-2);
+  padding: 6px 14px; border-radius: 100px; font-weight: 600; font-family: var(--font-body);
+  transition: all 0.2s; border: none; cursor: pointer;
+}
+.search-cancel:hover { background: var(--orbis-light); color: var(--orbis); }
+
+#search-results {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 12px 0;
+}
+
+/* Mejora visual al pasar el cursor sobre los resultados */
+.search-result-item {
+  margin: 0 12px; border-radius: 8px; border-bottom: none !important;
+}
+
+/* Optimización para celular */
+@media (max-width: 768px) {
+  .mobile-search-bar { padding: 16px; justify-content: flex-start; }
+  .search-panel { max-height: 90vh; }
+  #search-input { font-size: 16px !important; } /* Prevenir zoom automático en iPhone */
+}
 
 /* ─────────────────────────────────────────────────
    FIX 3 · DRAWER → PANEL LATERAL DESLIZANTE
@@ -4331,6 +4392,7 @@ window.openSearch  = () => {
   document.getElementById('mobile-search-bar')?.classList.add('open');
   setTimeout(() => document.getElementById('search-input')?.focus(), 100);
   document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden'; /* ← FIX: Bloquea el scroll por completo */
 };
 window.closeSearch = () => {
   document.getElementById('mobile-search-bar')?.classList.remove('open');
@@ -4339,6 +4401,7 @@ window.closeSearch = () => {
   const res = document.getElementById('search-results');
   if (res) res.innerHTML = '<div class="search-empty">Escribe para buscar productos</div>';
   document.body.style.overflow = '';
+  document.documentElement.style.overflow = ''; /* ← FIX: Libera el scroll al cerrar */
 };
 document.getElementById('mobile-search-bar')?.addEventListener('click', e => {
   if (e.target.id === 'mobile-search-bar') closeSearch();
