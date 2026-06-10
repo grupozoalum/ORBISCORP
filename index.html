@@ -4190,7 +4190,7 @@ window.enviarCotizacionPDF = async function() {
     };
 
     const resp = await fetch(
-      'https://us-central1-oracles-99bc3.cloudfunctions.net/generarCotizacion',
+      'https://us-central1-tienda-en-linea-370f0.cloudfunctions.net/generarCotizacion',
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
     );
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
