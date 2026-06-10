@@ -3509,8 +3509,13 @@ function _renderCategoryProducts(catName, subFilter = null) {
   // Guardamos las variables de entorno para que la paginación sepa dónde estamos
   window._currentFilteredProducts = filtered;
   window._currentMeta = meta;
+
+  // FIX: Solo regresamos a la página 1 si cambiamos de categoría o de filtro
+  if (window._currentCatName !== catName || window._currentSubFilter !== subFilter) {
+    window._currentPage = 1;
+  }
   window._currentCatName = catName;
-  window._currentPage = 1;
+  window._currentSubFilter = subFilter; // Guardamos el filtro activo en memoria
 
   const coverProd = categoryCovers[catName] || filtered[0];
   const blockId   = `cat-block-${catToId(catName)}`;
@@ -5088,7 +5093,7 @@ window.handleProdImgUp = async function(input, productId) {
       if (categoryCovers[cat]?.id === productId) categoryCovers[cat].imageUrl = url;
     });
     if (window._currentCat) {
-      _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat);
+      _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat, window._currentSubFilter);
     }
     renderShowroom();
     setSaveStatus('saved');
@@ -5155,7 +5160,7 @@ window.saveProducto = async function() {
 
     pmImgFile = null; pmImgUrl = imageUrl;
     await _reloadCovers();
-    if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat);
+    if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat, window._currentSubFilter);
     setSaveStatus('saved');
     closeProdModal();
     showToast(`"${nombre}" guardado`, '✅');
@@ -5178,7 +5183,7 @@ window.deleteProduct = async function(productId) {
     const wasInCart = cart.some(c => c.id === productId);
     cart = cart.filter(c => c.id !== productId);
     if (wasInCart) { persistCart(); updateCartUI(); }
-    if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat);
+    if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat, window._currentSubFilter);
     await _reloadCovers();
     showToast('Producto eliminado', '🗑️');
   } catch (e) {
@@ -5207,7 +5212,7 @@ window.showLeads = async function() {
 window.reloadData = async function() {
   await loadAllProducts();
   await _reloadCovers();
-  if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat);
+  if (window._currentCat) _renderCategoryProducts(VIEWS_CONFIG[window._currentCat]?.cat, window._currentSubFilter);
   else renderShowroom();
   showToast('Catálogo actualizado', '↺');
 };
