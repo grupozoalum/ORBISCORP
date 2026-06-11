@@ -3194,6 +3194,10 @@ import {
   uploadBytes,
   getDownloadURL
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+import { 
+  getFunctions, 
+  httpsCallable 
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
 
 /* ══ FIREBASE CONFIG ══ */
 const FB_CONFIG = {
@@ -4181,35 +4185,34 @@ window.enviarCotizacionPDF = async function() {
       rfc:     currentCustomer.rfc     || ''
     } : { nombre };
 
+    // Construimos lo que le vamos a mandar al servidor (sin envolverlo en "data")
     const payload = {
-      data: {
-        items: cart.map(i => ({ productId: i.sku || i.id, cantidad: i.qty || 1 })),
-        correoInvitado: email,
-        cliente: clientePayload
-      }
+      items: cart.map(i => ({ productId: i.id, cantidad: i.qty || 1 })),
+      correoInvitado: email,
+      cliente: clientePayload
     };
 
-    const resp = await fetch(
-      'https://us-central1-tienda-en-linea-370f0.cloudfunctions.net/generarCotizacion',
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
-    );
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const res = await resp.json();
-    if (res.error) throw new Error(res.error.message);
+    // ── LLAMADA OFICIAL DE FIREBASE (ESTO ARREGLA EL ERROR CORS Y EL 404) ──
+    const fbFunctions = getFunctions(fbApp, 'us-central1');
+    const generarCotizacionCall = httpsCallable(fbFunctions, 'generarCotizacion');
+    
+    // Ejecutamos la llamada al servidor
+    const result = await generarCotizacionCall(payload);
+    const res = result.data; 
 
-    sucEl.textContent  = `✓ Cotización ${res.result?.folio || ''} enviada a ${email}`;
+    sucEl.textContent   = `✓ Cotización ${res.folio || ''} enviada a ${email}`;
     sucEl.style.display = 'block';
     showToast('Cotización enviada con éxito', '📄');
     setTimeout(() => { cerrarModalCotizacion(); closeCart(); }, 3200);
+
   } catch (e) {
-    console.error('[COT]', e);
+    console.error('[COT ERROR]', e);
     errEl.textContent = 'Error al enviar. Por favor intenta de nuevo.';
     errEl.classList.add('show');
     btnEl.disabled    = false;
     btnEl.textContent = 'Enviar Cotización →';
   }
 };
-
 /* ══════════════════════════════════════════════
    QUICK VIEW
 ═══════════════════════════════════════════════ */
