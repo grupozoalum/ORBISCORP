@@ -213,12 +213,28 @@ nav#main-nav.scrolled { background:rgba(255,255,255,.98); box-shadow:0 4px 24px 
 .hero-stat-label { font-family:var(--font-mono); font-size:.65rem; letter-spacing:.15em; color:rgba(255,255,255,.45); text-transform:uppercase; }
 
 /* ── TRUST BAR ── */
+/* ── TRUST BAR ── */
+.marca-logo {
+  height: 20px;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 6px;
+  object-fit: contain;
+}
 .trust-bar { background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border); overflow:hidden; padding:0; }
 .trust-inner { display:flex; gap:0; width:max-content; animation:marquee 24s linear infinite; }
 .trust-chip { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; white-space:nowrap; border-right:1px solid var(--border); }
 .trust-chip-dot { width:6px; height:6px; background:var(--orbis); border-radius:50%; flex-shrink:0; }
 .trust-chip-text { font-size:.8rem; color:var(--text-2); }
 .trust-chip-text strong { color:var(--orbis); }
+
+.marca-logo {
+  height: 45px;
+  width: auto;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
 @keyframes marquee { 0%{transform:translateX(0);}100%{transform:translateX(-50%);} }
 
 /* ── BREADCRUMB ── */
@@ -2844,14 +2860,14 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
 
   <div class="trust-bar" aria-label="Marcas distribuidas" role="marquee">
     <div class="trust-inner" id="trust-inner-orig" aria-hidden="true">
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>3M</strong> Distribuidor Autorizado</span></div>
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Honeywell</strong> Partner Oficial</span></div>
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Bosch</strong> Distribuidor</span></div>
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>MSA Safety</strong> Autorizado</span></div>
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Drager</strong> Representante</span></div>
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Truper</strong> Mayorista</span></div>
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>DBI Sala</strong> Distribuidor</span></div>
-      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><strong>Lincoln Electric</strong> Suministro</span></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://toppng.com/uploads/preview/3m-logo-11530964217mykbwogph0.png" alt="3M" class="marca-logo"></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://w7.pngwing.com/pngs/937/579/png-transparent-honeywell-hd-logo.png" alt="Honeywell" class="marca-logo"></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://w7.pngwing.com/pngs/389/685/png-transparent-logo-bosch.png" alt="Bosch" class="marca-logo"></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://thumbnail.imgbin.com/11/18/9/imgbin-mine-safety-appliances-business-personal-protective-equipment-fire-safety-business-k8sxL5cbZWrkBTMsJvhLyPwUr_t.jpg" alt="MSA Safety" class="marca-logo"></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Dr%C3%A4ger_Logo.svg/3840px-Dr%C3%A4ger_Logo.svg.png" alt="Drager" class="marca-logo"></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://w7.pngwing.com/pngs/840/324/png-transparent-truper-hd-logo.png" alt="Truper" class="marca-logo"></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://tse4.mm.bing.net/th/id/OIP.I_YUbH1RUg2S1Ye-nX6-EgAAAA?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="DBI Sala (3M)" class="marca-logo"></div>
+      <div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text"><img src="https://www.performanceracing.com/sites/default/files/styles/article_full/public/2022-05/LincolnElectric-1400x600.jpg?itok=SgcUTiyn" alt="Lincoln Electric" class="marca-logo"></div>
     </div>
   </div>
 
@@ -3301,7 +3317,7 @@ const VIEWS_CONFIG = {
     title:'Equipo de Protección<br><em>Personal (EPP).</em>',
     desc:'Cascos, respiradores, guantes y lentes de seguridad industrial de cumplimiento normativo nacional e internacional.',
     stats:[{num:'100%',label:'Normados (NOM/ANSI)'},{num:'15+',label:'Marcas autorizadas'},{num:'24h',label:'Tiempo de respuesta'}],
-    brands:['<strong>3M</strong> Distribuidor Autorizado','<strong>Honeywell</strong> Partner Oficial','<strong>MSA Safety</strong> Autorizado','<strong>Drager</strong> Representante'],
+    brands:['<img src="https://toppng.com/uploads/preview/3m-logo-11530964217mykbwogph0.png" alt="3M" class="marca-logo"> Distribuidor Autorizado','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Honeywell_logo.svg/300px-Honeywell_logo.svg.png" alt="Honeywell" class="marca-logo"> Partner Oficial','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/MSA_Safety_logo.svg/300px-MSA_Safety_logo.svg.png" alt="MSA Safety" class="marca-logo"> Autorizado','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Draeger_Logo.svg/300px-Draeger_Logo.svg.png" alt="Drager" class="marca-logo"> Representante'],
     breadcrumb:'🦺 Equipos de Protección Personal',
     sectionLabel:'Línea de Seguridad', sectionTitle:'Equipos EPP en Stock<br><em>disponibles al momento</em>',
     sectionSub:'Filtro exclusivo de artículos EPP. Agrega al carrito y confirma tu orden vía WhatsApp.',
@@ -3313,8 +3329,7 @@ const VIEWS_CONFIG = {
     title:'Discos de Corte y<br><em>Abrasivos Premium.</em>',
     desc:'Máxima remoción de material con el menor desgaste. Discos de corte ultrafinos, desbaste y laminados.',
     stats:[{num:'13k+',label:'RPM Soportadas'},{num:'Duramax',label:'Tecnología Aliada'},{num:'24h',label:'Surtido en Planta'}],
-    brands:['<strong>Austromex</strong> Distribuidor Líder','<strong>Bosch</strong> Premium Partner','<strong>Duramax</strong> Grano Abrasivo'],
-    breadcrumb:'🔴 Abrasivos Industriales',
+    brands:['<strong>Austromex</strong> Distribuidor Líder','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Bosch-Logo.svg/300px-Bosch-Logo.svg.png" alt="Bosch" class="marca-logo"> Premium Partner','<strong>Duramax</strong> Grano Abrasivo'],
     sectionLabel:'Línea Técnica', sectionTitle:'Abrasivos y Desbaste<br><em>de Alto Rendimiento</em>',
     sectionSub:'Filtro exclusivo de discos, copas y cepillos abrasivos para la industria metalmecánica.',
     contactTitle:'¿Cotización Técnica de Abrasivos?', contactDesc:'Surtimos volúmenes industriales para talleres mecánicos y manufactura.',
@@ -3325,8 +3340,7 @@ const VIEWS_CONFIG = {
     title:'Equipos y Consumibles<br><em>de Soldadura.</em>',
     desc:'Inversores profesionales IGBT, electrodos estructurales normados, antorchas y caretas automáticas.',
     stats:[{num:'6013/7018',label:'Electrodos en Stock'},{num:'Miller/Infra',label:'Marcas distribuidas'},{num:'24h',label:'Entrega en Hidalgo'}],
-    brands:['<strong>Lincoln Electric</strong> Suministro','<strong>Miller</strong> Distribuidor Mayorista','<strong>CINASA</strong> Insumos Directos'],
-    breadcrumb:'⚡ Equipos y Consumibles de Soldadura',
+    brands:['<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Lincoln_Electric_logo.svg/300px-Lincoln_Electric_logo.svg.png" alt="Lincoln Electric" class="marca-logo"> Suministro','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Miller_Electric_logo.svg/300px-Miller_Electric_logo.svg.png" alt="Miller" class="marca-logo"> Distribuidor Mayorista','<strong>CINASA</strong> Insumos Directos'],
     sectionLabel:'Línea de Procesos', sectionTitle:'Soldadura Estructural<br><em>disponible al momento</em>',
     sectionSub:'Inversores, microalambre, aporte de aleación y caretas certificadas.',
     contactTitle:'¿Cotización de Equipos de Soldadura?', contactDesc:'Contáctanos y te respondemos en menos de 24 horas.',
@@ -3337,7 +3351,7 @@ const VIEWS_CONFIG = {
     title:'Herramientas Profesionales<br><em>de Alto Torque.</em>',
     desc:'Amoladoras industriales, taladros percutores, juegos de llaves y equipo de torque para jornadas pesadas.',
     stats:[{num:'Heavy Duty',label:'Grado de Resistencia'},{num:'Bosch/Truper',label:'Líneas Oficiales'},{num:'24h',label:'Surtido Inmediato'}],
-    brands:['<strong>Bosch</strong> Distribuidor Autorizado','<strong>Truper</strong> Distribuidor Mayorista','<strong>Stanley</strong> Herramienta Manual'],
+    brands:['<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Bosch-Logo.svg/300px-Bosch-Logo.svg.png" alt="Bosch" class="marca-logo"> Distribuidor Autorizado','<img src="https://www.truper.com/media/logo/stores/1/logo_truper_1.png" alt="Truper" class="marca-logo"> Distribuidor Mayorista','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Stanley_Tools_logo.svg/300px-Stanley_Tools_logo.svg.png" alt="Stanley" class="marca-logo"> Herramienta Manual'],
     breadcrumb:'🔧 Herramientas Manuales y Eléctricas',
     sectionLabel:'Línea de Fuerza', sectionTitle:'Herramientas de Alto Rendimiento<br><em>listas para operación</em>',
     sectionSub:'Equipos de poder eléctrico y herramienta mecánica manual para ensamble y mantenimiento.',
@@ -3349,7 +3363,7 @@ const VIEWS_CONFIG = {
     title:'Ferretería Industrial<br><em>y Material de Soporte.</em>',
     desc:'Tornillería de alta resistencia Grado 5 y 8, sistemas de anclaje químico y fijaciones mecánicas.',
     stats:[{num:'Grado 5 y 8',label:'Resistencia Mecánica'},{num:'Truper',label:'Soporte y Garantía'},{num:'Hidalgo',label:'Abasto al Estado'}],
-    brands:['<strong>Truper</strong> Distribuidor Mayorista','<strong>Fischer</strong> Anclajes Técnicos','<strong>Stanley</strong> Herrajes de Alta Gama'],
+    brands:['<img src="https://www.truper.com/media/logo/stores/1/logo_truper_1.png" alt="Truper" class="marca-logo"> Distribuidor Mayorista','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Fischerwerke_Logo.svg/300px-Fischerwerke_Logo.svg.png" alt="Fischer" class="marca-logo"> Anclajes Técnicos','<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Stanley_Tools_logo.svg/300px-Stanley_Tools_logo.svg.png" alt="Stanley" class="marca-logo"> Herrajes de Alta Gama'],
     breadcrumb:'🔩 Ferretería Industrial',
     sectionLabel:'Línea de Abasto', sectionTitle:'Ferretería Industrial<br><em>disponible al momento</em>',
     sectionSub:'Fijaciones estructurales, consumibles de taller y herrajes de ensamble pesado.',
@@ -3504,7 +3518,7 @@ function _renderCategoryView(route, cfg, subFilter) {
 
   // Trust bar duplicada para marquee infinito
   const brandsHTML = [...cfg.brands, ...cfg.brands]
-    .map(b => `<div class="trust-chip"><div class="trust-chip-dot"></div><span class="trust-chip-text">${b}</span></div>`)
+    .map(b => `<div class="trust-chip">${b}</div>`)
     .join('');
   document.getElementById('cat-trust-inner').innerHTML = brandsHTML;
 
