@@ -4587,24 +4587,24 @@ function updateCustomerNavBtn(customer) {
   
   if (customer) {
     const firstName = (customer.nombre || customer.email || 'Mi Cuenta').split(' ')[0];
-    btn.innerHTML    = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${firstName}`;
+    btn.textContent  = `👤 ${firstName}`;
     btn.className    = 'nav-auth-btn logged-in';
     btn.setAttribute('aria-label', `Perfil de ${firstName}`);
     btn.onclick = openPerfilModal;
     
     // Le pone un punto verde al ícono del celular
     if (mobBtn) {
-      mobBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span class="cart-badge" style="background:var(--success); color:transparent; width:12px; height:12px; top:-2px; right:-2px; border-color:#fff; border-width: 2px;"></span>`;
+      mobBtn.innerHTML = `<span aria-hidden="true">👤</span><span class="cart-badge" style="background:var(--success); color:transparent; width:12px; height:12px; top:-2px; right:-2px; border-color:#fff;"></span>`;
     }
   } else {
-    btn.innerHTML   = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Entrar`;
+    btn.textContent = '🔑 Entrar';
     btn.className   = 'nav-auth-btn';
     btn.setAttribute('aria-label', 'Iniciar sesión');
     btn.onclick = openLoginCliente;
     
     // Lo regresa a estado normal (sin punto verde)
     if (mobBtn) {
-      mobBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+      mobBtn.innerHTML = `<span aria-hidden="true">👤</span>`;
     }
   }
 }
@@ -5554,13 +5554,47 @@ window.enviarMensajeChat = async () => {
   msgsDiv.scrollTop = msgsDiv.scrollHeight;
   
   try {
-    // 3. Mandar el texto y la memoria a Firebase (y de ahí a Gemini)
-    const result = await chatAsistenteCall({ mensaje: texto, historial: window.historialChat });
+    // 3. Extraemos el inventario (Añadiendo el ID para que el bot sepa cómo llamarlos)
+    const inventarioActual = allProducts.map(p => `[ID:${p.id}] ${p.nombre}`).join('\n');
+
+    // 4. Mandar el texto, la memoria Y EL INVENTARIO a Firebase
+    const result = await chatAsistenteCall({ 
+      mensaje: texto, 
+      historial: window.historialChat,
+      catalogoWeb: inventarioActual || "Catálogo cargando..."
+    });
     const respuestaBot = result.data.respuesta;
     
-    // 4. Borrar "Pensando...", limpiar texto (negritas/saltos) y dibujar respuesta
+    // 4. Borrar "Pensando...", limpiar texto (negritas/saltos)
     document.getElementById(typingId).remove();
-    const textoLimpio = respuestaBot.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    let textoLimpio = respuestaBot.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // MAGIA: Detectar [PRODUCTO:id] y convertirlo en una hermosa tarjeta HTML
+    textoLimpio = textoLimpio.replace(/\[PRODUCTO:([^\]]+)\]/g, (match, id) => {
+      const p = allProducts.find(x => x.id === id.trim());
+      if (!p) return ""; // Si el bot inventa un ID por error, lo ignoramos
+      
+      const precioFinal = getPrecioData(p.precio).final;
+      const imgSrc = p.imageUrl || 'https://via.placeholder.com/80?text=📦';
+      
+      return `
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin: 12px 0; box-shadow: 0 4px 12px rgba(47,59,162,0.08); text-align: left; width: 100%; box-sizing: border-box;">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 10px;">
+          <img src="${imgSrc}" style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid var(--border); flex-shrink: 0;">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.nombre}</div>
+            <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--orbis); font-weight: 700;">$${precioFinal.toFixed(2)} <span style="font-size: 0.65rem; color: var(--text-3); font-weight: 400;">MXN</span></div>
+          </div>
+        </div>
+        <button class="btn-add-card ripple-host" style="width: 100%; min-height: 36px; font-size: 0.75rem; padding: 6px;" onclick="addToCart('${p.id}')">+ Agregar al Carrito</button>
+      </div>`;
+    });
+
+    // NUEVA MAGIA: Detectar [VER_MAS:categoria:palabra] y crear el botón de redirección
+    textoLimpio = textoLimpio.replace(/\[VER_MAS:([^:]+):([^\]]+)\]/g, (match, cat, palabra) => {
+      return `<button class="sc-cta ripple-host" style="width: 100%; margin-top: 10px; background: var(--orbis-light); color: var(--orbis); border: 1.5px solid var(--orbis-mid); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px;" onclick="navigate('${cat.trim()}', '${palabra.trim()}'); toggleChatbot();">Ver más sobre ${palabra.trim()} <span>→</span></button>`;
+    });
+
     msgsDiv.innerHTML += `<div class="msg bot">${textoLimpio}</div>`;
     msgsDiv.scrollTop = msgsDiv.scrollHeight;
     
