@@ -2835,6 +2835,7 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
   <a data-route="herramientas" onclick="navigate('herramientas');closeDrawer()">🔧 Herramientas</a>
   <a data-route="ferreteria"   onclick="navigate('ferreteria');closeDrawer()">🔩 Ferretería</a>
   <a onclick="handleMobileAuthNav();closeDrawer()">👤 Mi Cuenta</a>
+  <a id="drawer-link-consignacion" onclick="verInventarioConsignacion();closeDrawer()" style="display:none">📦 Inventario Consignado</a>
 </div>
 
 <!-- ══ VIEW: HOME ══ -->
@@ -2892,7 +2893,7 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
           <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">📍</div><div><div class="cdata-label">Sucursal Principal</div><div class="cdata-val" data-field="contact.dir" contenteditable="false">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</div></div></div>
           <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">📞</div><div><div class="cdata-label">Teléfono</div><div class="cdata-val"><a href="tel:+527711450476">+52 771 145 0476</a></div></div></div>
           <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">✉️</div><div><div class="cdata-label">Correo</div><div class="cdata-val"><a href="mailto:ventas@orbiscorp.com.mx">ventas@orbiscorp.com.mx</a></div></div></div>
-          <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">🕐</div><div><div class="cdata-label">Horario</div><div class="cdata-val" data-field="contact.horario" contenteditable="false">Lun – Vie · 08:00 – 18:00</div></div></div>
+          <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">🕐</div><div><div class="cdata-label">Horario</div><div class="cdata-val" data-field="contact.horario" contenteditable="false">Lun – Vie · 08:30 – 18:30</div></div></div>
         </div>
       </div>
       <div class="contact-form reveal">
@@ -3230,7 +3231,12 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
       <button class="msave-btn ripple-host" id="pf-save-btn" style="width:100%;margin-top:8px" onclick="savePerfilData()" type="button">
         Guardar cambios →
       </button>
-      <button class="client-logout-btn ripple-host" onclick="doLogoutCliente()" type="button">
+      <div id="mi-empresa-section" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+  <p class="auth-section-title">🏢 Mi Empresa</p>
+  <p style="font-size:.85rem;color:var(--text-2);margin-bottom:10px;" id="mi-empresa-nombre">—</p>
+  <div id="lista-empleados-empresa" style="margin-bottom:10px;"></div>
+  <button class="mcancel-btn ripple-host" id="btn-registrar-empleado" style="width:100%;border:2px solid var(--orbis);color:var(--orbis);display:none;" onclick="registrarEmpleado()">+ Registrar empleado</button>
+</div>
         ↩ Cerrar sesión
       </button>
     </div>
@@ -3282,6 +3288,9 @@ const FB_CONFIG = {
   measurementId: "G-NJH78V7X1K"
 };
 const fbApp    = initializeApp(FB_CONFIG);
+// Instancia secundaria SOLO para crear empleados sin desloguear al dueño
+const fbAppSecundaria = initializeApp(FB_CONFIG, "secundaria");
+const authSecundaria  = getAuth(fbAppSecundaria);
 const auth     = getAuth(fbApp);
 const db       = getFirestore(fbApp);
 const storage  = getStorage(fbApp);
@@ -3408,7 +3417,10 @@ function catToId(cat) {
 }
 
 function fmtPrice(n) { return `$${Number(n || 0).toFixed(2)}`; }
-
+function hayUsuarioLogueado() {
+  // true si es cliente logueado O si es admin (el admin siempre debe ver precios)
+  return !!(currentUser);
+}
 /* --- NUEVO: LÓGICA DE DESCUENTOS B2B --- */
 function getPrecioData(basePrice) {
   // Verifica si hay cliente logueado, si el switch está activo y si tiene porcentaje
@@ -3421,6 +3433,9 @@ function getPrecioData(basePrice) {
 }
 
 function renderPriceHTML(priceData) {
+  if (!hayUsuarioLogueado()) {
+    return `<span style="font-size:.75em; color:var(--orbis); font-weight:700; cursor:pointer;" onclick="openLoginCliente()">🔒 Inicia sesión para ver precio</span>`;
+  }
   if (priceData.hasDiscount) {
     return `<div style="display:flex; flex-direction:column; line-height:1.1;">
               <span style="text-decoration:line-through; color:var(--text-3); font-size:0.65em; font-family:var(--font-mono);">${fmtPrice(priceData.original)}</span>
@@ -3742,7 +3757,7 @@ function _renderCoverHTML(p, catName, meta) {
         ${label ? `<div class="cat-product-stock ${cls}">${label}</div>` : ''}
         <div class="cat-cover-cta">
           <button class="btn-cover-explore" onclick="event.stopPropagation();toggleCat('${catName}')">Ver todos los productos ↓</button>
-          <span class="cat-cover-meta">desde ${fmtPrice(getPrecioData(p.precio).final)} MXN</span>
+          <span class="cat-cover-meta">${hayUsuarioLogueado() ? `desde ${fmtPrice(getPrecioData(p.precio).final)} MXN` : '🔒 Precio con sesión iniciada'}</span>
         </div>
         <div class="cat-product-admin-bar">
           <button class="padmin-btn" onclick="event.stopPropagation();openProductModal('${p.id}')">✎ Editar</button>
@@ -4068,7 +4083,7 @@ function updateCartUI() {
 
   if (foot) {
     foot.style.display = 'block';
-    document.getElementById('cart-total').textContent = `${fmtPrice(total)} MXN`;
+    document.getElementById('cart-total').textContent = hayUsuarioLogueado() ? `${fmtPrice(total)} MXN` : '🔒 Inicia sesión';
     // Chip de sincronización
     updateSyncChip(currentCustomer ? 'synced' : 'local');
   }
@@ -4321,7 +4336,10 @@ window.openQV = function(productId) {
   setEl('qv-sucursal-large', p.almacen ? '📍 Disponible en: ' + p.almacen : '📍 Disponible en: Sucursal Pachuca');
   
   const pData = getPrecioData(p.precio);
-  if (pData.hasDiscount) {
+  
+  if (!hayUsuarioLogueado()) {
+    document.getElementById('qv-price-number').innerHTML = `<span style="font-size:.55em; cursor:pointer;" onclick="closeQV();openLoginCliente()">🔒 Inicia sesión para ver el precio</span>`;
+  } else if (pData.hasDiscount) {
     document.getElementById('qv-price-number').innerHTML = `<span style="text-decoration:line-through; font-size:1.2rem; color:var(--text-3); margin-right:8px;">${fmtPrice(pData.original)}</span><span style="color:var(--success)">${Number(pData.final).toFixed(2)}</span>`;
   } else {
     setEl('qv-price-number', Number(p.precio || 0).toFixed(2));
@@ -4434,7 +4452,7 @@ window.qvChangeQty = function(delta) {
 function _updateQvQtyUI(precio, inv, cartQty) {
   const precioActivo = getPrecioData(precio).final;
   document.getElementById('qv-qty-num').textContent = currentQvQty;
-  document.getElementById('qv-qty-total').textContent = `${fmtPrice(precioActivo * currentQvQty)} MXN`;
+  document.getElementById('qv-qty-total').textContent = hayUsuarioLogueado() ? `${fmtPrice(precioActivo * currentQvQty)} MXN` : '🔒 —';
   document.getElementById('qv-qty-dec').disabled = (currentQvQty <= 1);
   if (inv !== null && (currentQvQty + cartQty) >= inv) {
     document.getElementById('qv-qty-inc').disabled = true;
@@ -4823,6 +4841,19 @@ window.openPerfilModal = function() {
   document.getElementById('pf-empresa').value  = currentCustomer.empresa || '';
   document.getElementById('pf-puesto').value   = currentCustomer.puesto  || '';
   document.getElementById('pf-rfc').value      = currentCustomer.rfc     || '';
+  const empresaBox = document.getElementById('mi-empresa-section');
+  if (currentCustomer.empresaId) {
+    empresaBox.style.display = 'block';
+    getDoc(doc(db, 'empresas', currentCustomer.empresaId)).then(snap => {
+      document.getElementById('mi-empresa-nombre').textContent = snap.exists() ? snap.data().nombreEmpresa : 'Empresa';
+    });
+    document.getElementById('btn-registrar-empleado').style.display = currentCustomer.rolEmpresa === 'owner' ? 'block' : 'none';
+    const drawerLink = document.getElementById('drawer-link-consignacion');
+    if (drawerLink) drawerLink.style.display = 'flex';
+    cargarEmpleadosEmpresa();
+  } else {
+    empresaBox.style.display = 'none';
+  }
   document.getElementById('pf-err').classList.remove('show');
   document.getElementById('perfil-modal').classList.add('open');
 };
@@ -4857,7 +4888,46 @@ window.savePerfilData = async function() {
     btnEl.disabled = false; btnEl.textContent = 'Guardar cambios →';
   }
 };
+window.registrarEmpleado = async function() {
+  if (!currentCustomer || currentCustomer.rolEmpresa !== 'owner') { showToast('Solo el dueño de la empresa puede agregar empleados', '⚠️'); return; }
+  const nombre = prompt('Nombre del empleado:'); if (!nombre) return;
+  const email  = prompt('Correo del empleado:'); if (!email) return;
+  const pass   = prompt('Contraseña temporal (mín. 6 caracteres):'); if (!pass || pass.length < 6) { showToast('Contraseña muy corta', '⚠️'); return; }
 
+  try {
+    const cred = await createUserWithEmailAndPassword(authSecundaria, email.trim(), pass);
+    await setDoc(doc(db, 'clientes', cred.user.uid), {
+      uid: cred.user.uid, nombre, apellido: '', email: email.trim(),
+      empresaId: currentCustomer.empresaId, rolEmpresa: 'empleado',
+      rol: 'cliente', carrito: [], creadoEn: serverTimestamp()
+    });
+    await signOut(authSecundaria); // limpia la sesión de la app secundaria
+    showToast(`Empleado ${nombre} registrado`, '✅');
+    cargarEmpleadosEmpresa();
+  } catch (e) {
+    showToast(e.code === 'auth/email-already-in-use' ? 'Ese correo ya está registrado' : 'Error al crear empleado', '❌');
+  }
+};
+
+window.cargarEmpleadosEmpresa = async function() {
+  const cont = document.getElementById('lista-empleados-empresa');
+  if (!cont || !currentCustomer?.empresaId) return;
+  const snap = await getDocs(query(collection(db,'clientes'), where('empresaId','==',currentCustomer.empresaId)));
+  cont.innerHTML = '';
+  snap.forEach(d => {
+    const e = d.data();
+    cont.innerHTML += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem;">
+      <span>${e.rolEmpresa==='owner'?'👑':'👤'} ${e.nombre} ${e.apellido||''}</span><span style="color:var(--text-3)">${e.email}</span></div>`;
+  });
+};
+window.verInventarioConsignacion = async function() {
+  if (!currentCustomer?.empresaId) { showToast('Esta función es solo para cuentas de empresa', '⚠️'); return; }
+  const snap = await getDocs(query(collection(db,'productos_consignacion'), where('empresaId','==',currentCustomer.empresaId)));
+  if (snap.empty) { alert('No hay productos en consignación registrados para tu empresa.'); return; }
+  let msg = '📦 INVENTARIO EN CONSIGNACIÓN\n\n';
+  snap.forEach(d => { const p = d.data(); msg += `${p.producto} ${p.sku ? '('+p.sku+')' : ''} — Cantidad: ${p.cantidad}\n`; });
+  alert(msg);
+};
 window.doLogoutCliente = async function() {
   try {
     await signOut(auth);
@@ -5521,12 +5591,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ══════════════════════════════════════════════
-   ASISTENTE VIRTUAL GEMINI
+   ASISTENTE VIRTUAL GEMINI (CON LÍMITE DE CRÉDITOS)
 ═══════════════════════════════════════════════ */
 const fbFunctions = getFunctions(fbApp, 'us-central1');
 const chatAsistenteCall = httpsCallable(fbFunctions, 'chatAsistente');
 
 window.historialChat = []; // Memoria a corto plazo del bot
+window.mensajesEnviados = 0; // Contador de mensajes del usuario
+const MAX_MENSAJES = 5; // Límite de preguntas gratuitas permitidas
 
 window.toggleChatbot = () => {
   const win = document.getElementById('chatbot-window');
@@ -5537,9 +5609,13 @@ window.toggleChatbot = () => {
 };
 
 window.enviarMensajeChat = async () => {
+  if (window.mensajesEnviados >= MAX_MENSAJES) return; // Bloqueo de seguridad
+
   const input = document.getElementById('chat-input');
   const texto = input.value.trim();
   if(!texto) return;
+  
+  window.mensajesEnviados++; // Sumamos 1 al contador
   
   const msgsDiv = document.getElementById('chat-messages');
   
@@ -5554,14 +5630,32 @@ window.enviarMensajeChat = async () => {
   msgsDiv.scrollTop = msgsDiv.scrollHeight;
   
   try {
-    // 3. Extraemos el inventario (Añadiendo el ID para que el bot sepa cómo llamarlos)
-    const inventarioActual = allProducts.map(p => `[ID:${p.id}] ${p.nombre}`).join('\n');
+    // 3. RAG LOCAL MEJORADO: Filtro con inyección de contexto
+    const historialCorto = window.historialChat.slice(-4);
+    let textoBusqueda = texto.toLowerCase();
+    
+    // Truco: Si el usuario busca procesos específicos, le inyectamos palabras relacionadas
+    // para que el filtro atrape los productos correctos de seguridad.
+    if (textoBusqueda.includes('soldar') || textoBusqueda.includes('soldadura')) {
+        textoBusqueda += " carnaza careta electrodo inversor cuero ignifugo";
+    }
 
-    // 4. Mandar el texto, la memoria Y EL INVENTARIO a Firebase
+    const palabrasClave = textoBusqueda.split(/[ \n,.-]+/).filter(p => p.length > 3);
+    
+    const productosRelevantes = allProducts.filter(p => {
+      const textoProducto = `${p.nombre} ${p.categoria} ${p.desc}`.toLowerCase();
+      return palabrasClave.some(palabra => textoProducto.includes(palabra));
+    }).slice(0, 20); // Aumentamos a 20 para darle más opciones a la IA (sigue siendo muy barato en tokens)
+
+    const inventarioActual = productosRelevantes.length > 0
+      ? productosRelevantes.map(p => `[ID:${p.id}] ${p.nombre} | STOCK: ${p.stock || p.existencia || p.cantidad || 0} | ${(p.desc || '').substring(0, 45)}`).join('\n')
+      : "No se encontraron productos exactos en la base de datos. Sugiere navegar por el menú o contactar a un asesor.";
+
+    // 4. Mandar el texto, la memoria CORTA y el inventario FILTRADO a Firebase
     const result = await chatAsistenteCall({ 
       mensaje: texto, 
-      historial: window.historialChat,
-      catalogoWeb: inventarioActual || "Catálogo cargando..."
+      historial: historialCorto,
+      catalogoWeb: inventarioActual
     });
     const respuestaBot = result.data.respuesta;
     
@@ -5583,7 +5677,7 @@ window.enviarMensajeChat = async () => {
           <img src="${imgSrc}" style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid var(--border); flex-shrink: 0;">
           <div style="flex: 1; min-width: 0;">
             <div style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.nombre}</div>
-            <div style="font-family: var(--font-display); font-size: 0.95rem; color: var(--orbis); font-weight: 700;">$${precioFinal.toFixed(2)} <span style="font-size: 0.65rem; color: var(--text-3); font-weight: 400;">MXN</span></div>
+            <div style="font-family: var(--font-display); font-size: 0.85rem; color: var(--orbis); font-weight: 700;">${hayUsuarioLogueado() ? `$${precioFinal.toFixed(2)} <span style="font-size: 0.65rem; color: var(--text-3); font-weight: 400;">MXN</span>` : '🔒 Inicia sesión para ver precio'}</div>
           </div>
         </div>
         <button class="btn-add-card ripple-host" style="width: 100%; min-height: 36px; font-size: 0.75rem; padding: 6px;" onclick="addToCart('${p.id}')">+ Agregar al Carrito</button>
@@ -5601,6 +5695,21 @@ window.enviarMensajeChat = async () => {
     // 5. Guardar en memoria para que no pierda el hilo
     window.historialChat.push({ role: "user", parts: [{ text: texto }] });
     window.historialChat.push({ role: "model", parts: [{ text: respuestaBot }] });
+    
+    // 6. Verificar si ya alcanzó el límite para bloquearlo
+    if (window.mensajesEnviados >= MAX_MENSAJES) {
+      input.disabled = true;
+      input.placeholder = "Límite de consultas alcanzado.";
+      input.style.backgroundColor = "var(--surface2)";
+      document.querySelector('.chat-input-area button').disabled = true;
+      
+      msgsDiv.innerHTML += `<div class="msg bot" style="background: var(--orbis-light); border-color: var(--orbis-mid);">
+        Has alcanzado el límite de consultas gratuitas por esta sesión. Para brindarte una atención más personalizada y tomar tu pedido, por favor comunícate con un asesor. 
+        <br><br>
+        <button class="btn-qv-whatsapp ripple-host" style="width:100%; font-size: 0.75rem; padding: 8px; min-height: auto;" onclick="waFabClick()">💬 Hablar por WhatsApp</button>
+      </div>`;
+      msgsDiv.scrollTop = msgsDiv.scrollHeight;
+    }
     
   } catch (error) {
     console.error("Error en Chat:", error);
