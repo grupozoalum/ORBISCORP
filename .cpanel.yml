@@ -1,0 +1,4 @@
+deployment:
+  tasks:
+	- export DEPLOYPATH=/home/e9k2kz2o7tyh/public_html/shop.orbiscorp
+	- /usr/bin/rsync -au --exclude '.git' --exclude '.cpanel.yml' ./ $DEPLOYPATH
