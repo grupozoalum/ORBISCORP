@@ -174,26 +174,40 @@ function hayUsuarioLogueado() {
 }
 /* --- NUEVO: LÓGICA DE DESCUENTOS B2B --- */
 function getPrecioData(basePrice) {
-  // Verifica si hay cliente logueado, si el switch está activo y si tiene porcentaje
+  // Sin precio asignado en lista
+  if (basePrice === null || basePrice === undefined || basePrice === 0) {
+    return { hasDiscount: false, original: null, final: null, pct: 0, sinPrecio: true };
+  }
+  // Descuento B2B para clientes registrados
   if (currentCustomer && currentCustomer.tiene_descuento === true && currentCustomer.porcentaje_descuento > 0) {
     const pct = Math.min(Math.max(currentCustomer.porcentaje_descuento, 1), 100);
     const final = basePrice - (basePrice * (pct / 100));
-    return { hasDiscount: true, original: basePrice, final: final, pct: pct };
+    return { hasDiscount: true, original: basePrice, final: final, pct: pct, sinPrecio: false };
   }
-  return { hasDiscount: false, original: basePrice, final: basePrice, pct: 0 };
+  return { hasDiscount: false, original: basePrice, final: basePrice, pct: 0, sinPrecio: false };
 }
 
-function renderPriceHTML(priceData) {
+function renderPriceHTML(priceData, precioConIva = null) {
   if (!hayUsuarioLogueado()) {
     return `<span style="font-size:.75em; color:var(--orbis); font-weight:700; cursor:pointer;" onclick="openLoginCliente()">🔒 Inicia sesión para ver precio</span>`;
   }
+  // Producto sin precio en la lista
+  if (priceData.sinPrecio) {
+    return `<span style="font-size:.72em; color:var(--text-3); font-family:var(--font-mono); font-weight:600;">Consultar precio</span>`;
+  }
+  // Precio con descuento B2B
   if (priceData.hasDiscount) {
     return `<div style="display:flex; flex-direction:column; line-height:1.1;">
               <span style="text-decoration:line-through; color:var(--text-3); font-size:0.65em; font-family:var(--font-mono);">${fmtPrice(priceData.original)}</span>
               <span style="color:var(--success); font-weight:700;">${fmtPrice(priceData.final)} <span style="background:var(--success); color:#fff; padding:2px 4px; border-radius:4px; font-size:0.6rem; vertical-align:middle; margin-left:4px;">-${priceData.pct}%</span></span>
+              ${precioConIva ? `<span style="font-family:var(--font-mono); font-size:0.6em; color:var(--text-3); margin-top:2px;">$${(precioConIva * (1 - priceData.pct/100)).toFixed(2)} c/IVA</span>` : ''}
             </div>`;
   }
-  return `${fmtPrice(priceData.final)}`;
+  // Precio normal — muestra precio sin IVA y con IVA debajo
+  const ivaLine = precioConIva
+    ? `<span style="font-family:var(--font-mono); font-size:0.58em; color:var(--text-3); display:block; margin-top:1px;">${fmtPrice(precioConIva)} c/IVA</span>`
+    : '';
+  return `${fmtPrice(priceData.final)}${ivaLine}`;
 }
 /* --------------------------------------- */
 
@@ -504,7 +518,7 @@ function _renderCoverHTML(p, catName, meta) {
         <p class="cat-product-desc">${p.desc || ''}</p>
       </div>
       <div>
-        <div class="cat-product-price">${renderPriceHTML(getPrecioData(p.precio))}<span> MXN / unidad</span></div>
+        <div class="cat-product-price">${renderPriceHTML(getPrecioData(p.precio), p.precio_con_iva)}<span> MXN / unidad</span></div>
         ${label ? `<div class="cat-product-stock ${cls}">${label}</div>` : ''}
         <div class="cat-cover-cta">
           <button class="btn-cover-explore" onclick="event.stopPropagation();toggleCat('${catName}')">Ver todos los productos ↓</button>
@@ -542,7 +556,7 @@ function _renderProductCard(p, catName, meta) {
       ${p.sku ? `<div class="prod-card-sku">${p.sku}</div>` : ''}
       <div class="prod-card-name">${p.nombre || ''}</div>
       <div class="prod-card-desc">${p.desc || ''}</div>
-      <div class="prod-card-price">${renderPriceHTML(getPrecioData(p.precio))}<span> MXN</span></div>
+      <div class="prod-card-price">${renderPriceHTML(getPrecioData(p.precio), p.precio_con_iva)}<span> MXN</span></div>
       ${label ? `<div class="prod-card-stock ${cls}">${label}</div>` : ''}
       
       <button class="btn-add-card${inCartItem ? ' added' : ''}" id="btnadd-${p.id}"
@@ -1093,7 +1107,19 @@ window.openQV = function(productId) {
   } else if (pData.hasDiscount) {
     document.getElementById('qv-price-number').innerHTML = `<span style="text-decoration:line-through; font-size:1.2rem; color:var(--text-3); margin-right:8px;">${fmtPrice(pData.original)}</span><span style="color:var(--success)">${Number(pData.final).toFixed(2)}</span>`;
   } else {
-    setEl('qv-price-number', Number(p.precio || 0).toFixed(2));
+    if (pData.sinPrecio) {
+      document.getElementById('qv-price-number').innerHTML =
+        `<span style="font-size:.55em; font-family:var(--font-mono); color:var(--text-2);">Consultar precio</span>`;
+    } else {
+      document.getElementById('qv-price-number').textContent = Number(pData.final || 0).toFixed(2);
+    }
+    // Mostrar precio con IVA debajo del precio principal
+    const ivaEl = document.getElementById('qv-iva-note');
+    if (ivaEl && p.precio_con_iva && !pData.sinPrecio) {
+      ivaEl.textContent = `+ IVA · Precio total: ${fmtPrice(p.precio_con_iva)} MXN · El vendedor confirma el precio final.`;
+    } else if (ivaEl) {
+      ivaEl.textContent = '+ IVA · El vendedor confirma el precio final.';
+    }
   }
   
   const stockPill = document.getElementById('qv-stock-pill');
@@ -2323,13 +2349,23 @@ async function loadAllProducts() {
       }
 
       // Construimos el producto para la tienda web
+      // precio_unitario viene del JSON que generamos con el PDF de precios.
+      // Si es null o 0 el producto se muestra con "Consultar precio".
+      const precioUnitario = data.precio_unitario
+        ? Number(data.precio_unitario)
+        : (data.precio ? Number(data.precio) : null);
+      const precioConIva   = data.precio_total_iva ? Number(data.precio_total_iva) : null;
+
       allProducts.push({
         id: d.id,
         nombre: descripcionOriginal,
         categoria: finalCategory,
         subLinea: 'Inventario RIVG',
         almacen: data.almacen || 'Sucursal Principal',
-        precio: Number(data.precio || 0), // El inventario RIVG no trae precio; asignar manualmente si aplica
+        precio:        precioUnitario,          // sin IVA — base para descuentos B2B
+        precio_con_iva: precioConIva,           // con 16 % IVA — se muestra al usuario final
+        sin_precio:    !precioUnitario,         // flag para UI
+        nota:          data.nota || null,       // "Sin precio en lista" / "Código no encontrado"
         inventario: Math.floor(cantidadOriginal),
         desc: `Código: ${codigoOriginal}`,
         sku: codigoOriginal,
