@@ -49,7 +49,7 @@ const storage  = getStorage(fbApp);
 /* ══ COLECCIONES ══ */
 const REF_CONTENT  = doc(db,        'web_content',   'orbiscorp');
 const COL_LEADS    = collection(db, 'leads_orbiscorp');
-const COL_PRODS    = collection(db, 'inventario_rivg');
+const COL_PRODS    = collection(db, 'productos_orbis');
 const COL_INVENTARIO_RIVG = collection(db, 'inventario_rivg'); // <-- INVENTARIO REAL (RIVG)
 const COL_CLIENTS  = collection(db, 'clientes');
 
@@ -1359,24 +1359,73 @@ function updateCustomerNavBtn(customer) {
     btn.textContent  = `👤 ${firstName}`;
     btn.className    = 'nav-auth-btn logged-in';
     btn.setAttribute('aria-label', `Perfil de ${firstName}`);
-    btn.onclick = openPerfilModal;
-    
+    btn.onclick = (e) => { e.stopPropagation(); toggleUserDropdown(); };
+
     // Le pone un punto verde al ícono del celular
     if (mobBtn) {
       mobBtn.innerHTML = `<span aria-hidden="true">👤</span><span class="cart-badge" style="background:var(--success); color:transparent; width:12px; height:12px; top:-2px; right:-2px; border-color:#fff;"></span>`;
     }
+
+    _populateUserDropdown(customer);
   } else {
     btn.textContent = '🔑 Entrar';
     btn.className   = 'nav-auth-btn';
     btn.setAttribute('aria-label', 'Iniciar sesión');
     btn.onclick = openLoginCliente;
-    
+
     // Lo regresa a estado normal (sin punto verde)
     if (mobBtn) {
       mobBtn.innerHTML = `<span aria-hidden="true">👤</span>`;
     }
+    closeUserDropdown();
   }
 }
+
+function _populateUserDropdown(customer) {
+  const fullName = [customer.nombre, customer.apellido].filter(Boolean).join(' ') || customer.email || 'Mi Cuenta';
+  const initial = (customer.nombre || customer.email || '?')[0].toUpperCase();
+  const isOwner = customer.rolEmpresa === 'owner';
+  const isEmpresa = !!customer.empresaId;
+
+  const avatarEl = document.getElementById('nud-avatar');
+  const nameEl   = document.getElementById('nud-name');
+  const emailEl  = document.getElementById('nud-email');
+  const chipEl   = document.getElementById('nud-role-chip');
+  const empleadosItem = document.getElementById('nud-item-empleados');
+  const consigItem    = document.getElementById('nud-item-consignacion');
+
+  if (avatarEl) avatarEl.textContent = initial;
+  if (nameEl)   nameEl.textContent   = fullName;
+  if (emailEl)  emailEl.textContent  = customer.email || '';
+
+  if (chipEl) {
+    if (isEmpresa) {
+      chipEl.style.display = 'inline-flex';
+      chipEl.textContent = isOwner ? '👑 Dueño de empresa' : '👤 Empleado';
+    } else {
+      chipEl.style.display = 'none';
+    }
+  }
+
+  // Solo el dueño ve el acceso rápido a gestión de empleados
+  if (empleadosItem) empleadosItem.style.display = (isEmpresa && isOwner) ? 'flex' : 'none';
+  // Dueño Y empleados pueden revisar el inventario en consignación de su empresa
+  if (consigItem) consigItem.style.display = isEmpresa ? 'flex' : 'none';
+}
+
+window.toggleUserDropdown = function() {
+  const dd = document.getElementById('nav-user-dropdown');
+  if (!dd) return;
+  dd.classList.toggle('open');
+};
+window.closeUserDropdown = function() {
+  document.getElementById('nav-user-dropdown')?.classList.remove('open');
+};
+// Cierra el dropdown al hacer clic fuera de él
+document.addEventListener('click', (e) => {
+  const wrap = document.querySelector('.nav-user-wrap');
+  if (wrap && !wrap.contains(e.target)) closeUserDropdown();
+});
 
 function updatePerfilModalHeader(customer) {
   const firstName = (customer.nombre || '?')[0].toUpperCase();
@@ -1599,12 +1648,26 @@ window.openPerfilModal = function() {
       document.getElementById('mi-empresa-nombre').textContent = snap.exists() ? snap.data().nombreEmpresa : 'Empresa';
     });
     const isOwner = currentCustomer.rolEmpresa === 'owner';
+
+    const roleBadge = document.getElementById('emp-role-badge');
+    if (roleBadge) {
+      roleBadge.className = `emp-role-badge ${isOwner ? 'owner' : 'empleado'}`;
+      roleBadge.textContent = isOwner ? '👑 Dueño' : '👤 Empleado';
+    }
+
     document.getElementById('btn-registrar-empleado').style.display = isOwner ? 'block' : 'none';
-    document.getElementById('btn-revisar-consignacion').style.display = isOwner ? 'block' : 'none'; // ← Controla el nuevo botón
-    
+    // Dueño Y empleados pueden ver el inventario en consignación de la empresa
+    document.getElementById('btn-revisar-consignacion').style.display = 'block';
+
     const drawerLink = document.getElementById('drawer-link-consignacion');
     if (drawerLink) drawerLink.style.display = 'flex';
-    cargarEmpleadosEmpresa();
+
+    const listaCont = document.getElementById('lista-empleados-empresa');
+    if (isOwner) {
+      cargarEmpleadosEmpresa();
+    } else if (listaCont) {
+      listaCont.innerHTML = `<div class="emp-list-empty">Solo el dueño de la cuenta puede ver la lista completa de empleados.</div>`;
+    }
   } else {
     empresaBox.style.display = 'none';
   }
@@ -1642,36 +1705,73 @@ window.savePerfilData = async function() {
     btnEl.disabled = false; btnEl.textContent = 'Guardar cambios →';
   }
 };
+window.abrirModalRegistrarEmpleado = function() {
+  if (!currentCustomer || currentCustomer.rolEmpresa !== 'owner') { showToast('Solo el dueño de la empresa puede agregar empleados', '⚠️'); return; }
+  ['re-nombre','re-apellido','re-email','re-pass'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('re-err')?.classList.remove('show');
+  document.getElementById('modal-registrar-empleado')?.classList.add('open');
+  setTimeout(() => document.getElementById('re-nombre')?.focus(), 120);
+};
+window.cerrarModalRegistrarEmpleado = function() {
+  document.getElementById('modal-registrar-empleado')?.classList.remove('open');
+};
+
 window.registrarEmpleado = async function() {
   if (!currentCustomer || currentCustomer.rolEmpresa !== 'owner') { showToast('Solo el dueño de la empresa puede agregar empleados', '⚠️'); return; }
-  const nombre = prompt('Nombre del empleado:'); if (!nombre) return;
-  const email  = prompt('Correo del empleado:'); if (!email) return;
-  const pass   = prompt('Contraseña temporal (mín. 6 caracteres):'); if (!pass || pass.length < 6) { showToast('Contraseña muy corta', '⚠️'); return; }
 
+  const nombre   = document.getElementById('re-nombre')?.value.trim()   || '';
+  const apellido = document.getElementById('re-apellido')?.value.trim() || '';
+  const email    = document.getElementById('re-email')?.value.trim()    || '';
+  const pass     = document.getElementById('re-pass')?.value            || '';
+  const errEl    = document.getElementById('re-err');
+  const btnEl    = document.getElementById('re-save-btn');
+
+  errEl.classList.remove('show');
+  if (!nombre)               { errEl.textContent = 'El nombre es obligatorio.'; errEl.classList.add('show'); return; }
+  if (!email || !email.includes('@')) { errEl.textContent = 'Ingresa un correo válido.'; errEl.classList.add('show'); return; }
+  if (!pass || pass.length < 6) { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.'; errEl.classList.add('show'); return; }
+
+  btnEl.disabled = true; btnEl.textContent = '⟳ Registrando...';
   try {
-    const cred = await createUserWithEmailAndPassword(authSecundaria, email.trim(), pass);
+    const cred = await createUserWithEmailAndPassword(authSecundaria, email, pass);
     await setDoc(doc(db, 'clientes', cred.user.uid), {
-      uid: cred.user.uid, nombre, apellido: '', email: email.trim(),
+      uid: cred.user.uid, nombre, apellido, email,
       empresaId: currentCustomer.empresaId, rolEmpresa: 'empleado',
       rol: 'cliente', carrito: [], creadoEn: serverTimestamp()
     });
     await signOut(authSecundaria); // limpia la sesión de la app secundaria
     showToast(`Empleado ${nombre} registrado`, '✅');
+    cerrarModalRegistrarEmpleado();
     cargarEmpleadosEmpresa();
   } catch (e) {
-    showToast(e.code === 'auth/email-already-in-use' ? 'Ese correo ya está registrado' : 'Error al crear empleado', '❌');
+    errEl.textContent = e.code === 'auth/email-already-in-use' ? 'Ese correo ya está registrado.' : 'Error al crear el empleado.';
+    errEl.classList.add('show');
+  } finally {
+    btnEl.disabled = false; btnEl.textContent = 'Registrar empleado →';
   }
 };
 
 window.cargarEmpleadosEmpresa = async function() {
   const cont = document.getElementById('lista-empleados-empresa');
   if (!cont || !currentCustomer?.empresaId) return;
+  cont.innerHTML = `<div class="emp-list-empty">Cargando equipo...</div>`;
   const snap = await getDocs(query(collection(db,'clientes'), where('empresaId','==',currentCustomer.empresaId)));
+  if (snap.empty) {
+    cont.innerHTML = `<div class="emp-list-empty">Aún no hay empleados registrados.</div>`;
+    return;
+  }
   cont.innerHTML = '';
   snap.forEach(d => {
     const e = d.data();
-    cont.innerHTML += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem;">
-      <span>${e.rolEmpresa==='owner'?'👑':'👤'} ${e.nombre} ${e.apellido||''}</span><span style="color:var(--text-3)">${e.email}</span></div>`;
+    const nombreCompleto = [e.nombre, e.apellido].filter(Boolean).join(' ') || e.email;
+    const inicial = (e.nombre || e.email || '?')[0].toUpperCase();
+    cont.innerHTML += `<div class="emp-list-row">
+      <div class="emp-avatar-sm">${inicial}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.rolEmpresa==='owner'?'👑':'👤'} ${nombreCompleto}</div>
+        <div style="color:var(--text-3);font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.email}</div>
+      </div>
+    </div>`;
   });
 };
 window.verInventarioConsignacion = async function() {

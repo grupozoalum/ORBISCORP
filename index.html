@@ -793,6 +793,59 @@ body.admin-mode [data-field]:focus { outline:2px solid var(--orbis); background:
 .nav-auth-btn.logged-in::after { content:''; position:absolute; top:6px; right:10px; width:8px; height:8px; background:var(--success); border-radius:50%; border:2px solid #fff; }
 @media(max-width:768px){ .nav-auth-btn { display:none; } }
 
+/* ── DROPDOWN DE USUARIO (nuevo) ── */
+.nav-user-wrap { position:relative; }
+.nav-user-dropdown {
+  position:absolute; top:calc(100% + 12px); right:0; width:300px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  box-shadow:var(--shadow-xl); overflow:hidden; z-index:400;
+  opacity:0; visibility:hidden; transform:translateY(-8px) scale(.98);
+  transition:opacity .22s var(--ease-smooth), transform .22s var(--ease-smooth), visibility .22s;
+}
+.nav-user-dropdown.open { opacity:1; visibility:visible; transform:translateY(0) scale(1); }
+.nud-header {
+  padding:18px 18px 16px; background:linear-gradient(135deg,var(--orbis-deep) 0%,var(--orbis) 100%);
+  display:flex; align-items:center; gap:12px; position:relative; overflow:hidden;
+}
+.nud-header::after { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 100% 0%, rgba(245,158,11,.25) 0%, transparent 60%); }
+.nud-avatar {
+  width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.3);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800;
+  color:#fff; font-size:1.05rem; flex-shrink:0; position:relative; z-index:1;
+}
+.nud-name { font-family:var(--font-body); font-weight:700; font-size:.9rem; color:#fff; line-height:1.25; position:relative; z-index:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nud-email { font-family:var(--font-mono); font-size:.65rem; color:rgba(255,255,255,.65); position:relative; z-index:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nud-role-chip {
+  display:inline-flex; align-items:center; gap:4px; margin-top:5px; padding:2px 9px; border-radius:100px;
+  font-family:var(--font-mono); font-size:.6rem; letter-spacing:.05em; text-transform:uppercase; font-weight:600;
+  background:rgba(245,158,11,.18); color:var(--safety); border:1px solid rgba(245,158,11,.35); position:relative; z-index:1;
+}
+.nud-body { padding:8px; }
+.nud-item {
+  display:flex; align-items:center; gap:11px; width:100%; padding:11px 12px; border:none; background:transparent;
+  border-radius:var(--r-sm); cursor:pointer; text-align:left; font-family:var(--font-body); font-size:.85rem;
+  font-weight:600; color:var(--text-2); transition:all .15s var(--ease-elegant);
+}
+.nud-item:hover { background:var(--orbis-light); color:var(--orbis); transform:translateX(2px); }
+.nud-item .nud-icon { font-size:1.05rem; width:22px; text-align:center; flex-shrink:0; }
+.nud-item .nud-badge-count {
+  margin-left:auto; background:var(--safety); color:var(--text); font-family:var(--font-mono); font-size:.62rem;
+  font-weight:700; padding:1px 7px; border-radius:100px; flex-shrink:0;
+}
+.nud-divider { height:1px; background:var(--border); margin:6px 4px; }
+.nud-item.danger { color:var(--danger); }
+.nud-item.danger:hover { background:rgba(239,68,68,.08); color:var(--danger); }
+@media(max-width:768px){ .nav-user-dropdown { display:none !important; } }
+
+/* ── BADGE DE ROL EN "MI EMPRESA" ── */
+.emp-role-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:100px; font-family:var(--font-mono); font-size:.65rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+.emp-role-badge.owner { background:rgba(245,158,11,.15); color:var(--safety-dark); border:1px solid rgba(245,158,11,.35); }
+.emp-role-badge.empleado { background:rgba(47,59,162,.1); color:var(--orbis); border:1px solid rgba(47,59,162,.25); }
+.emp-list-row { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--border); font-size:.82rem; }
+.emp-list-row:last-child { border-bottom:none; }
+.emp-avatar-sm { width:28px; height:28px; border-radius:50%; background:var(--orbis-light); color:var(--orbis); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:800; font-size:.72rem; flex-shrink:0; }
+.emp-list-empty { text-align:center; padding:16px 8px; color:var(--text-3); font-size:.8rem; }
+
 .profile-header { display:flex; align-items:center; gap:16px; background:linear-gradient(135deg,var(--orbis-deep) 0%,var(--orbis) 100%); padding:24px; border-bottom:2px solid var(--safety); }
 .profile-avatar { width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.35); display:flex; align-items:center; justify-content:center; font-size:1.3rem; font-family:var(--font-display); font-weight:700; color:#fff; flex-shrink:0; text-transform:uppercase; line-height:1; }
 .profile-header-info { flex:1; min-width:0; }
@@ -2805,9 +2858,28 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Buscar
       </button>
 
-      <button id="nav-client-auth" class="nav-auth-btn" onclick="handleAuthBtnClick()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Entrar
-      </button>
+      <div class="nav-user-wrap">
+        <button id="nav-client-auth" class="nav-auth-btn" onclick="handleAuthBtnClick()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Entrar
+        </button>
+        <div id="nav-user-dropdown" class="nav-user-dropdown" role="menu" aria-label="Menú de cuenta">
+          <div class="nud-header">
+            <div class="nud-avatar" id="nud-avatar">?</div>
+            <div style="min-width:0;">
+              <div class="nud-name" id="nud-name">—</div>
+              <div class="nud-email" id="nud-email">—</div>
+              <span class="nud-role-chip" id="nud-role-chip" style="display:none;">🏢 Empresa</span>
+            </div>
+          </div>
+          <div class="nud-body">
+            <button class="nud-item" onclick="closeUserDropdown(); openPerfilModal();"><span class="nud-icon">👤</span> Mi perfil</button>
+            <button class="nud-item" id="nud-item-empleados" style="display:none" onclick="closeUserDropdown(); openPerfilModal();"><span class="nud-icon">👥</span> Empleados de mi empresa</button>
+            <button class="nud-item" id="nud-item-consignacion" style="display:none" onclick="closeUserDropdown(); verInventarioConsignacion();"><span class="nud-icon">📦</span> Productos en consignación</button>
+            <div class="nud-divider"></div>
+            <button class="nud-item danger" onclick="closeUserDropdown(); doLogoutCliente();"><span class="nud-icon">↩</span> Cerrar sesión</button>
+          </div>
+        </div>
+      </div>
       
       <button id="nav-mobile-auth" class="btn-cart ripple-host mobile-profile-icon" onclick="handleAuthBtnClick()" aria-label="Mi Cuenta">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -3232,18 +3304,46 @@ footer::after { content: ''; position: absolute; inset: 0; background-image: lin
         Guardar cambios →
       </button>
       <div id="mi-empresa-section" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
-  <p class="auth-section-title">🏢 Mi Empresa</p>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+    <p class="auth-section-title" style="margin-bottom:0;">🏢 Mi Empresa</p>
+    <span class="emp-role-badge" id="emp-role-badge">—</span>
+  </div>
   <p style="font-size:.85rem;color:var(--text-2);margin-bottom:10px;" id="mi-empresa-nombre">—</p>
   <div id="lista-empleados-empresa" style="margin-bottom:10px;"></div>
   
   <div style="display: flex; gap: 8px; flex-direction: column;">
-    <button class="mcancel-btn ripple-host" id="btn-registrar-empleado" style="width:100%;border:2px solid var(--orbis);color:var(--orbis);display:none;" onclick="registrarEmpleado()">+ Registrar empleado</button>
+    <button class="mcancel-btn ripple-host" id="btn-registrar-empleado" style="width:100%;border:2px solid var(--orbis);color:var(--orbis);display:none;" onclick="abrirModalRegistrarEmpleado()">+ Registrar empleado</button>
     
     <!-- NUEVO BOTÓN DE CONSIGNACIÓN -->
     <button class="msave-btn ripple-host" id="btn-revisar-consignacion" style="width:100%;display:none;" onclick="verInventarioConsignacion()">📦 Revisar productos en consignación</button>
   </div>
 </div>
+      <button class="mcancel-btn ripple-host" style="width:100%;margin-top:10px;color:var(--danger);border-color:var(--danger);" onclick="doLogoutCliente()" type="button">
         ↩ Cerrar sesión
+      </button>
+    </div>
+  </div>
+</div>
+<!-- MODAL: REGISTRAR EMPLEADO -->
+<div id="modal-registrar-empleado" class="modal" role="dialog" aria-modal="true" aria-labelledby="reg-emp-title">
+  <div class="modal-panel" style="max-width:420px">
+    <div class="profile-header" style="background:linear-gradient(135deg,var(--orbis-deep) 0%,var(--orbis) 100%);">
+      <div class="profile-header-info">
+        <div class="profile-header-name" id="reg-emp-title">+ Nuevo empleado</div>
+        <div class="profile-header-email">Se le creará una cuenta para acceder a la tienda</div>
+      </div>
+      <button class="modal-close" onclick="cerrarModalRegistrarEmpleado()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfield-row">
+        <div class="mfield"><label for="re-nombre">Nombre(s) *</label><input type="text" id="re-nombre" placeholder="Juan"></div>
+        <div class="mfield"><label for="re-apellido">Apellido(s)</label><input type="text" id="re-apellido" placeholder="Pérez"></div>
+      </div>
+      <div class="mfield"><label for="re-email">Correo electrónico *</label><input type="email" id="re-email" placeholder="empleado@empresa.com"></div>
+      <div class="mfield"><label for="re-pass">Contraseña temporal *</label><input type="password" id="re-pass" placeholder="Mínimo 6 caracteres"></div>
+      <div class="merror" id="re-err" role="alert"></div>
+      <button class="msave-btn ripple-host" id="re-save-btn" style="width:100%;margin-top:8px" onclick="registrarEmpleado()" type="button">
+        Registrar empleado →
       </button>
     </div>
   </div>
