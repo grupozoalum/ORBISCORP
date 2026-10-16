@@ -3695,6 +3695,30 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
   #chatbot-fab{ width:46px; height:46px; font-size:1.25rem; }
 }
 
+/* ── Vista rápida: ficha técnica ── */
+.qv-product-desc[hidden]{ display:none !important; }
+.qv-ficha{
+  margin:0 0 18px; border:1px solid var(--border); border-radius:10px; overflow:hidden; background:#fff;
+}
+.qv-ficha > div{ display:grid; grid-template-columns:108px 1fr; border-bottom:1px solid #EEF1F8; }
+.qv-ficha > div:last-child{ border-bottom:0; }
+.qv-ficha dt{ padding:9px 12px; background:#F5F7FB; font-size:.8rem; font-weight:600; color:#475070; }
+.qv-ficha dd{ margin:0; padding:9px 12px; font-size:.86rem; color:var(--text); word-break:break-word; }
+.qv-ficha > div:first-child dd{ font-family:var(--font-mono); font-size:.8rem; }
+
+/* ── Reporte de calidad (admin) ── */
+.calidad-tabla{ width:100%; border-collapse:collapse; }
+.calidad-tabla tr{ border-bottom:1px solid var(--border); }
+.calidad-tabla tr:last-child{ border-bottom:0; }
+.calidad-tabla th{ text-align:left; padding:12px 8px 12px 0; font-size:.9rem; font-weight:600; color:var(--text); }
+.calidad-tabla th small{ display:block; margin-top:2px; font-size:.75rem; font-weight:400; color:var(--text-3); }
+.calidad-tabla td{ text-align:right; padding:12px 0; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.calidad-tabla td b{ font-size:1.05rem; color:var(--orbis-deep); }
+.calidad-tabla td span{ display:inline-block; min-width:46px; margin-left:8px; font-size:.78rem; color:var(--text-3); }
+
+.qv-img-placeholder-new svg{ width:110px; height:110px; color:#C3CADF; opacity:1; }
+.qv-img-placeholder-new{ opacity:1 !important; }
+
 </style>
 </head>
 <body>
@@ -3758,7 +3782,7 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
           <span class="qv-price-number" id="qv-price-number">0.00</span>
           <span class="qv-price-unit-label">MXN</span>
         </div>
-        <div class="qv-iva-note">+ IVA · El vendedor confirma el precio final.</div>
+        <div class="qv-iva-note" id="qv-iva-note">+ IVA. El vendedor confirma el precio final.</div>
       </div>
 
       <div class="qv-sucursal-large" id="qv-sucursal-large">📍 Disponible en: Sucursal Pachuca</div>
@@ -3769,7 +3793,8 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
           <span id="qv-stock-text">En stock</span>
         </div>
       </div>
-      <p class="qv-product-desc" id="qv-product-desc-el">—</p>
+      <p class="qv-product-desc" id="qv-product-desc-el" hidden></p>
+      <dl class="qv-ficha" id="qv-ficha" aria-label="Ficha técnica"></dl>
       
       <div class="qv-actions-stack" id="qv-actions-stack">
         <button id="qv-scroll-hint" class="qv-scroll-hint" onclick="qvScrollDown()">Desliza para leer más ↓</button>
@@ -3857,6 +3882,7 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
   <div class="dock-actions">
     <button class="dock-btn primary" onclick="openProductModal(null)">+ Producto</button>
     <button class="dock-btn" onclick="showLeads()">Leads</button>
+    <button class="dock-btn" onclick="abrirCalidad()">Calidad</button>
     <button class="dock-btn" onclick="reloadData()">↺ Recargar</button>
     <button class="dock-btn danger" onclick="doAdminLogout()">Salir</button>
   </div>

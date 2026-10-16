@@ -1418,6 +1418,22 @@ window.enviarCotizacionPDF = async function() {
 let currentQvProductId = null;
 let currentQvQty = 1;
 
+/* Ficha técnica: datos reales y ordenados en lugar de un párrafo genérico */
+function _renderFicha(p) {
+  const dl = document.getElementById('qv-ficha');
+  if (!dl) return;
+  const inv = p.inventario != null ? Number(p.inventario) : null;
+  const filas = [
+    ['Código',     p.sku],
+    ['Marca',      p.marca],
+    ['Línea',      p.subcategoria],
+    ['Categoría',  p.categoria ? (CAT_TITULO[p.categoria] || p.categoria) : null],
+    ['Existencia', inv === null ? null : inv <= 0 ? 'Agotado' : `${inv.toLocaleString('es-MX')} pieza${inv === 1 ? '' : 's'}`],
+    ['Unidad',     'Pieza']
+  ].filter(([, v]) => v);
+  dl.innerHTML = filas.map(([k, v]) => `<div><dt>${k}</dt><dd>${escHTML(v)}</dd></div>`).join('');
+}
+
 function _urlProducto(id) {
   return `${location.origin}${location.pathname}?p=${encodeURIComponent(id)}`;
 }
@@ -1436,7 +1452,7 @@ window.openQV = function(productId) {
     if (ph) ph.style.display = 'none';
   } else {
     img.removeAttribute('src'); img.style.display = 'none';
-    if (ph) { ph.textContent = CAT_META[p.categoria]?.icon || '📦'; ph.style.display = 'block'; }
+    if (ph) { ph.innerHTML = ICO_CAT[p.categoria] || ICO_CAT['Ferretería']; ph.style.display = 'block'; }
   }
 
   const setEl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
@@ -1445,15 +1461,17 @@ window.openQV = function(productId) {
   setEl('qv-breadcrumb-cat', [p.categoria, p.subcategoria].filter(Boolean).join(' › ') || 'Catálogo');
   setEl('qv-product-name-el', p.nombre || '');
   setEl('qv-sku-tag', `SKU: ${p.sku || 'N/A'}`);
-  setEl('qv-product-desc-el', p.desc || 'Producto de alta calidad industrial OrbisCORP.');
+  const descEl = document.getElementById('qv-product-desc-el');
+  if (descEl) { descEl.textContent = p.desc || ''; descEl.hidden = !p.desc; }
+  _renderFicha(p);
   setEl('qv-sucursal-large', '📍 Disponible en: ' + (p.almacen && p.almacen !== 'Sucursal Principal' ? p.almacen : 'Sucursal Pachuca'));
 
   const pData   = getPrecioData(p.precio);
   const priceEl = document.getElementById('qv-price-number');
   const ivaEl   = document.getElementById('qv-iva-note');
   const ivaTxt  = (factor) => p.precio_con_iva && !pData.sinPrecio
-    ? `+ IVA · Con IVA: ${fmtPrice(p.precio_con_iva * factor)} MXN · El vendedor confirma el precio final.`
-    : '+ IVA · El vendedor confirma el precio final.';
+    ? `Más IVA: ${fmtPrice(p.precio_con_iva * factor)} MXN en total. El vendedor confirma el precio final.`
+    : 'Más IVA. El vendedor confirma el precio final.';
 
   if (!hayUsuarioLogueado()) {
     priceEl.innerHTML = `<span style="font-size:.55em; cursor:pointer;" onclick="closeQV();openLoginCliente()">🔒 Inicia sesión para ver el precio</span>`;
@@ -1462,8 +1480,8 @@ window.openQV = function(productId) {
     priceEl.innerHTML = `<span style="font-size:.55em; font-family:var(--font-mono); color:var(--text-2);">Consultar precio</span>`;
     if (ivaEl) ivaEl.textContent = 'Pídelo por WhatsApp o en tu cotización y te damos el precio.';
   } else if (pData.hasDiscount) {
-    priceEl.innerHTML = `<span style="text-decoration:line-through; font-size:1.2rem; color:var(--text-3); margin-right:8px;">${fmtPrice(pData.original)}</span><span style="color:var(--success)">${escHTML(fmtPrice(pData.final).slice(1))}</span>`;
-    if (ivaEl) ivaEl.textContent = `Tu descuento: -${pData.pct}% · ` + ivaTxt(1 - pData.pct / 100);
+    priceEl.textContent = fmtPrice(pData.final).slice(1);
+    if (ivaEl) ivaEl.textContent = `Precio de lista ${fmtPrice(pData.original)}, con tu descuento del ${pData.pct}%. ` + ivaTxt(1 - pData.pct / 100);
   } else {
     priceEl.textContent = fmtPrice(pData.final).slice(1);
     if (ivaEl) ivaEl.textContent = ivaTxt(1);
@@ -3016,6 +3034,86 @@ window.deleteProduct = async function(productId) {
   }
 };
 
+/* ══ CALIDAD DEL CATÁLOGO (admin) ══
+   Qué le falta al inventario y qué se está corrigiendo automáticamente,
+   con descarga en CSV para arreglarlo en el ERP o en subir_inventario.py. */
+function _problemasDe(p) {
+  const c = p._calidad || {};
+  const r = [];
+  if (!p.imageUrl) r.push('Sin foto');
+  if (!p.desc) r.push('Sin descripción');
+  if (!p.subcategoria) r.push('Sin línea');
+  else if (c.lineaDeducida) r.push('Línea deducida');
+  if (!p.marca) r.push('Sin marca');
+  else if (c.marcaDeducida) r.push('Marca deducida');
+  if (c.precioDescartado != null) r.push(`Precio de relleno ($${c.precioDescartado})`);
+  else if (p.precio == null) r.push('Sin precio');
+  else if (p.precio < 10) r.push('Precio muy bajo');
+  if (c.nombreCorregido) r.push('Nombre corregido');
+  return r;
+}
+
+window.abrirCalidad = function() {
+  if (!isAdmin) return;
+  const total = allProducts.length;
+  const cuenta = f => allProducts.filter(f).length;
+  const filas = [
+    ['Sin foto',                       cuenta(p => !p.imageUrl),            'Súbelas desde cada tarjeta (botón Cambiar imagen).'],
+    ['Sin descripción',                cuenta(p => !p.desc),                'Genera borradores con el script generar_descripciones.js.'],
+    ['Sin línea (no salen en filtros)', cuenta(p => !p.subcategoria),        'Agrega la subcategoría en el ERP o en subir_inventario.py.'],
+    ['Línea deducida del nombre',      cuenta(p => p._calidad?.lineaDeducida), 'Funciona, pero conviene guardarla en el inventario.'],
+    ['Sin marca',                      cuenta(p => !p.marca),               ''],
+    ['Marca deducida del nombre',      cuenta(p => p._calidad?.marcaDeducida), ''],
+    ['Sin precio o precio de relleno', cuenta(p => p.precio == null),       'Se muestran como "Precio a consultar".'],
+    ['Precio menor a $10',             cuenta(p => p.precio != null && p.precio < 10), 'Revisa que no sean errores de captura.'],
+    ['Nombre en mayúsculas corregido', cuenta(p => p._calidad?.nombreCorregido), '']
+  ];
+
+  let modal = document.getElementById('modal-calidad');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-calidad';
+    modal.className = 'modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `<div class="modal-panel wide">
+      <div class="modal-head">
+        <span class="modal-head-title">Calidad del catálogo · ${total.toLocaleString('es-MX')} productos</span>
+        <button class="modal-close" onclick="document.getElementById('modal-calidad').classList.remove('open')" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="calidad-tabla">
+          <tbody>${filas.map(([k, n, tip]) => `<tr>
+              <th>${k}${tip ? `<small>${tip}</small>` : ''}</th>
+              <td><b>${n.toLocaleString('es-MX')}</b><span>${total ? Math.round(n / total * 100) : 0}%</span></td>
+            </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div class="modal-foot">
+        <span style="font-size:.8rem;color:var(--text-3)">El CSV lista cada producto con sus pendientes.</span>
+        <button class="msave-btn" onclick="descargarCalidadCSV()">Descargar CSV</button>
+      </div>
+    </div>`;
+  modal.classList.add('open');
+};
+
+window.descargarCalidadCSV = function() {
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const filas = [['codigo', 'nombre', 'categoria', 'linea', 'marca', 'precio', 'existencia', 'pendientes']];
+  allProducts.forEach(p => {
+    const prob = _problemasDe(p);
+    if (prob.length) filas.push([p.sku || p.id, p.nombre, p.categoria, p.subcategoria, p.marca, p.precio, p.inventario, prob.join('; ')]);
+  });
+  const csv = '﻿' + filas.map(f => f.map(q).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: `calidad-catalogo-${new Date().toISOString().slice(0, 10)}.csv` });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+};
+
 window.showLeads = async function() {
   if (!isAdmin) return;
   try {
@@ -3062,7 +3160,7 @@ function _actualizarStatProductos() {
 /* ══ CACHÉ DEL CATÁLOGO ══
    La segunda visita pinta los productos al instante con lo que se guardó
    la vez anterior y, en paralelo, trae la versión fresca de Firestore. */
-const LS_CATALOGO_KEY = 'orbiscorp_catalogo_v1';
+const LS_CATALOGO_KEY = 'orbiscorp_catalogo_v2';  // v2: datos ya normalizados
 const CATALOGO_TTL_MS = 24 * 60 * 60 * 1000;
 
 function _leerCatalogoCache() {
@@ -3228,6 +3326,97 @@ function _tsMillis(v) {
 }
 
 /* Carga ambas fuentes EN PARALELO. Devuelve true si se obtuvo algo. */
+/* ══ LIMPIEZA DEL INVENTARIO ══
+   El inventario llega del ERP con huecos: nombres en MAYÚSCULAS, la marca
+   escrita dentro del nombre ("…, Truper") pero no en su campo, sin línea en
+   Ferretería y Herramientas, y precios de relleno ($1). Aquí se corrige al
+   vuelo, sin tocar Firestore. Lo deducido queda marcado para el reporte de
+   "Calidad del catálogo" del admin. */
+
+const _PALABRAS_MINUSC = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'con', 'para', 'y', 'en', 'a', 'al', 'por', 'sin', 'e', 'o', 'p/', 'c/', 'x']);
+const _SIGLAS = new Set(['EPP', 'PVC', 'LED', 'MSA', 'NOM', 'ANSI', 'TPE', 'USB', 'HSS', 'UV', 'AC', 'DC', 'LI', 'SDS', 'CE', 'RE', 'STD', 'GOP', 'GPO', 'GHO', 'GWS', 'GSR', 'GSB', 'GBM', 'GBH', 'GKS', 'GST', 'GLL', 'GDX', 'XL', 'XG', 'XXL', 'CH', 'MD', 'GD']);
+
+/* "AMOLADORA ANGULAR GWS 2200-180" → "Amoladora angular GWS 2200-180".
+   Solo actúa si el nombre viene casi todo en mayúsculas. */
+function _limpiarNombre(s) {
+  const t = String(s || '').replace(/\s+/g, ' ').trim();
+  const letras = t.replace(/[^A-Za-zÁÉÍÓÚÑÜáéíóúñü]/g, '');
+  const mayus  = letras.replace(/[^A-ZÁÉÍÓÚÑÜ]/g, '').length;
+  if (letras.length < 6 || mayus / letras.length < 0.75) return t;
+  return t.split(' ').map((w, i) => {
+    const base = w.replace(/[.,;:()"'´]/g, '');
+    if (/\d/.test(w)) return w;                                    // modelos y medidas
+    if (_SIGLAS.has(base.toUpperCase())) return w.toUpperCase();
+    const low = w.toLowerCase();
+    if (i > 0 && _PALABRAS_MINUSC.has(low)) return low;
+    if (base.length >= 2 && base.length <= 4 && !/[AEIOUÁÉÍÓÚ]/i.test(base)) return w.toUpperCase(); // siglas sin vocales
+    return i === 0 ? low.charAt(0).toUpperCase() + low.slice(1) : low;
+  }).join(' ');
+}
+
+const _MARCAS_CONOCIDAS = [
+  ['truper expert', 'Truper Expert'], ['expert', 'Truper Expert'], ['truper', 'Truper'], ['pretul', 'Pretul'],
+  ['foset', 'Foset'], ['fiero', 'Fiero'], ['hermex', 'Hermex'], ['volteck', 'Volteck'], ['klintek', 'Klintek'],
+  ['bosch', 'Bosch'], ['dremel', 'Dremel'], ['urrea', 'Urrea'], ['surtek', 'Surtek'], ['stanley', 'Stanley'],
+  ['dewalt', 'DeWalt'], ['makita', 'Makita'], ['milwaukee', 'Milwaukee'], ['3m', '3M'], ['msa', 'MSA'],
+  ['infra', 'Infra'], ['lincoln', 'Lincoln Electric'], ['austromex', 'Austromex'], ['uvex', 'Uvex'],
+  ['honeywell', 'Honeywell'], ['steelpro', 'Steel Pro'], ['steel pro', 'Steel Pro'], ['jyrsa', 'Jyrsa'], ['lack', 'Lack']
+];
+function _marcaDesdeTexto(s) {
+  const t = ` ${normTxt(s).replace(/[^a-z0-9]+/g, ' ')} `;
+  for (const [clave, nombre] of _MARCAS_CONOCIDAS) if (t.includes(` ${clave} `)) return nombre;
+  return null;
+}
+/* "Juego de dados torx, Truper" → "Juego de dados torx" (la marca ya se muestra aparte) */
+function _quitarMarcaFinal(nombre, marca) {
+  if (!marca) return nombre;
+  const limpio = nombre.replace(/,\s*((truper\s+)?expert|truper|pretul|foset|fiero|hermex|volteck|klintek|urrea|surtek)\.?\s*$/i, '');
+  return limpio.length >= 8 ? limpio : nombre;
+}
+
+const _LINEAS_POR_TEXTO = {
+  'Herramientas': [
+    ['Refacciones',               ['carbon', 'escobilla', 'inducido', 'rodamiento', 'interruptor', 'portaescobilla', 'refaccion']],
+    ['Taladros y rotomartillos',  ['taladro', 'taladradora', 'rotomartillo']],
+    ['Esmeriles y amoladoras',    ['esmeril', 'amoladora', 'miniamoladora']],
+    ['Atornilladores',            ['atornillador', 'atornilladora', 'llave de impacto']],
+    ['Pulidoras y lijadoras',     ['pulidora', 'lijadora']],
+    ['Sierras y cortadoras',      ['sierra', 'caladora', 'multicortadora', 'cortadora', 'oscilante', 'tronzadora']],
+    ['Cepillos eléctricos',       ['cepilladora']],
+    ['Medición láser',            ['laser', 'medidor']]
+  ],
+  'Ferretería': [
+    ['Brocas',                    ['broca']],
+    ['Cuchillas y cutters',       ['cuchilla', 'cutter', 'navaja']],
+    ['Puntas, dados y matracas',  ['dado', 'punta', 'matraca', 'puntas']],
+    ['Pinzas',                    ['pinza']],
+    ['Desarmadores',              ['desarmador']],
+    ['Llaves',                    ['llave']],
+    ['Martillos y percusión',     ['martillo', 'marro', 'zapapico', 'cincel', 'barreta']],
+    ['Lijas',                     ['lija']],
+    ['Medición',                  ['flexometro', 'cinta metrica', 'nivel', 'detector', 'escuadra', 'calibrador', 'vernier']],
+    ['Cintas y adhesivos',        ['cinta', 'silicon', 'pegamento', 'adhesivo', 'sellador']],
+    ['Tornillería y fijación',    ['tornillo', 'tuerca', 'rondana', 'taquete', 'ancla', 'pija', 'remache', 'clavo', 'abrazadera']],
+    ['Ropa de trabajo y lluvia',  ['gabardina', 'impermeable', 'overol', 'chamarra']],
+    ['Material eléctrico',        ['cable', 'clavija', 'extension', 'contacto', 'foco', 'lampara', 'linterna']],
+    ['Jardinería',                ['pala', 'rastrillo', 'manguera', 'carretilla', 'azadon', 'tijera para podar']],
+    ['Candados y cerrajería',     ['candado', 'cerradura']],
+    ['Organización y almacenaje', ['caja', 'organizador', 'estuche', 'maletin']]
+  ]
+};
+const _RE_LINEAS = {};
+Object.entries(_LINEAS_POR_TEXTO).forEach(([cat, reglas]) => {
+  _RE_LINEAS[cat] = reglas.map(([linea, claves]) =>
+    [linea, new RegExp(`\\b(${claves.map(k => k.replace(/ /g, '\\s+')).join('|')})(es|s)?\\b`)]);
+});
+function _lineaDesdeTexto(nombre, categoria) {
+  const reglas = _RE_LINEAS[categoria];
+  if (!reglas) return null;
+  const t = normTxt(nombre);
+  for (const [linea, re] of reglas) if (re.test(t)) return linea;
+  return null;
+}
+
 async function loadAllProducts() {
   const [rOrbis, rRivg] = await Promise.allSettled([getDocs(COL_PRODS), getDocs(COL_INVENTARIO_RIVG)]);
   const lista = [];
@@ -3262,27 +3451,35 @@ async function loadAllProducts() {
         : (data.precio != null ? Number(data.precio) : null);
       const precioConIva = data.precio_total_iva != null ? Number(data.precio_total_iva) : null;
 
+      // Limpieza: marca y línea deducidas del nombre, nombre legible, precios de relleno fuera
+      const marca  = data.marca || _marcaDesdeTexto(descripcion);
+      const linea  = data.subcategoria || _lineaDesdeTexto(descripcion, finalCategory);
+      const nombre = _quitarMarcaFinal(_limpiarNombre(descripcion), marca);
+      const precioOk = Number.isFinite(precioUnitario) && precioUnitario >= 2;   // $1 = precio de relleno
+
       lista.push({
         id: d.id,
         _origen: 'rivg',
         _ts: _tsMillis(data.updatedAt),
-        nombre: descripcion,
+        _calidad: {
+          marcaDeducida:   !data.marca && !!marca,
+          lineaDeducida:   !data.subcategoria && !!linea,
+          precioDescartado: Number.isFinite(precioUnitario) && !precioOk ? precioUnitario : null,
+          nombreCorregido: nombre !== descripcion
+        },
+        nombre,
         categoria: finalCategory,
-        subcategoria:    data.subcategoria || null,
-        marca:           data.marca || null,
+        subcategoria:    linea || null,
+        marca:           marca || null,
         categoriaOrigen: data.categoria || null,
-        subLinea: [data.subcategoria, data.marca, data.categoria].filter(Boolean).join(' '),
+        subLinea: [linea, marca, data.categoria].filter(Boolean).join(' '),
         almacen: data.almacen || 'Sucursal Principal',
-        precio:         Number.isFinite(precioUnitario) ? precioUnitario : null,  // sin IVA — base para descuentos B2B
-        precio_con_iva: Number.isFinite(precioConIva) ? precioConIva : null,
-        sin_precio:     !Number.isFinite(precioUnitario),
+        precio:         precioOk ? precioUnitario : null,  // sin IVA — base para descuentos B2B
+        precio_con_iva: precioOk && Number.isFinite(precioConIva) ? precioConIva : null,
+        sin_precio:     !precioOk,
         nota:           data.nota || null,
         inventario: Math.max(0, Math.floor(cantidad)),
-        desc: data.descripcion_web || [
-          `Código: ${codigo}`,
-          data.marca ? `Marca: ${data.marca}` : null,
-          data.subcategoria ? `Línea: ${data.subcategoria}` : null
-        ].filter(Boolean).join(' · '),
+        desc: (data.descripcion_web || '').trim(),   // descripción real; si no hay, se muestra la ficha técnica
         sku: codigo,
         imageUrl: data.imageUrl || '',
         esPortada: data.esPortada || false
