@@ -27,6 +27,11 @@ import {
   getFunctions, 
   httpsCallable 
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+import {
+  desdeInventario, enriquecer, agruparVariantes,
+  prepararConsulta, coincide, puntaje, corregirConsulta, textoBusqueda,
+  USOS, USOS_POR_ID
+} from './catalogo.js';
 
 /* ══ FIREBASE CONFIG ══ */
 const FB_CONFIG = {
@@ -58,15 +63,22 @@ const COL_CLIENTS  = collection(db, 'clientes');
 const ADMIN_UID   = '4UrZQMY4SDXiZgz91yTuiBnf4PD3';
 const WA_NUMBER   = '527712175423';
 const LS_CART_KEY = 'orbiscorp_cart_v5';
+const LS_FAV_KEY      = 'orbiscorp_favoritos_v1';
+const LS_VISTOS_KEY   = 'orbiscorp_vistos_v1';
+const LS_NOTA_KEY     = 'orbiscorp_nota_pedido_v1';
+const LS_BUSQ_KEY     = 'orbiscorp_busquedas_v1';
 
 /* ══ CATEGORÍAS ══ */
 const CATS = ['EPP','Abrasivos','Soldadura','Herramientas','Ferretería'];
+/* Las portadas ya no se enlazan a fotos de bancos de imágenes (iStock con marca
+   de agua, freepik…): se arman con las fotos reales del catálogo o con un
+   ícono propio cuando la categoría todavía no tiene fotos. */
 const CAT_META = {
-  'EPP':          { icon:'🦺', slug:'epp', coverImg: 'https://i0.wp.com/www.segusa.com.mx/wp-content/uploads/2023/07/equipo-de-proteccion-personal-1.jpg?resize=1140%2C641&ssl=1' },
-  'Abrasivos':    { icon:'🔴', slug:'abrasivos', coverImg: 'https://img.freepik.com/fotos-premium/conjunto-herramientas-abrasivas-sobre-fondo-metalico_275559-21886.jpg?w=2000' },
-  'Soldadura':    { icon:'⚡', slug:'soldadura', coverImg: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=800&auto=format&fit=crop' },
-  'Herramientas': { icon:'🔧', slug:'herramientas', coverImg: 'https://ferreterialider.com/wp-content/uploads/2022/08/Herramientas-para-la-casa-C-1.jpg' },
-  'Ferretería':   { icon:'🔩', slug:'ferreteria', coverImg: 'https://media.istockphoto.com/photos/showcase-of-tool-store-picture-id499783122?k=20&m=499783122&s=612x612&w=0&h=DXKcz9yPzTLx4KvL6S1SJQfBuCYAq6dR7ZyEq8tVK6Q=' }
+  'EPP':          { icon:'🦺', slug:'epp',          tono:'#2F3BA2' },
+  'Abrasivos':    { icon:'🔴', slug:'abrasivos',    tono:'#B4472B' },
+  'Soldadura':    { icon:'⚡', slug:'soldadura',    tono:'#C27C0E' },
+  'Herramientas': { icon:'🔧', slug:'herramientas', tono:'#1F6F5C' },
+  'Ferretería':   { icon:'🔩', slug:'ferreteria',   tono:'#4A5178' }
 };
 /* Lookup inverso: slug → nombre de categoría */
 const SLUG_TO_CAT = Object.fromEntries(
@@ -135,6 +147,13 @@ const VIEWS_CONFIG = {
   }
 };
 
+VIEWS_CONFIG.buscar = {
+  cat: '*',
+  contactTitle: '¿No encontraste lo que buscas?',
+  contactDesc: 'Muchas piezas las conseguimos sobre pedido. Escríbenos y te respondemos en menos de 24 horas.',
+  pageTitle: 'OrbisCORP — Catálogo completo'
+};
+
 const DEFAULT_CONTENT = {
   hero:    { title:'Todo el equipo que\nnecesitas, hoy.', desc:'EPP, Abrasivos, Soldadura, Herramientas y Ferretería de las mejores marcas del mercado.', statA:'500+', statB:'15+', statC:'24h' },
   contact: { heading:'¿Necesitas una cotización?', desc:'Contáctanos directamente o llena el formulario.', dir:'Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.', horario:'Lun – Vie · 08:00 – 18:00' }
@@ -152,11 +171,19 @@ let pmImgFile     = null;
 let pmImgUrl      = '';
 let _unsubProfile = null;   // unsub del listener de perfil de cliente
 let _ptrActive    = false;  // guard para pull-to-refresh
+let _grupos       = new Map(); // variantes: grupo → productos
+let favoritos     = new Set(_leerLS(LS_FAV_KEY, []));
+let vistos        = _leerLS(LS_VISTOS_KEY, []);
 window._currentCat = null;
 
 /* ══════════════════════════════════════════════
    HELPERS GENERALES
 ═══════════════════════════════════════════════ */
+
+function _leerLS(k, def) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? def; } catch (_) { return def; } }
+function _guardarLS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
+function _reagrupar() { _grupos = agruparVariantes(allProducts); }
+function _varianteDe(p) { return p?._grupo ? (_grupos.get(p._grupo) || []) : []; }
 
 function setText(selector, value) {
   const el = document.querySelector(selector);
@@ -276,13 +303,14 @@ function dismissToast(toast) {
    #epp?linea=Guantes,Calzado&marca=MSA&stock=1&orden=nombre&q=nitrilo&pag=2
 ═══════════════════════════════════════════════════════════════ */
 
-const RUTAS = ['home', 'epp', 'abrasivos', 'soldadura', 'herramientas', 'ferreteria'];
+const RUTAS = ['home', 'buscar', 'epp', 'abrasivos', 'soldadura', 'herramientas', 'ferreteria'];
 const CAT_TITULO = {
   'EPP':          'Equipo de protección personal',
   'Abrasivos':    'Abrasivos y discos',
   'Soldadura':    'Soldadura',
   'Herramientas': 'Herramientas',
-  'Ferretería':   'Ferretería industrial'
+  'Ferretería':   'Ferretería industrial',
+  '*':            'Todo el catálogo'
 };
 const ITEMS_PER_PAGE = 24;
 const ORDENES = {
@@ -293,7 +321,7 @@ const ORDENES = {
   'precio-desc': 'Mayor precio'
 };
 
-const F = { subs: new Set(), marcas: new Set(), q: '', stock: false, orden: 'relevancia' };
+const F = { subs: new Set(), marcas: new Set(), cats: new Set(), usos: new Set(), q: '', _qCorr: null, stock: false, orden: 'relevancia' };
 window._F = F;
 window._currentPage = 1;
 const _gruposAbiertos = new Set();
@@ -313,14 +341,31 @@ const ICO = {
   carrito:  _svg('<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h3l2.4 11.2a1.8 1.8 0 0 0 1.8 1.4h8.4a1.8 1.8 0 0 0 1.8-1.4L21.5 7H6.2"/>'),
   candado:  _svg('<rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'),
   whatsapp: _svg('<path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/><path d="M9.5 9.5c.3 2 1.9 3.8 4 4.4l1-1.1 1.8.7-.4 1.5c-3.4.3-7.3-3.6-7-7l1.5-.4.7 1.8z"/>'),
-  vacio:    _svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8.5 11h5"/>')
+  vacio:    _svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M8.5 11h5"/>'),
+  corazon:  _svg('<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'),
+  campana:  _svg('<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/>'),
+  rayo:     _svg('<path d="M13 2.5 5.5 13H11l-1 8.5L18.5 11H13z"/>'),
+  compartir:_svg('<circle cx="18" cy="5.5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="18.5" r="2.5"/><path d="m8.3 10.8 7.4-4M8.3 13.2l7.4 4"/>'),
+  reloj:    _svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>')
 };
+
 const ICO_CAT = {
   'EPP':          _svg('<path d="M3 17.5h18"/><path d="M4.5 17.5a7.5 7.5 0 0 1 15 0"/><path d="M10 10.2V7.5a2 2 0 0 1 4 0v2.7"/>'),
   'Abrasivos':    _svg('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/>'),
   'Soldadura':    _svg('<path d="M13 2.5 5.5 13H11l-1 8.5L18.5 11H13z"/>'),
   'Herramientas': _svg('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3.5 17.5l3 3 5.8-5.8a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>'),
   'Ferretería':   _svg('<path d="M12 2.5 20.2 7v10L12 21.5 3.8 17V7z"/><circle cx="12" cy="12" r="3.5"/>')
+};
+const ICO_USO = {
+  soldadura:    _svg('<path d="M5 19 15 9"/><path d="m14 6 4 4"/><path d="M17 3l4 4-3 3-4-4z"/><path d="M4 14l1 2M2.5 18l2-.5M7 21l-.5-2"/>'),
+  alturas:      _svg('<path d="M12 2.5v4"/><circle cx="12" cy="9" r="2.5"/><path d="M8 21l2-6h4l2 6"/><path d="M7 13c1.5-1.3 3-2 5-2s3.5.7 5 2"/>'),
+  respiratoria: _svg('<path d="M5 10c0-3 3-5 7-5s7 2 7 5v2c0 4-3 7-7 7s-7-3-7-7z"/><path d="M9 13h6M9 16h6"/>'),
+  quimicos:     _svg('<path d="M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/>'),
+  ruido:        _svg('<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>'),
+  corte:        _svg('<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8.5 15.5 19 4M15.5 15.5 5 4"/>'),
+  visibilidad:  _svg('<path d="M6 3h4l2 3 2-3h4l1 18H5z"/><path d="M5.5 12h13M5.2 16h13.6"/>'),
+  lluvia:       _svg('<path d="M3 12a9 9 0 0 1 18 0z"/><path d="M12 12v6a2 2 0 0 0 4 0"/>'),
+  electricidad: _svg('<path d="M9 3v5M15 3v5"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v4"/>')
 };
 
 /* ── Rutas ─────────────────────────────────────────────────────── */
@@ -340,12 +385,14 @@ window.navigate = function(route, filtro = null) {
 };
 
 function _normFiltro(f) {
-  const base = { subs: [], marcas: [], q: '', stock: false, orden: 'relevancia', pagina: 1 };
+  const base = { subs: [], marcas: [], cats: [], usos: [], q: '', stock: false, orden: 'relevancia', pagina: 1 };
   if (!f) return base;
   if (typeof f === 'string') return { ...base, q: f };
   return {
     subs:   f.subs   || (f.sub   ? [f.sub]   : []),
     marcas: f.marcas || (f.marca ? [f.marca] : []),
+    cats:   f.cats   || (f.cat   ? [f.cat]   : []),
+    usos:   (f.usos  || (f.uso   ? [f.uso]   : [])).filter(u => USOS_POR_ID[u]),
     q:      f.q || '',
     stock:  !!f.stock,
     orden:  ORDENES[f.orden] ? f.orden : 'relevancia',
@@ -357,7 +404,10 @@ function _cargarFiltros(f) {
   const n = _normFiltro(f);
   F.subs = new Set(n.subs);
   F.marcas = new Set(n.marcas);
+  F.cats = new Set(n.cats);
+  F.usos = new Set(n.usos);
   F.q = String(n.q).slice(0, 60);
+  F._qCorr = null;
   F.stock = n.stock;
   F.orden = n.orden;
   window._currentPage = n.pagina;
@@ -376,7 +426,7 @@ function _leerHash() {
     p[k] = v.split(',').map(x => { try { return decodeURIComponent(x); } catch (_) { return x; } }).filter(Boolean);
   });
   return { route, filtro: {
-    subs: p.linea || [], marcas: p.marca || [], q: (p.q || []).join(','),
+    subs: p.linea || [], marcas: p.marca || [], cats: p.cat || [], usos: p.uso || [], q: (p.q || []).join(','),
     stock: (p.stock || [])[0] === '1', orden: (p.orden || [])[0], pagina: (p.pag || [])[0]
   } };
 }
@@ -387,6 +437,8 @@ function _syncURL() {
   const partes = [];
   if (F.subs.size)   partes.push('linea=' + enc(F.subs));
   if (F.marcas.size) partes.push('marca=' + enc(F.marcas));
+  if (F.cats.size)   partes.push('cat=' + enc(F.cats));
+  if (F.usos.size)   partes.push('uso=' + enc(F.usos));
   if (F.q)           partes.push('q=' + encodeURIComponent(F.q));
   if (F.stock)       partes.push('stock=1');
   if (F.orden !== 'relevancia') partes.push('orden=' + F.orden);
@@ -446,24 +498,24 @@ function _renderCategoryView(route, cfg) {
   document.getElementById('cat-ct-form').style.display = '';
 
   const buscador = document.getElementById('oc-buscar-cat');
-  if (buscador) { buscador.value = F.q; buscador.placeholder = `Buscar en ${cfg.cat}`; }
+  if (buscador) { buscador.value = F.q; buscador.placeholder = cfg.cat === '*' ? 'Buscar en todo el catálogo' : `Buscar en ${cfg.cat}`; }
   _pintarVistaToggle();
   _renderCategoryProducts(cfg.cat);
 }
 
 /* ── Motor de filtrado ─────────────────────────────────────────── */
 
-function _palabrasQ() { return normTxt(F.q).split(/\s+/).filter(Boolean); }
+function _palabrasQ() { return prepararConsulta(F._qCorr || F.q); }
+const _enCat = (p, catName) => catName === '*' || p.categoria === catName;
 
 /* ¿El producto pasa los filtros? `omitir` excluye un grupo para calcular
    sus propios conteos (así "Marca" muestra cuántos hay de cada marca
    dentro de las líneas elegidas, y viceversa). */
 function _pasa(p, catName, omitir, palabras) {
-  if (p.categoria !== catName) return false;
-  if (palabras.length) {
-    const txt = _textoBusqueda(p);
-    if (!palabras.every(w => txt.includes(w))) return false;
-  }
+  if (!_enCat(p, catName)) return false;
+  if (palabras.length && !coincide(p, palabras)) return false;
+  if (omitir !== 'cat'  && F.cats.size && !F.cats.has(p.categoria)) return false;
+  if (omitir !== 'uso'  && F.usos.size && ![...F.usos].every(u => (p.usos || []).includes(u))) return false;
   if (omitir !== 'sub'   && F.subs.size   && !F.subs.has(p.subcategoria)) return false;
   if (omitir !== 'marca' && F.marcas.size && !F.marcas.has(p.marca))      return false;
   if (omitir !== 'stock' && F.stock && !(Number(p.inventario) > 0))       return false;
@@ -488,9 +540,15 @@ function _ordenar(lista) {
         return (pa - pb) * s;
       });
     }
-    default:
-      // Relevancia: primero lo que hay en existencia, luego lo que tiene foto, luego lo más nuevo
+    default: {
+      // Con búsqueda: lo que mejor coincide. Sin búsqueda: existencia, foto, lo más nuevo
+      const q = F._qCorr || F.q;
+      if (q) {
+        const t = prepararConsulta(q);
+        return lista.sort((a, b) => puntaje(b, q, t) - puntaje(a, q, t) || nombre(a, b));
+      }
       return lista.sort((a, b) => hay(b) - hay(a) || (!!b.imageUrl - !!a.imageUrl) || (b._ts || 0) - (a._ts || 0) || nombre(a, b));
+    }
   }
 }
 
@@ -506,7 +564,7 @@ function _facetas(catName, campo, omitir, seleccion) {
   const total = new Map(), actual = new Map();
   allProducts.forEach(p => {
     const v = p[campo];
-    if (!v || p.categoria !== catName) return;
+    if (!v || !_enCat(p, catName)) return;
     total.set(v, (total.get(v) || 0) + 1);
     if (_pasa(p, catName, omitir, palabras)) actual.set(v, (actual.get(v) || 0) + 1);
   });
@@ -514,6 +572,22 @@ function _facetas(catName, campo, omitir, seleccion) {
   return [...total.entries()]
     .sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0]), 'es'))
     .map(([v]) => [v, actual.get(v) || 0]);
+}
+
+/* Facetas de "necesidad": un producto puede tener varios usos */
+function _facetasUsos(catName) {
+  const palabras = _palabrasQ();
+  const total = new Map(), actual = new Map();
+  allProducts.forEach(p => {
+    if (!_enCat(p, catName)) return;
+    const pasa = _pasa(p, catName, 'uso', palabras);
+    (p.usos || []).forEach(u => {
+      total.set(u, (total.get(u) || 0) + 1);
+      if (pasa) actual.set(u, (actual.get(u) || 0) + 1);
+    });
+  });
+  F.usos.forEach(u => { if (!total.has(u)) total.set(u, 0); });
+  return [...total.entries()].sort((a, b) => b[1] - a[1]).map(([u]) => [u, actual.get(u) || 0]);
 }
 
 /* ── Render principal ──────────────────────────────────────────── */
@@ -539,7 +613,14 @@ function _reaplicarFiltros() {
   const catName = window._currentCatName;
   if (!catName || !allProducts.length) return;
   _renderOrden();
-  window._currentFilteredProducts = _aplicarFiltros(catName);
+  F._qCorr = null;
+  let lista = _aplicarFiltros(catName);
+  // Sin resultados por un error de dedo: probamos con la palabra más parecida
+  if (!lista.length && F.q) {
+    const corr = corregirConsulta(F.q, allProducts.filter(p => _enCat(p, catName)));
+    if (corr) { F._qCorr = corr; lista = _aplicarFiltros(catName); if (!lista.length) F._qCorr = null; }
+  }
+  window._currentFilteredProducts = lista;
   _renderResumen(catName);
   _renderFiltros(catName);
   _renderActivos();
@@ -559,7 +640,9 @@ function _renderNotaDescuento() {
 function _renderTabs(catName) {
   const nav = document.getElementById('oc-cat-tabs');
   if (!nav) return;
-  nav.innerHTML = CATS.map(c => {
+  const todo = `<a class="oc-tab${catName === '*' ? ' is-activa' : ''}" href="#buscar" ${catName === '*' ? 'aria-current="page"' : ''}
+               onclick="event.preventDefault();navigate('buscar')"><span>Todo</span><span class="oc-tab__n">${allProducts.length.toLocaleString('es-MX')}</span></a>`;
+  nav.innerHTML = todo + CATS.map(c => {
     const slug = CAT_META[c].slug;
     const n = allProducts.reduce((s, p) => s + (p.categoria === c ? 1 : 0), 0);
     const activa = c === catName;
@@ -575,7 +658,7 @@ function _renderTabs(catName) {
 function _renderResumen(catName) {
   let total = 0, conStock = 0;
   allProducts.forEach(p => {
-    if (p.categoria !== catName) return;
+    if (!_enCat(p, catName)) return;
     total++;
     if (Number(p.inventario) > 0) conStock++;
   });
@@ -627,12 +710,30 @@ function _grupoHTML(id, titulo, opciones, seleccion, accion, conBuscador) {
     </section>`;
 }
 
+function _grupoHTMLUsos(opciones, seleccion) {
+  if (!opciones.length) return '';
+  const items = opciones.map(([nom, n, id]) => {
+    const on = seleccion.has(nom), off = !on && n === 0;
+    return `<li><label class="oc-check${off ? ' is-off' : ''}">
+        <input type="checkbox" ${on ? 'checked' : ''} ${off ? 'disabled' : ''} onchange="toggleFiltroUso('${id}')">
+        <span class="oc-check__caja" aria-hidden="true"></span>
+        <span class="oc-check__txt">${escHTML(nom)}</span>
+        <span class="oc-check__n">${n.toLocaleString('es-MX')}</span>
+      </label></li>`;
+  }).join('');
+  return `<section class="oc-grupo"><h3 class="oc-grupo__tit">Necesidad${seleccion.size ? `<span class="oc-grupo__sel">${seleccion.size}</span>` : ''}</h3>
+      <ul class="oc-grupo__lista">${items}</ul></section>`;
+}
+
 function _renderFiltros(catName) {
   const cont = document.getElementById('oc-filtros-cuerpo');
   if (!cont) return;
 
   const subs   = _facetas(catName, 'subcategoria', 'sub',   F.subs);
   const marcas = _facetas(catName, 'marca',        'marca', F.marcas);
+  const cats   = catName === '*' ? _facetas(catName, 'categoria', 'cat', F.cats) : [];
+  const usosF  = _facetasUsos(catName).map(([u, n]) => [USOS_POR_ID[u].nombre, n, u]);
+  const selUsos = new Set([...F.usos].map(u => USOS_POR_ID[u]?.nombre));
   const palabras = _palabrasQ();
   const conStock = allProducts.reduce((s, p) => s + (_pasa(p, catName, 'stock', palabras) && Number(p.inventario) > 0 ? 1 : 0), 0);
 
@@ -646,6 +747,8 @@ function _renderFiltros(catName) {
          <span class="oc-check__n">${conStock.toLocaleString('es-MX')}</span>
        </label>
      </section>` +
+    (cats.length ? _grupoHTML('cat', 'Categoría', cats, F.cats, 'toggleFiltroCat', false) : '') +
+    _grupoHTMLUsos(usosF, selUsos) +
     _grupoHTML('linea', 'Línea', subs, F.subs, 'toggleFiltroSub', false) +
     _grupoHTML('marca', 'Marca', marcas, F.marcas, 'toggleFiltroMarca', true);
 
@@ -653,7 +756,7 @@ function _renderFiltros(catName) {
   const verBtn = document.getElementById('oc-ver-n');
   if (verBtn) verBtn.textContent = n ? `Ver ${n.toLocaleString('es-MX')} producto${n === 1 ? '' : 's'}` : 'Sin resultados';
 
-  const activos = F.subs.size + F.marcas.size + (F.stock ? 1 : 0);
+  const activos = F.subs.size + F.marcas.size + F.cats.size + F.usos.size + (F.stock ? 1 : 0);
   const badge = document.getElementById('oc-filtros-n');
   if (badge) { badge.textContent = activos; badge.hidden = !activos; }
 }
@@ -664,8 +767,10 @@ function _renderActivos() {
   const pills = [];
   F.subs.forEach(v => pills.push(['sub', v, v]));
   F.marcas.forEach(v => pills.push(['marca', v, v]));
+  F.cats.forEach(v => pills.push(['cat', v, v]));
+  F.usos.forEach(v => pills.push(['uso', v, USOS_POR_ID[v]?.nombre || v]));
   if (F.stock) pills.push(['stock', '', 'Con existencia']);
-  if (F.q) pills.push(['q', '', `“${F.q}”`]);
+  if (F.q) pills.push(['q', '', F._qCorr ? `“${F._qCorr}” (buscaste “${F.q}”)` : `“${F.q}”`]);
   cont.innerHTML = pills.length
     ? pills.map(([t, v, label]) =>
         `<button type="button" class="oc-pill" onclick="quitarFiltro('${t}','${escJS(v)}')" aria-label="Quitar filtro ${escHTML(label)}">${escHTML(label)}${ICO.cerrar}</button>`
@@ -690,7 +795,7 @@ function _renderCurrentPage() {
     grid.className = 'oc-grid';
     grid.innerHTML = `<div class="oc-vacio">
         ${ICO.vacio}
-        <h3>Ningún producto coincide</h3>
+        <h3>${F.q ? `Nada coincide con “${escHTML(F.q)}”` : 'Ningún producto coincide'}</h3>
         <p>Quita algún filtro o prueba con otra palabra. Si no lo encuentras, pregúntanos: muchas piezas las conseguimos sobre pedido.</p>
         <div class="oc-vacio__acciones">
           <button type="button" class="oc-btn" onclick="limpiarFiltros()">Quitar filtros</button>
@@ -759,6 +864,8 @@ function _filtrosCambiaron() { window._currentPage = 1; _reaplicarFiltros(); }
 
 window.toggleFiltroSub   = v => { _alternar(F.subs, v);   _filtrosCambiaron(); };
 window.toggleFiltroMarca = v => { _alternar(F.marcas, v); _filtrosCambiaron(); };
+window.toggleFiltroCat   = v => { _alternar(F.cats, v);   _filtrosCambiaron(); };
+window.toggleFiltroUso   = v => { _alternar(F.usos, v);   _filtrosCambiaron(); };
 window.setSoloStock      = on => { F.stock = !!on; _filtrosCambiaron(); };
 window.setOrden          = v => { F.orden = ORDENES[v] ? v : 'relevancia'; _filtrosCambiaron(); };
 
@@ -776,13 +883,15 @@ window.setFiltroQ = v => {
 window.quitarFiltro = function(tipo, v) {
   if (tipo === 'sub') F.subs.delete(v);
   else if (tipo === 'marca') F.marcas.delete(v);
+  else if (tipo === 'cat') F.cats.delete(v);
+  else if (tipo === 'uso') F.usos.delete(v);
   else if (tipo === 'stock') F.stock = false;
   else if (tipo === 'q') return window.setFiltroQ('');
   _filtrosCambiaron();
 };
 
 window.limpiarFiltros = function() {
-  F.subs.clear(); F.marcas.clear(); F.stock = false; F.q = ''; _buscaMarca = '';
+  F.subs.clear(); F.marcas.clear(); F.cats.clear(); F.usos.clear(); F.stock = false; F.q = ''; F._qCorr = null; _buscaMarca = '';
   const b = document.getElementById('oc-buscar-cat'); if (b) b.value = '';
   _filtrosCambiaron();
 };
@@ -828,7 +937,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarFiltro
 /* WhatsApp desde la categoría */
 window.pedirPorWhatsApp = function() {
   const cat = window._currentCatName || '';
-  let msg = `Hola OrbisCORP, busco un producto de ${cat} que no encontré en la tienda`;
+  let msg = `Hola OrbisCORP, busco un producto${cat && cat !== '*' ? ` de ${cat}` : ''} que no encontré en la tienda`;
   if (F.q) msg += `: "${F.q}"`;
   msg += '. ¿Lo tienen o lo pueden conseguir?';
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
@@ -868,7 +977,7 @@ function _accionesCardHTML(p) {
   const inv  = p.inventario != null ? Number(p.inventario) : null;
   const item = cart.find(c => c.id === p.id);
   if (inv !== null && inv <= 0) {
-    return `<button type="button" class="oc-add oc-add--sec" onclick="consultarProducto('${id}')">${ICO.whatsapp}<span>Preguntar disponibilidad</span></button>`;
+    return `<button type="button" class="oc-add oc-add--sec" onclick="abrirAvisame('${id}')">${ICO.campana}<span>Avísame cuando llegue</span></button>`;
   }
   if (item) {
     const tope = inv !== null && item.qty >= inv;
@@ -891,9 +1000,12 @@ function _renderProductCard(p, catName, meta) {
     ? _imgTag(p.imageUrl, p.nombre || '')
     : `<span class="oc-card__sinfoto">${ICO_CAT[p.categoria] || ICO_CAT['Ferretería']}</span>`;
 
-  return `<article class="oc-card${agotado ? ' is-agotado' : ''}" id="pcard-${idH}">
+  const vars = _varianteDe(p);
+  const esFav = favoritos.has(p.id);
+  return `<article class="oc-card${agotado ? ' is-agotado' : ''}">
     <div class="oc-card__mediawrap">
       <a class="oc-card__media" href="${href}" onclick="event.preventDefault();openQV('${id}')" tabindex="-1" aria-hidden="true">${media}</a>
+      <button type="button" class="oc-fav" data-fav="${idH}" aria-pressed="${esFav}" onclick="event.stopPropagation();toggleFav('${id}')" aria-label="${esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'}">${ICO.corazon}</button>
       <div class="admin-img-trigger" onclick="event.stopPropagation();triggerProdImgUp('${id}')">
         <div class="admin-img-trigger-label">Cambiar imagen</div>
         <input type="file" class="admin-img-input" accept="image/*" id="pimg-${idH}" onclick="event.stopPropagation()" onchange="handleProdImgUp(this,'${id}')">
@@ -906,11 +1018,12 @@ function _renderProductCard(p, catName, meta) {
           ${p.sku ? `<span class="oc-card__sku" title="Código">${escHTML(p.sku)}</span>` : ''}
         </div>
         <h3 class="oc-card__nombre"><a href="${href}" onclick="event.preventDefault();openQV('${id}')">${escHTML(p.nombre)}</a></h3>
+        ${vars.length > 1 ? `<button type="button" class="oc-card__var" onclick="openQV('${id}')">Disponible en ${vars.length} ${p._tipoVariante || 'opciones'}</button>` : ''}
         ${_stockHTML(p)}
       </div>
       <div class="oc-card__pie">
         ${_precioCardHTML(p)}
-        <div class="oc-card__accion" id="acc-${idH}">${_accionesCardHTML(p)}</div>
+        <div class="oc-card__accion" data-acc="${idH}">${_accionesCardHTML(p)}</div>
       </div>
       <div class="prod-card-admin-bar">
         <button class="padmin-btn" onclick="openProductModal('${id}')">✎ Editar</button>
@@ -939,29 +1052,36 @@ function renderSkeletons() {
     </div>`).join('');
 }
 
+/* Portada de categoría: collage con fotos reales del catálogo; si no hay
+   fotos todavía, un ícono propio sobre el color de la categoría. */
+function _portadaCategoria(catName) {
+  const meta = CAT_META[catName];
+  const fotos = allProducts.filter(p => p.categoria === catName && p.imageUrl)
+    .sort((a, b) => (b.esPortada - a.esPortada) || ((Number(b.inventario) > 0) - (Number(a.inventario) > 0)))
+    .slice(0, 4);
+  if (fotos.length >= 1) {
+    const cls = fotos.length >= 4 ? 'is-4' : fotos.length >= 2 ? 'is-2' : 'is-1';
+    return `<div class="sc-collage ${cls}">${fotos.slice(0, fotos.length >= 4 ? 4 : fotos.length >= 2 ? 2 : 1).map(p => _imgTag(p.imageUrl, p.nombre)).join('')}</div>`;
+  }
+  const lineas = [...new Set(allProducts.filter(p => p.categoria === catName && p.subcategoria).map(p => p.subcategoria))].slice(0, 4);
+  return `<div class="sc-portada" style="--tono:${meta.tono}">
+      <span class="sc-portada__ico">${ICO_CAT[catName]}</span>
+      ${lineas.length ? `<ul class="sc-portada__lineas">${lineas.map(l => `<li>${escHTML(l)}</li>`).join('')}</ul>` : ''}
+    </div>`;
+}
+
 function renderShowroom() {
   const g = document.getElementById('showroom-grid');
   if (!g) return;
   g.innerHTML = CATS.map(catName => {
     const meta = CAT_META[catName];
-    
-    // Contamos cuántos productos hay en total en esta categoría
     const totalCatProds = allProducts.filter(p => p.categoria === catName).length;
-
-    // Si la categoría no tiene absolutamente nada, mostramos la tarjeta vacía
     if (totalCatProds === 0) return _renderEmptyShowcaseCard(catName, meta);
-
-    // NUEVO: Usamos SIEMPRE la imagen representativa premium de Unsplash
-    // ignorando las fotos individuales de los productos para mantener el diseño uniforme.
-    const galleryHTML = `
-      <div class="sc-gallery-item">
-        <img src="${meta.coverImg}" alt="${catName}" loading="lazy" style="object-fit: cover !important; padding: 0 !important; width: 100%; height: 100%;">
-      </div>`;
+    const conStock = allProducts.filter(p => p.categoria === catName && Number(p.inventario) > 0).length;
 
     return `<div class="showcase-card" onclick="navigate('${meta.slug}')" role="article" tabindex="0"
                  aria-label="Ver categoría ${catName}"
                  onkeydown="if(event.key==='Enter')navigate('${meta.slug}')">
-                 
       <div class="sc-cat-header">
         <div class="sc-cat-left">
           <span class="sc-cat-icon" aria-hidden="true">${meta.icon}</span>
@@ -969,27 +1089,101 @@ function renderShowroom() {
         </div>
         <span class="sc-cat-arrow" aria-hidden="true">→</span>
       </div>
-
       <div class="sc-img-wrap is-gallery">
-        <div class="sc-gallery">
-          ${galleryHTML}
-        </div>
+        ${_portadaCategoria(catName)}
         <div class="sc-img-overlay" aria-hidden="true" style="pointer-events: none;">
-          <span class="sc-img-badge">Explorar Catálogo →</span>
+          <span class="sc-img-badge">Explorar catálogo →</span>
         </div>
       </div>
-
       <div class="sc-body" style="text-align: center; padding: 24px 20px;">
-        <div class="sc-name" style="font-size: 1.25rem; margin-bottom: 6px;">Línea de ${catName}</div>
-        <div class="sc-desc" style="margin-bottom: 0;">${totalCatProds.toLocaleString('es-MX')} productos disponibles. Haz clic para explorar.</div>
+        <div class="sc-name" style="font-size: 1.25rem; margin-bottom: 6px;">${CAT_TITULO[catName] || catName}</div>
+        <div class="sc-desc" style="margin-bottom: 0;">${totalCatProds.toLocaleString('es-MX')} productos · ${conStock.toLocaleString('es-MX')} con existencia</div>
       </div>
-
       <div class="sc-admin-bar" aria-hidden="true">
         <button class="padmin-btn" onclick="event.stopPropagation();navigate('${meta.slug}')">◈ Gestionar Catálogo</button>
       </div>
     </div>`;
   }).join('');
 }
+
+/* ══════════════════════════════════════════════
+   HOME: necesidades, destacados y vistos recientemente
+═══════════════════════════════════════════════ */
+
+function _miniCardHTML(p) {
+  const id = escJS(p.id);
+  const pd = getPrecioData(p.precio);
+  const precio = !hayUsuarioLogueado() ? '<span class="mini__lock">Precio con sesión</span>'
+    : pd.sinPrecio ? '<span class="mini__lock">Precio a consultar</span>' : `<strong>${fmtPrice(pd.final)}</strong>`;
+  const media = p.imageUrl ? _imgTag(p.imageUrl, p.nombre) : `<span class="mini__sinfoto">${ICO_CAT[p.categoria] || ICO_CAT['Ferretería']}</span>`;
+  return `<button type="button" class="mini" onclick="openQV('${id}')">
+      <span class="mini__media">${media}</span>
+      <span class="mini__marca">${escHTML(p.marca || p.subcategoria || p.categoria || '')}</span>
+      <span class="mini__nombre">${escHTML(p.nombre)}</span>
+      <span class="mini__pie">${precio}${Number(p.inventario) > 0 ? '' : '<em>Agotado</em>'}</span>
+    </button>`;
+}
+
+function _destacados() {
+  // Primero lo que el admin marcó, luego lo que tiene foto, luego lo de más valor en existencia
+  const pts = p => (p.destacado || p.esPortada ? 1e7 : 0) + (p.imageUrl ? 1e6 : 0) - (p._calidad?.sinNombre ? 5e5 : 0)
+    + (Number(p.precio) || 0) * Math.min(Number(p.inventario) || 0, 20);
+  const porCat = {};
+  allProducts.filter(p => Number(p.inventario) > 0)
+    .sort((a, b) => pts(b) - pts(a) || (Number(b.inventario) - Number(a.inventario)))
+    .forEach(p => { (porCat[p.categoria] ||= []).push(p); });
+  // Alternamos categorías para que no salgan 12 guantes seguidos
+  const out = [], vistosGrupo = new Set();
+  for (let r = 0; out.length < 12 && r < 30; r++) {
+    CATS.forEach(c => {
+      const lista = porCat[c] || [];
+      while (lista.length) {
+        const p = lista.shift();
+        const g = p._grupo || p.id;
+        if (vistosGrupo.has(g)) continue;
+        vistosGrupo.add(g); out.push(p); break;
+      }
+    });
+  }
+  return out.slice(0, 12);
+}
+
+function renderHome() {
+  const nec = document.getElementById('home-necesidades-grid');
+  if (nec && allProducts.length) {
+    const cuenta = u => allProducts.reduce((s, p) => s + ((p.usos || []).includes(u) ? 1 : 0), 0);
+    nec.innerHTML = USOS.map(u => [u, cuenta(u.id)]).filter(([, n]) => n > 0).map(([u, n]) =>
+      `<button type="button" class="nec" onclick="navigate('buscar', { uso: '${u.id}' })">
+         <span class="nec__ico">${ICO_USO[u.id] || ''}</span>
+         <span class="nec__txt"><strong>${u.nombre}</strong><small>${u.sub}</small></span>
+         <span class="nec__n">${n}</span>
+       </button>`).join('');
+  }
+  const dest = document.getElementById('home-destacados-fila');
+  if (dest && allProducts.length) dest.innerHTML = _destacados().map(_miniCardHTML).join('');
+
+  const rec = document.getElementById('home-recientes');
+  const recFila = document.getElementById('home-recientes-fila');
+  if (rec && recFila) {
+    const lista = vistos.map(id => allProducts.find(p => p.id === id)).filter(Boolean).slice(0, 12);
+    rec.hidden = !lista.length;
+    recFila.innerHTML = lista.map(_miniCardHTML).join('');
+  }
+}
+
+window.borrarVistos = function() {
+  vistos = []; _guardarLS(LS_VISTOS_KEY, vistos); renderHome();
+};
+function _registrarVisto(id) {
+  vistos = [id, ...vistos.filter(x => x !== id)].slice(0, 20);
+  _guardarLS(LS_VISTOS_KEY, vistos);
+}
+
+/* Desplazar carruseles con flechas (escritorio) */
+window.moverFila = function(id, dir) {
+  const el = document.getElementById(id);
+  if (el) el.scrollBy({ left: dir * el.clientWidth * 0.85, behavior: 'smooth' });
+};
 
 function _renderEmptyShowcaseCard(catName, meta) {
   return `<div class="showcase-card" onclick="navigate('${meta.slug}')" role="article" tabindex="0" aria-label="${catName} — Sin productos aún">
@@ -1193,7 +1387,7 @@ function updateCartUI() {
         <div class="cart-item-price">${precio}</div>
         <div class="cart-item-qty" role="group" aria-label="Cantidad de ${nombre}">
           <button class="qty-btn" onclick="changeQty('${id}',-1)" aria-label="Reducir cantidad">−</button>
-          <span class="qty-val" aria-live="polite">${item.qty}</span>
+          <input class="qty-val" type="number" inputmode="numeric" min="1" ${inv !== null && inv > 0 ? `max="${inv}"` : ''} value="${item.qty}" onchange="setQty('${id}', this.value)" aria-label="Cantidad de ${nombre}">
           <button class="qty-btn" onclick="changeQty('${id}',1)" ${atLimit ? 'disabled aria-disabled="true"' : ''} aria-label="Aumentar cantidad">+</button>
         </div>
       </div>
@@ -1204,12 +1398,17 @@ function updateCartUI() {
   if (foot) {
     foot.style.display = 'block';
     const totalEl = document.getElementById('cart-total');
+    const ivaEl = document.getElementById('cart-total-iva');
     if (hayUsuarioLogueado()) {
       totalEl.textContent = `${fmtPrice(total)} MXN`;
       totalEl.title = pendientes ? `${pendientes} producto(s) con precio por confirmar` : '';
+      if (ivaEl) ivaEl.textContent = total ? `${fmtPrice(total * 1.16)} MXN con IVA · ${count} pieza${count === 1 ? '' : 's'}` : '';
     } else {
       totalEl.textContent = '🔒 Inicia sesión';
+      if (ivaEl) ivaEl.textContent = `${count} pieza${count === 1 ? '' : 's'} en tu carrito`;
     }
+    const notaEl = document.getElementById('cart-nota');
+    if (notaEl && document.activeElement !== notaEl) notaEl.value = _notaPedido();
     const nota = document.getElementById('cart-pendientes');
     if (nota) {
       nota.textContent = pendientes && hayUsuarioLogueado()
@@ -1220,6 +1419,34 @@ function updateCartUI() {
     updateSyncChip(currentCustomer ? (_cartSyncTimer ? 'syncing' : 'synced') : 'local');
   }
 }
+
+window.setQty = function(productId, valor) {
+  const item = cart.find(c => c.id === productId);
+  if (!item) return;
+  let n = Math.floor(Number(valor));
+  if (!Number.isFinite(n) || n < 0) n = item.qty;
+  if (n === 0) { window.removeFromCart(productId); return; }
+  const inv = item.inventario != null ? Number(item.inventario) : null;
+  if (inv !== null && inv > 0 && n > inv) { n = inv; showToast(`Solo hay ${inv} en existencia`, '⚠️'); }
+  item.qty = n;
+  persistCart();
+  updateCartUI();
+  _refreshProductCardBtn(productId);
+};
+
+function _notaPedido() { return String(_leerLS(LS_NOTA_KEY, '') || ''); }
+window.guardarNotaPedido = v => _guardarLS(LS_NOTA_KEY, String(v || '').slice(0, 500));
+
+window.compartirCarrito = async function() {
+  if (!cart.length) return;
+  const lista = cart.map(i => `${i.sku || i.id}*${i.qty}`).join(';');
+  const url = `${location.origin}${location.pathname}?carrito=${encodeURIComponent(lista)}`;
+  try {
+    if (navigator.share) { await navigator.share({ title: 'Lista de productos OrbisCORP', text: 'Esta es la lista que necesitamos:', url }); return; }
+    await navigator.clipboard.writeText(url);
+    showToast('Enlace copiado: compártelo por WhatsApp o correo', '🔗');
+  } catch (_) { /* el usuario canceló */ }
+};
 
 window.addToCart = function(productId) {
   const p = allProducts.find(x => x.id === productId);
@@ -1263,9 +1490,9 @@ window.changeQty = function(productId, delta) {
 };
 
 function _refreshProductCardBtn(productId) {
-  const cont = document.getElementById(`acc-${productId}`);
-  const p    = allProducts.find(x => x.id === productId);
-  if (cont && p) cont.innerHTML = _accionesCardHTML(p);
+  const p = allProducts.find(x => x.id === productId);
+  if (!p) return;
+  document.querySelectorAll(`[data-acc="${CSS.escape(productId)}"]`).forEach(el => { el.innerHTML = _accionesCardHTML(p); });
 }
 
 window.openCart  = () => {
@@ -1319,6 +1546,8 @@ window.checkoutWhatsApp = function() {
     msg += `\n*Total estimado: ${fmtPrice(total)} MXN + IVA*\n`;
     if (pendientes) msg += `_(${pendientes} producto(s) con precio por confirmar)_\n`;
   }
+  const notaPedido = _notaPedido().trim();
+  if (notaPedido) msg += `\n*Notas del pedido:* ${notaPedido}\n`;
   msg += '\n¿Pueden confirmar disponibilidad y precio final? Gracias.';
 
   window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
@@ -1423,15 +1652,72 @@ function _renderFicha(p) {
   const dl = document.getElementById('qv-ficha');
   if (!dl) return;
   const inv = p.inventario != null ? Number(p.inventario) : null;
+  const sp = p.specs || {};
+  const usos = (p.usos || []).map(u => USOS_POR_ID[u]?.nombre).filter(Boolean).join(', ');
   const filas = [
-    ['Código',     p.sku],
-    ['Marca',      p.marca],
-    ['Línea',      p.subcategoria],
-    ['Categoría',  p.categoria ? (CAT_TITULO[p.categoria] || p.categoria) : null],
-    ['Existencia', inv === null ? null : inv <= 0 ? 'Agotado' : `${inv.toLocaleString('es-MX')} pieza${inv === 1 ? '' : 's'}`],
-    ['Unidad',     'Pieza']
+    ['Código',        p.sku],
+    ['Marca',         p.marca],
+    ['Línea',         p.subcategoria],
+    ['Categoría',     p.categoria ? (CAT_TITULO[p.categoria] || p.categoria) : null],
+    ['Talla',         sp.talla],
+    ['Color',         sp.color],
+    ['Medidas',       sp.medidas],
+    ['Contenido',     sp.contenido],
+    ['Reducción de ruido', sp.reduccion],
+    ['Modelo',        sp.modelo],
+    ['Ideal para',    usos],
+    ['Existencia',    inv === null ? null : inv <= 0 ? 'Agotado' : `${inv.toLocaleString('es-MX')} ${p.unidad === 'Par' ? (inv === 1 ? 'par' : 'pares') : (inv === 1 ? 'pieza' : 'piezas')}`],
+    ['Se vende por',  p.unidad || 'Pieza']
   ].filter(([, v]) => v);
   dl.innerHTML = filas.map(([k, v]) => `<div><dt>${k}</dt><dd>${escHTML(v)}</dd></div>`).join('');
+}
+
+/* Selector de talla / color: cada opción es un producto con su propio código y stock */
+function _renderVariantesQV(p) {
+  const cont = document.getElementById('qv-variantes');
+  if (!cont) return;
+  const vars = _varianteDe(p);
+  if (vars.length < 2) { cont.innerHTML = ''; cont.hidden = true; return; }
+  const titulo = p._tipoVariante === 'tallas' ? 'Talla' : p._tipoVariante === 'colores' ? 'Color' : 'Opciones';
+  cont.hidden = false;
+  cont.innerHTML = `<div class="qv-var__tit">${titulo}: <strong>${escHTML(p._variante || '')}</strong></div>
+    <div class="qv-var__ops" role="radiogroup" aria-label="${titulo}">
+      ${vars.map(v => {
+        const sinStock = v.inventario != null && Number(v.inventario) <= 0;
+        const actual = v.id === p.id;
+        return `<button type="button" role="radio" aria-checked="${actual}" class="qv-var__op${actual ? ' is-actual' : ''}${sinStock ? ' is-agotado' : ''}"
+                  onclick="openQV('${escJS(v.id)}')" title="${sinStock ? 'Agotado' : escHTML(`${v.inventario ?? ''} en existencia`)}">${escHTML(v._variante || v.sku)}</button>`;
+      }).join('')}
+    </div>`;
+}
+
+/* "También te puede interesar": misma línea, otro modelo, con existencia primero */
+function _renderRelacionadosQV(p) {
+  const cont = document.getElementById('qv-relacionados');
+  if (!cont) return;
+  const mismoGrupo = new Set(_varianteDe(p).map(v => v.id));
+  const vistosG = new Set();
+  const cand = allProducts.filter(x => x.id !== p.id && !mismoGrupo.has(x.id) && x.categoria === p.categoria &&
+      (x.subcategoria && x.subcategoria === p.subcategoria || (p.usos || []).some(u => (x.usos || []).includes(u))))
+    .sort((a, b) => ((Number(b.inventario) > 0) - (Number(a.inventario) > 0)) || (!!b.imageUrl - !!a.imageUrl) ||
+                    ((b.subcategoria === p.subcategoria) - (a.subcategoria === p.subcategoria)))
+    .filter(x => { const g = x._grupo || x.id; if (vistosG.has(g)) return false; vistosG.add(g); return true; })
+    .slice(0, 8);
+  cont.hidden = !cand.length;
+  cont.innerHTML = cand.length ? `<h3 class="qv-rel__tit">También te puede interesar</h3>
+    <div class="qv-rel__fila">${cand.map(_miniCardHTML).join('')}</div>` : '';
+}
+
+/* Datos estructurados del producto para Google */
+function _jsonLdProducto(p) {
+  let el = document.getElementById('ld-producto');
+  if (!p) { el?.remove(); return; }
+  if (!el) { el = document.createElement('script'); el.type = 'application/ld+json'; el.id = 'ld-producto'; document.head.appendChild(el); }
+  const ld = { '@context': 'https://schema.org', '@type': 'Product', name: p.nombre, sku: p.sku, description: p.desc,
+    category: [p.categoria, p.subcategoria].filter(Boolean).join(' > '), url: _urlProducto(p.id) };
+  if (p.marca) ld.brand = { '@type': 'Brand', name: p.marca };
+  if (p.imageUrl) ld.image = p.imageUrl;
+  el.textContent = JSON.stringify(ld);
 }
 
 function _urlProducto(id) {
@@ -1464,6 +1750,19 @@ window.openQV = function(productId) {
   const descEl = document.getElementById('qv-product-desc-el');
   if (descEl) { descEl.textContent = p.desc || ''; descEl.hidden = !p.desc; }
   _renderFicha(p);
+  _renderVariantesQV(p);
+  _renderRelacionadosQV(p);
+  _registrarVisto(p.id);
+  _jsonLdProducto(p);
+  if (!window._tituloAntesQV) window._tituloAntesQV = document.title;
+  document.title = `${p.nombre} — OrbisCORP`;
+
+  const favBtn = document.getElementById('qv-fav-btn');
+  if (favBtn) {
+    favBtn.dataset.fav = p.id;
+    favBtn.setAttribute('aria-pressed', String(favoritos.has(p.id)));
+    favBtn.onclick = () => toggleFav(p.id);
+  }
   setEl('qv-sucursal-large', '📍 Disponible en: ' + (p.almacen && p.almacen !== 'Sucursal Principal' ? p.almacen : 'Sucursal Pachuca'));
 
   const pData   = getPrecioData(p.precio);
@@ -1536,6 +1835,11 @@ window.openQV = function(productId) {
   }
 
   if (atcBtn) atcBtn.onclick = () => _addQvToCart(p, inv);
+  if (atcBtn && inv !== null && inv <= 0) {
+    atcBtn.disabled = false;
+    atcBtn.textContent = '🔔 Avísame cuando llegue';
+    atcBtn.onclick = () => abrirAvisame(p.id);
+  }
 
   // La barra de direcciones apunta al producto: se puede copiar y compartir
   try { history.replaceState(history.state, '', `${location.pathname}?p=${encodeURIComponent(p.id)}${location.hash}`); } catch (_) {}
@@ -1572,6 +1876,9 @@ window.closeQV = () => {
   const modal = document.getElementById('quick-view-modal');
   if (!modal?.classList.contains('open')) return;
   modal.classList.remove('open');
+  if (window._tituloAntesQV) { document.title = window._tituloAntesQV; window._tituloAntesQV = null; }
+  _jsonLdProducto(null);
+  if (!window._currentCat) renderHome();   // refresca "vistos recientemente"
   document.body.style.overflow = '';
   if (location.search.includes('p=')) {
     try { history.replaceState(history.state, '', `${location.pathname}${location.hash}`); } catch (_) {}
@@ -1631,11 +1938,227 @@ function _addQvToCart(p, inv) {
 }
 
 /* ══════════════════════════════════════════════
+   MODALES GENERADOS (favoritos, pedido rápido, avísame)
+═══════════════════════════════════════════════ */
+
+function _modal(id, titulo, cuerpo, pie = '', ancho = 'wide') {
+  let m = document.getElementById(id);
+  if (!m) {
+    m = document.createElement('div');
+    m.id = id; m.className = 'modal';
+    m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    document.body.appendChild(m);
+  }
+  m.innerHTML = `<div class="modal-panel ${ancho}">
+      <div class="modal-head"><span class="modal-head-title">${titulo}</span>
+        <button class="modal-close" onclick="document.getElementById('${id}').classList.remove('open')" aria-label="Cerrar">✕</button></div>
+      <div class="modal-body">${cuerpo}</div>
+      ${pie ? `<div class="modal-foot">${pie}</div>` : ''}
+    </div>`;
+  m.classList.add('open');
+  return m;
+}
+const _cerrarModal = id => document.getElementById(id)?.classList.remove('open');
+
+/* ── Favoritos (se guardan en este dispositivo) ── */
+function _pintarFavBadge() {
+  const n = favoritos.size;
+  ['fav-badge', 'mbn-fav-badge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = n > 99 ? '99+' : n;
+    el.style.display = n ? 'flex' : 'none';
+  });
+}
+window.toggleFav = function(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (favoritos.has(id)) { favoritos.delete(id); showToast('Quitado de favoritos', '♡'); }
+  else { favoritos.add(id); showToast(`"${p?.nombre || 'Producto'}" en favoritos`, '♥'); }
+  _guardarLS(LS_FAV_KEY, [...favoritos]);
+  _pintarFavBadge();
+  document.querySelectorAll(`[data-fav="${CSS.escape(id)}"]`).forEach(b => {
+    b.setAttribute('aria-pressed', String(favoritos.has(id)));
+    if (b.classList.contains('oc-fav')) b.setAttribute('aria-label', favoritos.has(id) ? 'Quitar de favoritos' : 'Guardar en favoritos');
+  });
+  if (document.getElementById('modal-favoritos')?.classList.contains('open')) abrirFavoritos();
+};
+window.abrirFavoritos = function() {
+  closeCatalogPopup?.(); closeDrawer?.();
+  const lista = [...favoritos].map(id => allProducts.find(p => p.id === id)).filter(Boolean);
+  const cuerpo = lista.length ? `<ul class="fav-lista">${lista.map(p => {
+      const id = escJS(p.id);
+      const pd = getPrecioData(p.precio);
+      const agotado = p.inventario != null && Number(p.inventario) <= 0;
+      const precio = !hayUsuarioLogueado() ? 'Inicia sesión para ver precio' : pd.sinPrecio ? 'Precio a consultar' : `${fmtPrice(pd.final)} + IVA`;
+      return `<li class="fav-item">
+        <button type="button" class="fav-item__media" onclick="_cerrarFavYVer('${id}')">${p.imageUrl ? _imgTag(p.imageUrl, p.nombre) : (ICO_CAT[p.categoria] || '')}</button>
+        <div class="fav-item__info">
+          <button type="button" class="fav-item__nombre" onclick="_cerrarFavYVer('${id}')">${escHTML(p.nombre)}</button>
+          <span class="fav-item__meta">${escHTML(p.sku || '')} · ${precio}</span>
+          ${agotado ? '<span class="oc-stock is-agotado">Agotado</span>' : _stockHTML(p)}
+        </div>
+        <div class="fav-item__acc">
+          ${agotado ? `<button type="button" class="oc-btn oc-btn--sec" onclick="abrirAvisame('${id}')">Avísame</button>`
+                    : `<button type="button" class="oc-btn" onclick="addToCart('${id}')">Agregar</button>`}
+          <button type="button" class="fav-item__quitar" onclick="toggleFav('${id}')" aria-label="Quitar ${escHTML(p.nombre)} de favoritos">✕</button>
+        </div>
+      </li>`;
+    }).join('')}</ul>`
+    : `<div class="vacio-suave">${ICO.corazon}<p>Aún no tienes favoritos. Toca el corazón en cualquier producto para guardarlo aquí y pedirlo después.</p></div>`;
+  const pie = lista.length ? `<button class="mcancel-btn" onclick="compartirFavoritos()">Compartir lista</button>
+      <button class="msave-btn" onclick="favoritosAlCarrito()">Agregar todos al carrito</button>` : '';
+  _modal('modal-favoritos', `♥ Mis favoritos (${lista.length})`, cuerpo, pie);
+};
+window._cerrarFavYVer = id => { _cerrarModal('modal-favoritos'); openQV(id); };
+window.favoritosAlCarrito = function() {
+  let n = 0;
+  [...favoritos].forEach(id => {
+    const p = allProducts.find(x => x.id === id);
+    if (!p || (p.inventario != null && Number(p.inventario) <= 0) || cart.some(c => c.id === id)) return;
+    cart.push(_itemCarrito(p, 1)); n++; _refreshProductCardBtn(id);
+  });
+  persistCart(); updateCartUI();
+  showToast(n ? `${n} producto${n === 1 ? '' : 's'} agregado${n === 1 ? '' : 's'} al carrito` : 'Tus favoritos ya estaban en el carrito o están agotados', n ? '🛒' : 'ℹ️');
+  if (n) { _cerrarModal('modal-favoritos'); openCart(); }
+};
+window.compartirFavoritos = async function() {
+  const lista = [...favoritos].map(id => allProducts.find(p => p.id === id)).filter(Boolean).map(p => `${p.sku || p.id}*1`).join(';');
+  const url = `${location.origin}${location.pathname}?carrito=${encodeURIComponent(lista)}`;
+  try {
+    if (navigator.share) { await navigator.share({ title: 'Productos OrbisCORP', url }); return; }
+    await navigator.clipboard.writeText(url); showToast('Enlace de la lista copiado', '🔗');
+  } catch (_) {}
+};
+
+/* ── Pedido rápido por código (para compradores que ya saben lo que quieren) ── */
+let _indiceSku = null;
+const _normCod = s => String(s || '').toUpperCase().replace(/\s+/g, ' ').trim();
+const _sinSep  = s => _normCod(s).replace(/[\s\-\/.]/g, '');
+function _buscarPorCodigo(cod) {
+  if (!_indiceSku || _indiceSku.n !== allProducts.length) {
+    const a = new Map(), b = new Map();
+    allProducts.forEach(p => { a.set(_normCod(p.sku), p); a.set(_normCod(p.id), p); if (_sinSep(p.sku)) b.set(_sinSep(p.sku), p); });
+    _indiceSku = { a, b, n: allProducts.length };
+  }
+  return _indiceSku.a.get(_normCod(cod)) || _indiceSku.b.get(_sinSep(cod)) || null;
+}
+function _parsearPedido(texto) {
+  return String(texto || '').split(/\r?\n|;/).map(l => l.trim()).filter(Boolean).slice(0, 200).map(linea => {
+    const limpio = linea.replace(/\t/g, ' ').replace(/\s+/g, ' ').replace(/[,]\s*(\d+)$/, ' $1').trim();
+    let p = _buscarPorCodigo(limpio);
+    if (p) return { linea, p, qty: 1 };
+    for (const re of [/^(.*\S)[\s*×]+(\d{1,5})$/, /^(.*?)[\s*x×]+(\d{1,5})$/i]) {
+      const m = limpio.match(re);
+      if (m && (p = _buscarPorCodigo(m[1]))) return { linea, p, qty: Number(m[2]) };
+    }
+    const m2 = limpio.match(/^(\d{1,5})\s*[x×*]?\s+(.+)$/i);
+    if (m2 && (p = _buscarPorCodigo(m2[2]))) return { linea, p, qty: Number(m2[1]) };
+    return { linea, p: null, qty: 0 };
+  });
+}
+let _pedidoRevisado = [];
+window.abrirPedidoRapido = function(texto = '', aviso = '') {
+  closeCatalogPopup?.(); closeDrawer?.(); closeCart?.();
+  const cuerpo = `${aviso ? `<p class="pr-aviso">${escHTML(aviso)}. Revísala y agrégala a tu carrito.</p>` : ''}
+    <p class="pr-ayuda">Pega tu lista: <b>un producto por renglón</b>, con el código y la cantidad. Puedes copiar las columnas directo desde Excel.</p>
+    <textarea id="pr-texto" class="pr-texto" rows="7" spellcheck="false" placeholder="3M 6001   4&#10;51-670-9   12&#10;8372 x 3">${escHTML(texto)}</textarea>
+    <div id="pr-resultado" class="pr-resultado" aria-live="polite"></div>`;
+  const pie = `<button class="mcancel-btn" onclick="revisarPedidoRapido()">Revisar lista</button>
+    <button class="msave-btn" id="pr-agregar" onclick="agregarPedidoRapido()" disabled>Agregar al carrito</button>`;
+  _modal('modal-pedido-rapido', '⚡ Pedido rápido por código', cuerpo, pie);
+  if (texto) revisarPedidoRapido();
+  else setTimeout(() => document.getElementById('pr-texto')?.focus(), 120);
+};
+window.revisarPedidoRapido = function() {
+  const texto = document.getElementById('pr-texto')?.value || '';
+  const out = document.getElementById('pr-resultado');
+  if (!allProducts.length) { out.innerHTML = '<p class="pr-ayuda">Cargando catálogo, intenta en un momento…</p>'; return; }
+  _pedidoRevisado = _parsearPedido(texto);
+  const ok = _pedidoRevisado.filter(x => x.p);
+  const mal = _pedidoRevisado.filter(x => !x.p);
+  out.innerHTML = !_pedidoRevisado.length ? '' : `
+    <div class="pr-resumen"><b>${ok.length}</b> encontrado${ok.length === 1 ? '' : 's'}${mal.length ? ` · <span class="pr-mal">${mal.length} sin encontrar</span>` : ''}</div>
+    <ul class="pr-lista">
+      ${_pedidoRevisado.map(({ linea, p, qty }) => {
+        if (!p) return `<li class="pr-fila is-mal"><span class="pr-cod">${escHTML(linea)}</span><span class="pr-nom">No encontramos ese código. Revísalo o pídelo por WhatsApp.</span></li>`;
+        const inv = p.inventario != null ? Number(p.inventario) : null;
+        const nota = inv !== null && inv <= 0 ? '<em class="pr-mal">Agotado</em>'
+          : inv !== null && qty > inv ? `<em class="pr-warn">Solo hay ${inv}</em>` : '';
+        return `<li class="pr-fila"><span class="pr-cod">${escHTML(p.sku)}</span><span class="pr-nom">${escHTML(p.nombre)}</span><span class="pr-qty">× ${qty}</span>${nota}</li>`;
+      }).join('')}
+    </ul>`;
+  const btn = document.getElementById('pr-agregar');
+  const agregables = ok.filter(x => !(x.p.inventario != null && Number(x.p.inventario) <= 0));
+  if (btn) { btn.disabled = !agregables.length; btn.textContent = agregables.length ? `Agregar ${agregables.length} al carrito` : 'Agregar al carrito'; }
+};
+window.agregarPedidoRapido = function() {
+  let n = 0, ajustados = 0;
+  _pedidoRevisado.filter(x => x.p).forEach(({ p, qty }) => {
+    const inv = p.inventario != null ? Number(p.inventario) : null;
+    if (inv !== null && inv <= 0) return;
+    const item = cart.find(c => c.id === p.id);
+    let total = (item ? item.qty : 0) + Math.max(1, qty);
+    if (inv !== null && total > inv) { total = inv; ajustados++; }
+    if (item) item.qty = total; else cart.push(_itemCarrito(p, total));
+    n++; _refreshProductCardBtn(p.id);
+  });
+  persistCart(); updateCartUI();
+  _cerrarModal('modal-pedido-rapido');
+  showToast(`${n} producto${n === 1 ? '' : 's'} en tu carrito${ajustados ? ` (${ajustados} ajustado${ajustados === 1 ? '' : 's'} al stock)` : ''}`, '🛒', 4500);
+  openCart();
+};
+
+/* ── Avísame cuando llegue (queda como prospecto en leads_orbiscorp) ── */
+window.abrirAvisame = function(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  const email = currentCustomer?.email || currentUser?.email || '';
+  const nombre = [currentCustomer?.nombre, currentCustomer?.apellido].filter(Boolean).join(' ');
+  const cuerpo = `<p class="pr-ayuda">Te escribimos en cuanto <b>${escHTML(p.nombre)}</b> (${escHTML(p.sku)}) vuelva a estar disponible. Si es urgente, muchas piezas las conseguimos sobre pedido.</p>
+    <div class="mfield"><label for="av-nombre">Nombre</label><input id="av-nombre" type="text" autocomplete="name" value="${escHTML(nombre)}" placeholder="Juan García"></div>
+    <div class="mfield"><label for="av-email">Correo *</label><input id="av-email" type="email" autocomplete="email" value="${escHTML(email)}" placeholder="tu@correo.com"></div>
+    <div class="mfield"><label for="av-qty">¿Cuántas piezas necesitas?</label><input id="av-qty" type="number" min="1" value="1" inputmode="numeric"></div>
+    <div class="merror" id="av-err" role="alert"></div>`;
+  const pie = `<button class="mcancel-btn" onclick="consultarProducto('${escJS(p.id)}')">Preguntar por WhatsApp</button>
+    <button class="msave-btn" id="av-btn" onclick="enviarAvisame('${escJS(p.id)}')">Avísame →</button>`;
+  _modal('modal-avisame', '🔔 Avísame cuando llegue', cuerpo, pie, '');
+  setTimeout(() => document.getElementById(email ? 'av-qty' : 'av-email')?.focus(), 120);
+};
+window.enviarAvisame = async function(id) {
+  const p = allProducts.find(x => x.id === id);
+  const email = document.getElementById('av-email')?.value.trim() || '';
+  const nombre = document.getElementById('av-nombre')?.value.trim() || '';
+  const qty = Math.max(1, Math.floor(Number(document.getElementById('av-qty')?.value) || 1));
+  const err = document.getElementById('av-err');
+  const btn = document.getElementById('av-btn');
+  err.classList.remove('show');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { err.textContent = 'Escribe un correo válido.'; err.classList.add('show'); return; }
+  btn.disabled = true; btn.textContent = '⟳ Enviando...';
+  const datos = {
+    nombre: nombre || email, empresa: currentCustomer?.empresa || '', email, telefono: currentCustomer?.telefono || '',
+    asunto: 'Otro', mensaje: `[AVISO DE DISPONIBILIDAD] ${p?.nombre} — código ${p?.sku} — necesita ${qty} pieza(s).`
+  };
+  try {
+    await submitLead({ get: k => datos[k] ?? '' });
+    _cerrarModal('modal-avisame');
+    showToast('Listo, te avisamos en cuanto llegue', '🔔', 4500);
+  } catch (e) {
+    console.error('[AVISAME]', e?.code, e);
+    err.textContent = 'No pudimos registrar el aviso. Pregúntanos por WhatsApp y te respondemos.';
+    err.classList.add('show');
+    btn.disabled = false; btn.textContent = 'Avísame →';
+  }
+};
+
+/* ══════════════════════════════════════════════
    BÚSQUEDA
 ═══════════════════════════════════════════════ */
 
 window.openSearch  = () => {
   document.getElementById('mobile-search-bar')?.classList.add('open');
+  const res0 = document.getElementById('search-results');
+  if (res0 && !document.getElementById('search-input')?.value) res0.innerHTML = _sugerenciasBusqueda();
   setTimeout(() => document.getElementById('search-input')?.focus(), 100);
   document.body.style.overflow = 'hidden';
   document.documentElement.style.overflow = 'hidden'; /* ← FIX: Bloquea el scroll por completo */
@@ -1645,7 +2168,7 @@ window.closeSearch = () => {
   const inp = document.getElementById('search-input');
   if (inp) inp.value = '';
   const res = document.getElementById('search-results');
-  if (res) res.innerHTML = '<div class="search-empty">Escribe para buscar productos</div>';
+  if (res) res.innerHTML = _sugerenciasBusqueda();
   document.body.style.overflow = '';
   document.documentElement.style.overflow = ''; /* ← FIX: Libera el scroll al cerrar */
 };
@@ -1660,73 +2183,100 @@ document.getElementById('search-input')?.addEventListener('input', function () {
   _searchTimer = setTimeout(() => _ejecutarBusqueda(valor), 120);
 });
 document.getElementById('search-input')?.addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.querySelector('#search-results .search-result-item')?.click();
+  if (e.key !== 'Enter') return;
+  const v = e.currentTarget.value.trim();
+  if (v) verTodosResultados(v);
 });
 
-function _textoBusqueda(p) {
-  return p._txt || (p._txt = normTxt([p.nombre, p.sku, p.categoria, p.subcategoria, p.marca, p.desc].join(' ')));
+const _textoBusqueda = textoBusqueda;
+
+window.guardarBusqueda = function(q) {
+  q = String(q || '').trim().slice(0, 60);
+  if (q.length < 2) return;
+  const prev = _leerLS(LS_BUSQ_KEY, []).filter(x => normTxt(x) !== normTxt(q));
+  _guardarLS(LS_BUSQ_KEY, [q, ...prev].slice(0, 8));
+};
+window.verTodosResultados = function(q) {
+  guardarBusqueda(q);
+  closeSearch();
+  navigate('buscar', { q });
+};
+window.buscarSugerencia = function(q) {
+  const inp = document.getElementById('search-input');
+  if (inp) { inp.value = q; inp.focus(); }
+  _ejecutarBusqueda(q);
+};
+
+function _sugerenciasBusqueda() {
+  const recientes = _leerLS(LS_BUSQ_KEY, []);
+  const chip = (txt, accion) => `<button type="button" class="search-chip" onclick="${accion}">${escHTML(txt)}</button>`;
+  return `<div class="search-sug">
+      ${recientes.length ? `<div class="search-sug__tit">Búsquedas recientes</div>
+        <div class="search-sug__chips">${recientes.map(q => chip(q, `buscarSugerencia('${escJS(q)}')`)).join('')}</div>` : ''}
+      <div class="search-sug__tit">Compra por necesidad</div>
+      <div class="search-sug__chips">${USOS.map(u => chip(u.nombre, `closeSearch();navigate('buscar',{uso:'${u.id}'})`)).join('')}</div>
+      <p class="search-sug__tip">Busca por nombre, marca, talla o código (por ejemplo <b>3M 6001</b>, <b>guante talla 9</b> o <b>carbones GWS</b>).
+        ¿Tienes una lista? Usa el <a href="#" onclick="event.preventDefault();closeSearch();abrirPedidoRapido()">pedido rápido por código</a>.</p>
+    </div>`;
 }
 
 function _ejecutarBusqueda(valor) {
   const res = document.getElementById('search-results');
   if (!res) return;
-  const q = normTxt(valor).trim();
-  if (!q) { res.innerHTML = '<div class="search-empty">Escribe para buscar productos</div>'; return; }
+  const qRaw = String(valor || '').trim();
+  if (!qRaw) { res.innerHTML = _sugerenciasBusqueda(); return; }
   if (!allProducts.length) { res.innerHTML = '<div class="search-empty">Cargando catálogo…</div>'; return; }
 
-  /* Todas las palabras deben aparecer ("guante carnaza" encuentra
-     "Guante de carnaza largo"), sin importar acentos ni mayúsculas. */
-  const palabras = q.split(/\s+/).filter(Boolean);
-  const puntuados = [];
-  for (const p of allProducts) {
-    if (!palabras.every(w => _textoBusqueda(p).includes(w))) continue;
-    const nombre = normTxt(p.nombre);
-    let score = 0;
-    if (normTxt(p.sku) === q) score += 100;
-    if (nombre.startsWith(q)) score += 20;
-    else if (nombre.includes(q)) score += 10;
-    if (Number(p.inventario) > 0) score += 3;
-    puntuados.push([score, p]);
+  /* Todas las palabras deben coincidir, cada una por cualquiera de sus
+     sinónimos ("lentes" encuentra goggles y anteojos), sin importar
+     acentos, plurales ni mayúsculas. Si no hay nada, corregimos el dedazo. */
+  let terminos = prepararConsulta(qRaw), corr = null;
+  let hits = allProducts.filter(p => coincide(p, terminos));
+  if (!hits.length) {
+    corr = corregirConsulta(qRaw, allProducts);
+    if (corr) { terminos = prepararConsulta(corr); hits = allProducts.filter(p => coincide(p, terminos)); }
   }
-  puntuados.sort((a, b) => b[0] - a[0]);
-  const total   = puntuados.length;
-  const matches = puntuados.slice(0, 12).map(x => x[1]);
+  const qEf = corr || qRaw;
+  hits.sort((a, b) => puntaje(b, qEf, terminos) - puntaje(a, qEf, terminos));
+  const total   = hits.length;
+  const matches = hits.slice(0, 10);
 
   if (!matches.length) {
-    res.innerHTML = `<div class="search-empty">Sin resultados para &quot;${escHTML(valor.trim())}&quot;
-      <br><small style="display:block;margin-top:8px">Prueba con otra palabra o
-      <a style="color:var(--orbis);font-weight:700;cursor:pointer" onclick="closeSearch();toggleChatbot()">pregúntale al asistente ✨</a></small></div>`;
+    res.innerHTML = `<div class="search-empty">Sin resultados para &quot;${escHTML(qRaw)}&quot;
+      <br><small style="display:block;margin-top:8px">Prueba con otra palabra,
+      <a style="color:var(--orbis);font-weight:700;cursor:pointer" onclick="closeSearch();toggleChatbot()">pregúntale al asistente ✨</a>
+      o <a style="color:var(--orbis);font-weight:700;cursor:pointer" onclick="closeSearch();pedirPorWhatsApp()">pídelo por WhatsApp</a>.</small></div>`;
     return;
   }
 
-  const encabezado = total > matches.length
-    ? `<div class="search-count">${total} resultados · mostrando los ${matches.length} más relevantes</div>` : '';
+  const encabezado = `<div class="search-count">${corr ? `Mostrando resultados para «${escHTML(corr)}» · ` : ''}${total} resultado${total === 1 ? '' : 's'}</div>`;
+  const pie = total > matches.length || corr
+    ? `<button type="button" class="search-ver-todos" onclick="verTodosResultados('${escJS(qEf)}')">Ver los ${total} resultados con filtros →</button>` : '';
 
   res.innerHTML = encabezado + matches.map(p => {
     const meta = CAT_META[p.categoria] || { icon: '📦' };
     const id   = escJS(p.id);
     const { label, cls } = getStockInfo(p);
+    const vars = _varianteDe(p);
     const adminEditBtn = isAdmin
       ? `<button class="padmin-btn" style="padding: 4px 10px; font-size: 0.65rem; min-height: auto; flex: 0 1 auto;" onclick="event.stopPropagation(); closeSearch(); openProductModal('${id}');">✎ Editar directo</button>`
       : '';
+    const abrir = `guardarBusqueda('${escJS(qRaw)}');openQV('${id}');closeSearch();`;
 
-    return `<div class="search-result-item" onclick="openQV('${id}');closeSearch();" role="option" tabindex="0"
-                 onkeydown="if(event.key==='Enter'){openQV('${id}');closeSearch();}" aria-label="${escHTML(p.nombre)}">
+    return `<div class="search-result-item" onclick="${abrir}" role="option" tabindex="0"
+                 onkeydown="if(event.key==='Enter'){event.stopPropagation();${abrir}}" aria-label="${escHTML(p.nombre)}">
       ${p.imageUrl
         ? `<img class="sri-img" src="${escHTML(p.imageUrl)}" alt="" loading="lazy" decoding="async">`
         : `<div class="sri-img" style="display:flex;align-items:center;justify-content:center;font-size:1.4rem" aria-hidden="true">${meta.icon}</div>`}
       <div class="sri-info">
         <div class="sri-name">${escHTML(p.nombre)}</div>
-        <div class="sri-cat">${escHTML(p.categoria || '')}${p.marca ? ' · ' + escHTML(p.marca) : ''}${p.sku ? ' · ' + escHTML(p.sku) : ''}</div>
-        ${label ? `<div class="sri-stock ${cls}">${label}</div>` : ''}
-        <div style="display: flex; gap: 6px; margin-top: 6px;">
-          <button class="sc-cta" style="background: var(--surface2); color: var(--orbis); border: 1px solid var(--border); padding: 4px 10px; font-size: 0.65rem; min-height: auto;" onclick="event.stopPropagation(); closeSearch(); navigate('${meta.slug || 'home'}');">Ir a la línea ↗</button>
-          ${adminEditBtn}
-        </div>
+        <div class="sri-cat">${escHTML(p.subcategoria || p.categoria || '')}${p.marca ? ' · ' + escHTML(p.marca) : ''}${p.sku ? ' · ' + escHTML(p.sku) : ''}</div>
+        ${label ? `<div class="sri-stock ${cls}">${label}</div>` : ''}${vars.length > 1 ? `<div class="sri-var">${vars.length} ${p._tipoVariante || 'opciones'}</div>` : ''}
+        ${adminEditBtn ? `<div style="display: flex; gap: 6px; margin-top: 6px;">${adminEditBtn}</div>` : ''}
       </div>
       <div class="sri-price" style="text-align: right;">${renderPriceHTML(getPrecioData(p.precio))}</div>
     </div>`;
-  }).join('');
+  }).join('') + pie;
 }
 
 /* ══════════════════════════════════════════════
@@ -2599,6 +3149,7 @@ function _rerenderVistaActual() {
     if (cat) _renderCategoryProducts(cat);
   } else {
     renderShowroom();
+    renderHome();
   }
 }
 
@@ -2847,7 +3398,9 @@ window.openProductModal = function(productId) {
     if (titleEl) titleEl.textContent = '◈ Editar Producto';
     document.getElementById('pm-id').value          = productId;
     document.getElementById('pm-nombre').value      = p.nombre    || '';
-    document.getElementById('pm-desc').value        = p.desc      || '';
+    const pmDesc = document.getElementById('pm-desc');
+    pmDesc.value       = p._descGenerada ? '' : (p.desc || '');
+    pmDesc.placeholder = p._descGenerada ? `Automática: ${p.desc}` : 'Descripción del producto...';
     document.getElementById('pm-precio').value      = p.precio    || '';
     document.getElementById('pm-sku').value         = p.sku       || '';
     document.getElementById('pm-inventario').value  = p.inventario ?? 0;
@@ -2969,6 +3522,7 @@ window.saveProducto = async function() {
 
     const visibles = { nombre, categoria: cat, precio: precio || null, sku, inventario, desc, imageUrl, esPortada };
     const existId  = document.getElementById('pm-id').value;
+    // Vacío = la tienda sigue generando la descripción automáticamente
 
     if (existId) {
       const actual = allProducts.find(p => p.id === existId) || { id: existId };
@@ -2987,11 +3541,13 @@ window.saveProducto = async function() {
         await updateDoc(_refProducto(actual), { ...visibles, updatedAt: serverTimestamp() });
       }
       const idx = allProducts.findIndex(p => p.id === existId);
-      if (idx > -1) allProducts[idx] = { ...allProducts[idx], ...visibles, _txt: undefined };
+      if (idx > -1) allProducts[idx] = enriquecer({ ...allProducts[idx], ...visibles, _descAuto: undefined, _txt: undefined });
     } else {
       const newRef = await addDoc(COL_PRODS, { ...visibles, creadoEn: serverTimestamp(), updatedAt: serverTimestamp() });
-      allProducts.unshift({ ...visibles, id: newRef.id, _origen: 'orbis', _ts: Date.now() });
+      allProducts.unshift(enriquecer({ ...visibles, id: newRef.id, _origen: 'orbis', _ts: Date.now() }));
     }
+    _reagrupar();
+    _indiceSku = null;
 
     pmImgFile = null; pmImgUrl = imageUrl;
     _borrarCatalogoCache();
@@ -3041,7 +3597,9 @@ function _problemasDe(p) {
   const c = p._calidad || {};
   const r = [];
   if (!p.imageUrl) r.push('Sin foto');
+  if (c.sinNombre) r.push('Sin nombre en el ERP');
   if (!p.desc) r.push('Sin descripción');
+  else if (p._descGenerada) r.push('Descripción automática');
   if (!p.subcategoria) r.push('Sin línea');
   else if (c.lineaDeducida) r.push('Línea deducida');
   if (!p.marca) r.push('Sin marca');
@@ -3059,7 +3617,10 @@ window.abrirCalidad = function() {
   const cuenta = f => allProducts.filter(f).length;
   const filas = [
     ['Sin foto',                       cuenta(p => !p.imageUrl),            'Súbelas desde cada tarjeta (botón Cambiar imagen).'],
-    ['Sin descripción',                cuenta(p => !p.desc),                'Genera borradores con el script generar_descripciones.js.'],
+    ['Sin nombre en el ERP',           cuenta(p => p._calidad?.sinNombre),  'Venían como "(sin descripción)". La tienda les pone un nombre provisional; corrígelo en el ERP.'],
+    ['Descripción automática',         cuenta(p => p._descGenerada),        'La tienda la escribe sola según el tipo de producto. Puedes reemplazarla desde Editar.'],
+    ['Descripción escrita a mano',     cuenta(p => p.desc && !p._descGenerada), ''],
+    ['Con variantes de talla o color', cuenta(p => p._grupo),               `Agrupados en ${_grupos.size} productos con selector de talla/color.`],
     ['Sin línea (no salen en filtros)', cuenta(p => !p.subcategoria),        'Agrega la subcategoría en el ERP o en subir_inventario.py.'],
     ['Línea deducida del nombre',      cuenta(p => p._calidad?.lineaDeducida), 'Funciona, pero conviene guardarla en el inventario.'],
     ['Sin marca',                      cuenta(p => !p.marca),               ''],
@@ -3093,11 +3654,27 @@ window.abrirCalidad = function() {
         </table>
       </div>
       <div class="modal-foot">
-        <span style="font-size:.8rem;color:var(--text-3)">El CSV lista cada producto con sus pendientes.</span>
-        <button class="msave-btn" onclick="descargarCalidadCSV()">Descargar CSV</button>
+        <button class="mcancel-btn" onclick="descargarDescripcionesCSV()">Descripciones (CSV)</button>
+        <button class="msave-btn" onclick="descargarCalidadCSV()">Pendientes (CSV)</button>
       </div>
     </div>`;
   modal.classList.add('open');
+};
+
+function _descargarCSV(filas, nombre) {
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const csv = '\ufeff' + filas.map(f => f.map(q).join(',')).join('\r\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: `${nombre}-${new Date().toISOString().slice(0, 10)}.csv` });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* Para subir las descripciones al ERP o a Firestore (campo descripcion_web) */
+window.descargarDescripcionesCSV = function() {
+  const filas = [['codigo', 'nombre_tienda', 'nombre_erp', 'categoria', 'linea', 'marca', 'unidad', 'automatica', 'descripcion_web']];
+  allProducts.forEach(p => filas.push([p.sku || p.id, p.nombre, p.nombreOriginal || '', p.categoria, p.subcategoria, p.marca, p.unidad, p._descGenerada ? 'si' : 'no', p.desc]));
+  _descargarCSV(filas, 'descripciones-catalogo');
 };
 
 window.descargarCalidadCSV = function() {
@@ -3139,7 +3716,10 @@ window.reloadData = async function(silencioso = false) {
 };
 
 async function _despuesDeCargarCatalogo() {
+  _reagrupar();
   _buildNavMenus();
+  renderHome();
+  _pintarFavBadge();
   _rehidratarCarrito();
   updateCartUI();
   _actualizarStatProductos();
@@ -3160,7 +3740,7 @@ function _actualizarStatProductos() {
 /* ══ CACHÉ DEL CATÁLOGO ══
    La segunda visita pinta los productos al instante con lo que se guardó
    la vez anterior y, en paralelo, trae la versión fresca de Firestore. */
-const LS_CATALOGO_KEY = 'orbiscorp_catalogo_v2';  // v2: datos ya normalizados
+const LS_CATALOGO_KEY = 'orbiscorp_catalogo_v3';  // v3: con descripciones, ficha y variantes
 const CATALOGO_TTL_MS = 24 * 60 * 60 * 1000;
 
 function _leerCatalogoCache() {
@@ -3185,26 +3765,6 @@ function _borrarCatalogoCache() {
 /* ══════════════════════════════════════════════
    CARGA DE DATOS
 ═══════════════════════════════════════════════ */
-
-/* Fallback de clasificación para documentos anteriores a la migración.
-   Los documentos nuevos ya traen `categoria_web` desde subir_inventario.py. */
-function _clasificarPorTexto(descripcion) {
-  const d = (descripcion || '').toLowerCase();
-  const tiene = arr => arr.some(w => d.includes(w));
-
-  if (tiene(['soldar','soldadura','electrodo','careta para soldador','microalambre','carnaza','cautin','cautín']))
-    return 'Soldadura';
-  if (tiene(['casco','cachucha','guante','arnes','arnés','lente','goggle','careta','orejera','tapon','tapón',
-             'respirador','mascarilla','cartucho','chaleco','bota','calzado','faja','mandil','barbiquejo',
-             'absorbedor','eslinga','linea de vida','línea de vida']))
-    return 'EPP';
-  if (tiene(['disco de corte','disco diam','disco desbaste','abrasivo','desbaste','lija','laminado','flap']))
-    return 'Abrasivos';
-  if (tiene(['bosch','dremel','taladro','esmeril','amoladora','atornillador','rotomartillo','broca',
-             'escobilla','carbon','carbón','inducido','rodamiento','interruptor','portaescobilla']))
-    return 'Herramientas';
-  return 'Ferretería';
-}
 
 /* ══════════════════════════════════════════════
    MENÚS DEL NAVBAR — GENERADOS DESDE EL INVENTARIO
@@ -3325,98 +3885,8 @@ function _tsMillis(v) {
   return Number(v) || 0;
 }
 
-/* Carga ambas fuentes EN PARALELO. Devuelve true si se obtuvo algo. */
-/* ══ LIMPIEZA DEL INVENTARIO ══
-   El inventario llega del ERP con huecos: nombres en MAYÚSCULAS, la marca
-   escrita dentro del nombre ("…, Truper") pero no en su campo, sin línea en
-   Ferretería y Herramientas, y precios de relleno ($1). Aquí se corrige al
-   vuelo, sin tocar Firestore. Lo deducido queda marcado para el reporte de
-   "Calidad del catálogo" del admin. */
-
-const _PALABRAS_MINUSC = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'con', 'para', 'y', 'en', 'a', 'al', 'por', 'sin', 'e', 'o', 'p/', 'c/', 'x']);
-const _SIGLAS = new Set(['EPP', 'PVC', 'LED', 'MSA', 'NOM', 'ANSI', 'TPE', 'USB', 'HSS', 'UV', 'AC', 'DC', 'LI', 'SDS', 'CE', 'RE', 'STD', 'GOP', 'GPO', 'GHO', 'GWS', 'GSR', 'GSB', 'GBM', 'GBH', 'GKS', 'GST', 'GLL', 'GDX', 'XL', 'XG', 'XXL', 'CH', 'MD', 'GD']);
-
-/* "AMOLADORA ANGULAR GWS 2200-180" → "Amoladora angular GWS 2200-180".
-   Solo actúa si el nombre viene casi todo en mayúsculas. */
-function _limpiarNombre(s) {
-  const t = String(s || '').replace(/\s+/g, ' ').trim();
-  const letras = t.replace(/[^A-Za-zÁÉÍÓÚÑÜáéíóúñü]/g, '');
-  const mayus  = letras.replace(/[^A-ZÁÉÍÓÚÑÜ]/g, '').length;
-  if (letras.length < 6 || mayus / letras.length < 0.75) return t;
-  return t.split(' ').map((w, i) => {
-    const base = w.replace(/[.,;:()"'´]/g, '');
-    if (/\d/.test(w)) return w;                                    // modelos y medidas
-    if (_SIGLAS.has(base.toUpperCase())) return w.toUpperCase();
-    const low = w.toLowerCase();
-    if (i > 0 && _PALABRAS_MINUSC.has(low)) return low;
-    if (base.length >= 2 && base.length <= 4 && !/[AEIOUÁÉÍÓÚ]/i.test(base)) return w.toUpperCase(); // siglas sin vocales
-    return i === 0 ? low.charAt(0).toUpperCase() + low.slice(1) : low;
-  }).join(' ');
-}
-
-const _MARCAS_CONOCIDAS = [
-  ['truper expert', 'Truper Expert'], ['expert', 'Truper Expert'], ['truper', 'Truper'], ['pretul', 'Pretul'],
-  ['foset', 'Foset'], ['fiero', 'Fiero'], ['hermex', 'Hermex'], ['volteck', 'Volteck'], ['klintek', 'Klintek'],
-  ['bosch', 'Bosch'], ['dremel', 'Dremel'], ['urrea', 'Urrea'], ['surtek', 'Surtek'], ['stanley', 'Stanley'],
-  ['dewalt', 'DeWalt'], ['makita', 'Makita'], ['milwaukee', 'Milwaukee'], ['3m', '3M'], ['msa', 'MSA'],
-  ['infra', 'Infra'], ['lincoln', 'Lincoln Electric'], ['austromex', 'Austromex'], ['uvex', 'Uvex'],
-  ['honeywell', 'Honeywell'], ['steelpro', 'Steel Pro'], ['steel pro', 'Steel Pro'], ['jyrsa', 'Jyrsa'], ['lack', 'Lack']
-];
-function _marcaDesdeTexto(s) {
-  const t = ` ${normTxt(s).replace(/[^a-z0-9]+/g, ' ')} `;
-  for (const [clave, nombre] of _MARCAS_CONOCIDAS) if (t.includes(` ${clave} `)) return nombre;
-  return null;
-}
-/* "Juego de dados torx, Truper" → "Juego de dados torx" (la marca ya se muestra aparte) */
-function _quitarMarcaFinal(nombre, marca) {
-  if (!marca) return nombre;
-  const limpio = nombre.replace(/,\s*((truper\s+)?expert|truper|pretul|foset|fiero|hermex|volteck|klintek|urrea|surtek)\.?\s*$/i, '');
-  return limpio.length >= 8 ? limpio : nombre;
-}
-
-const _LINEAS_POR_TEXTO = {
-  'Herramientas': [
-    ['Refacciones',               ['carbon', 'escobilla', 'inducido', 'rodamiento', 'interruptor', 'portaescobilla', 'refaccion']],
-    ['Taladros y rotomartillos',  ['taladro', 'taladradora', 'rotomartillo']],
-    ['Esmeriles y amoladoras',    ['esmeril', 'amoladora', 'miniamoladora']],
-    ['Atornilladores',            ['atornillador', 'atornilladora', 'llave de impacto']],
-    ['Pulidoras y lijadoras',     ['pulidora', 'lijadora']],
-    ['Sierras y cortadoras',      ['sierra', 'caladora', 'multicortadora', 'cortadora', 'oscilante', 'tronzadora']],
-    ['Cepillos eléctricos',       ['cepilladora']],
-    ['Medición láser',            ['laser', 'medidor']]
-  ],
-  'Ferretería': [
-    ['Brocas',                    ['broca']],
-    ['Cuchillas y cutters',       ['cuchilla', 'cutter', 'navaja']],
-    ['Puntas, dados y matracas',  ['dado', 'punta', 'matraca', 'puntas']],
-    ['Pinzas',                    ['pinza']],
-    ['Desarmadores',              ['desarmador']],
-    ['Llaves',                    ['llave']],
-    ['Martillos y percusión',     ['martillo', 'marro', 'zapapico', 'cincel', 'barreta']],
-    ['Lijas',                     ['lija']],
-    ['Medición',                  ['flexometro', 'cinta metrica', 'nivel', 'detector', 'escuadra', 'calibrador', 'vernier']],
-    ['Cintas y adhesivos',        ['cinta', 'silicon', 'pegamento', 'adhesivo', 'sellador']],
-    ['Tornillería y fijación',    ['tornillo', 'tuerca', 'rondana', 'taquete', 'ancla', 'pija', 'remache', 'clavo', 'abrazadera']],
-    ['Ropa de trabajo y lluvia',  ['gabardina', 'impermeable', 'overol', 'chamarra']],
-    ['Material eléctrico',        ['cable', 'clavija', 'extension', 'contacto', 'foco', 'lampara', 'linterna']],
-    ['Jardinería',                ['pala', 'rastrillo', 'manguera', 'carretilla', 'azadon', 'tijera para podar']],
-    ['Candados y cerrajería',     ['candado', 'cerradura']],
-    ['Organización y almacenaje', ['caja', 'organizador', 'estuche', 'maletin']]
-  ]
-};
-const _RE_LINEAS = {};
-Object.entries(_LINEAS_POR_TEXTO).forEach(([cat, reglas]) => {
-  _RE_LINEAS[cat] = reglas.map(([linea, claves]) =>
-    [linea, new RegExp(`\\b(${claves.map(k => k.replace(/ /g, '\\s+')).join('|')})(es|s)?\\b`)]);
-});
-function _lineaDesdeTexto(nombre, categoria) {
-  const reglas = _RE_LINEAS[categoria];
-  if (!reglas) return null;
-  const t = normTxt(nombre);
-  for (const [linea, re] of reglas) if (re.test(t)) return linea;
-  return null;
-}
-
+/* Carga ambas fuentes EN PARALELO. Devuelve true si se obtuvo algo.
+   La limpieza y el enriquecimiento viven en catalogo.js. */
 async function loadAllProducts() {
   const [rOrbis, rRivg] = await Promise.allSettled([getDocs(COL_PRODS), getDocs(COL_INVENTARIO_RIVG)]);
   const lista = [];
@@ -3425,65 +3895,18 @@ async function loadAllProducts() {
   if (rOrbis.status === 'fulfilled') {
     rOrbis.value.forEach(d => {
       const { creadoEn, updatedAt, ...resto } = d.data();
-      lista.push({ ...resto, id: d.id, _origen: 'orbis', _ts: _tsMillis(creadoEn) });
+      lista.push(enriquecer({ ...resto, id: d.id, _origen: 'orbis', _ts: _tsMillis(creadoEn) }));
     });
   } else {
     console.error('[PRODS MANUALES] Error:', rOrbis.reason?.message);
   }
 
-  // 2. INVENTARIO REAL (RIVG) — ya viene clasificado desde subir_inventario.py
-  //    { codigo, descripcion, cantidad, categoria, categoria_web, subcategoria,
-  //      marca, precio_unitario, precio_total_iva, tiene_precio, nota }
+  // 2. INVENTARIO REAL (RIVG) — catalogo.js limpia nombre, marca, línea y precio,
+  //    y genera la descripción y la ficha técnica cuando el ERP no las trae.
   if (rRivg.status === 'fulfilled') {
     rRivg.value.forEach(d => {
-      const data = d.data();
-      const descripcion = (data.descripcion || '').trim();
-      const codigo      = (data.codigo || d.id || '').toString().trim();
-      const cantidad    = Number(data.cantidad || 0);
-      if (!descripcion) return; // sin descripción no es vendible
-
-      const finalCategory = CATS.includes(data.categoria_web)
-        ? data.categoria_web
-        : _clasificarPorTexto(descripcion);
-
-      const precioUnitario = data.precio_unitario != null
-        ? Number(data.precio_unitario)
-        : (data.precio != null ? Number(data.precio) : null);
-      const precioConIva = data.precio_total_iva != null ? Number(data.precio_total_iva) : null;
-
-      // Limpieza: marca y línea deducidas del nombre, nombre legible, precios de relleno fuera
-      const marca  = data.marca || _marcaDesdeTexto(descripcion);
-      const linea  = data.subcategoria || _lineaDesdeTexto(descripcion, finalCategory);
-      const nombre = _quitarMarcaFinal(_limpiarNombre(descripcion), marca);
-      const precioOk = Number.isFinite(precioUnitario) && precioUnitario >= 2;   // $1 = precio de relleno
-
-      lista.push({
-        id: d.id,
-        _origen: 'rivg',
-        _ts: _tsMillis(data.updatedAt),
-        _calidad: {
-          marcaDeducida:   !data.marca && !!marca,
-          lineaDeducida:   !data.subcategoria && !!linea,
-          precioDescartado: Number.isFinite(precioUnitario) && !precioOk ? precioUnitario : null,
-          nombreCorregido: nombre !== descripcion
-        },
-        nombre,
-        categoria: finalCategory,
-        subcategoria:    linea || null,
-        marca:           marca || null,
-        categoriaOrigen: data.categoria || null,
-        subLinea: [linea, marca, data.categoria].filter(Boolean).join(' '),
-        almacen: data.almacen || 'Sucursal Principal',
-        precio:         precioOk ? precioUnitario : null,  // sin IVA — base para descuentos B2B
-        precio_con_iva: precioOk && Number.isFinite(precioConIva) ? precioConIva : null,
-        sin_precio:     !precioOk,
-        nota:           data.nota || null,
-        inventario: Math.max(0, Math.floor(cantidad)),
-        desc: (data.descripcion_web || '').trim(),   // descripción real; si no hay, se muestra la ficha técnica
-        sku: codigo,
-        imageUrl: data.imageUrl || '',
-        esPortada: data.esPortada || false
-      });
+      const p = desdeInventario(d.data(), d.id);
+      if (p) lista.push(p);
     });
   } else {
     console.error('[INVENTARIO_RIVG] Error:', rRivg.reason?.message);
@@ -3494,6 +3917,8 @@ async function loadAllProducts() {
 
   allProducts = lista;
   window._allProductsCache = allProducts;
+  _reagrupar();
+  _indiceSku = null;
   return lista.length > 0;
 }
 
@@ -3637,7 +4062,9 @@ document.addEventListener('keydown', e => {
 /* ══════════════════════════════════════════════
    INICIALIZACIÓN DE LA APLICACIÓN
 ═══════════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', async () => {
+/* Arranque. Si el DOM ya está listo (módulos diferidos, caché del navegador)
+   se ejecuta de inmediato; antes podía quedarse esperando un evento que ya pasó. */
+async function _iniciarTienda() {
   renderSkeletons();
   document.querySelectorAll('.js-anio').forEach(el => { el.textContent = new Date().getFullYear(); });
 
@@ -3646,13 +4073,16 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (enCache?.length) {
     allProducts = enCache;
     window._allProductsCache = allProducts;
+    _reagrupar();
   }
+  _pintarFavBadge();
 
   { const { route, filtro } = _leerHash(); _applyRoute(route, filtro); }
 
   if (enCache?.length) {
     _buildNavMenus();
     renderShowroom();
+    renderHome();
     setTimeout(hideLoader, 150);
   }
 
@@ -3666,9 +4096,21 @@ window.addEventListener('DOMContentLoaded', async () => {
   hideLoader();
 
   // 3. Enlace directo a un producto: tienda.com/?p=CODIGO
-  const pid = new URLSearchParams(location.search).get('p');
+  const params = new URLSearchParams(location.search);
+  const pid = params.get('p');
   if (pid && allProducts.some(p => p.id === pid)) openQV(pid);
-});
+
+  // 4. Carrito compartido: tienda.com/?carrito=CODIGO*2;CODIGO*1
+  const compartido = params.get('carrito');
+  if (compartido) {
+    let texto = '';
+    try { texto = decodeURIComponent(compartido); } catch (_) { texto = compartido; }
+    try { history.replaceState(history.state, '', `${location.pathname}${location.hash}`); } catch (_) {}
+    abrirPedidoRapido(texto.split(';').map(x => x.replace(/\*(\d+)$/, ' $1')).join('\n'), 'Te compartieron esta lista de productos');
+  }
+}
+if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', _iniciarTienda);
+else _iniciarTienda();
 
 /* ══════════════════════════════════════════════
    ASISTENTE VIRTUAL GEMINI (CON LÍMITE DE CRÉDITOS)

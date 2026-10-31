@@ -3719,6 +3719,285 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
 .qv-img-placeholder-new svg{ width:110px; height:110px; color:#C3CADF; opacity:1; }
 .qv-img-placeholder-new{ opacity:1 !important; }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   ★ CAPA v5 — funciones nuevas: variantes, favoritos, compra por
+   necesidad, destacados, pedido rápido, avísame y buscador mejorado
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Favorito en la tarjeta ── */
+.oc-fav{
+  position:absolute; top:8px; right:8px; z-index:3; width:36px; height:36px; border-radius:50%;
+  display:grid; place-items:center; border:1px solid var(--border); background:rgba(255,255,255,.92);
+  color:#8C93AD; cursor:pointer; transition:color .15s, transform .15s var(--ease-spring), background .15s;
+}
+.oc-fav svg{ width:18px; height:18px; }
+.oc-fav:hover{ color:#D6336C; transform:scale(1.08); }
+.oc-fav[aria-pressed="true"]{ color:#D6336C; background:#FFF0F5; border-color:#F7C4D6; }
+.oc-fav[aria-pressed="true"] svg{ fill:currentColor; }
+.oc-card__var{
+  align-self:flex-start; border:0; background:none; padding:0; cursor:pointer;
+  font:inherit; font-size:.78rem; font-weight:600; color:var(--orbis); text-decoration:underline; text-underline-offset:2px;
+}
+.oc-card__var:hover{ color:var(--orbis-deep); }
+
+/* ── Portadas propias de categoría ── */
+.sc-collage{ width:100%; height:100%; display:grid; gap:2px; background:var(--border); }
+.sc-collage.is-2{ grid-template-columns:1fr 1fr; }
+.sc-collage.is-4{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
+.sc-collage img{ width:100%; height:100%; object-fit:contain !important; background:#fff; padding:10px !important; }
+.sc-portada{
+  width:100%; height:100%; position:relative; overflow:hidden; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px; color:#fff;
+  background:
+    radial-gradient(circle at 80% 15%, rgba(255,255,255,.18) 0, transparent 45%),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.04) 0 10px, transparent 10px 20px),
+    linear-gradient(150deg, var(--tono, var(--orbis)) 0%, var(--orbis-deep) 100%);
+}
+.sc-portada__ico svg{ width:72px; height:72px; stroke-width:1.2; opacity:.95; }
+.sc-portada__lineas{ list-style:none; display:flex; flex-wrap:wrap; justify-content:center; gap:6px; padding:0 18px; margin:0; }
+.sc-portada__lineas li{
+  font-size:.72rem; font-weight:600; padding:4px 10px; border-radius:999px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.25);
+}
+@media (max-width:768px){
+  .sc-portada__ico svg{ width:44px; height:44px; }
+  .sc-portada__lineas{ display:none; }
+}
+
+/* ── Secciones nuevas del inicio ── */
+.home-sec{ padding:64px 24px; background:var(--bg); }
+.home-sec--alt{ background:#fff; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+.home-sec .section-sub{ margin-bottom:28px; }
+@media (max-width:768px){ .home-sec{ padding:44px 16px; } }
+
+.nec-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:12px; }
+.nec{
+  display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px; text-align:left;
+  padding:16px; border:1px solid var(--border); border-radius:14px; background:#fff; cursor:pointer;
+  font:inherit; color:var(--text); transition:border-color .15s, box-shadow .2s, transform .2s var(--ease-spring);
+}
+.nec:hover{ border-color:var(--orbis-mid); box-shadow:0 10px 26px -18px rgba(21,30,107,.6); transform:translateY(-2px); }
+.nec__ico{
+  width:46px; height:46px; border-radius:12px; display:grid; place-items:center;
+  background:var(--orbis-light); color:var(--orbis);
+}
+.nec__ico svg{ width:24px; height:24px; }
+.nec:hover .nec__ico{ background:var(--orbis); color:#fff; }
+.nec__txt{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.nec__txt strong{ font-size:.95rem; color:var(--orbis-deep); }
+.nec__txt small{ font-size:.8rem; color:var(--text-2); }
+.nec__n{ font-family:var(--font-mono); font-size:.72rem; font-weight:600; color:var(--text-3); background:var(--surface2); padding:3px 8px; border-radius:999px; }
+@media (max-width:640px){
+  .nec-grid{ grid-template-columns:1fr 1fr; gap:8px; }
+  .nec{ grid-template-columns:1fr; gap:8px; padding:12px; }
+  .nec__ico{ width:38px; height:38px; }
+  .nec__txt small, .nec__n{ display:none; }
+  .nec__txt strong{ font-size:.85rem; }
+}
+
+.fila-cab{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.fila-tit{ font-family:var(--font-display); font-size:clamp(1.35rem,3vw,1.9rem); color:var(--orbis-deep); letter-spacing:-.02em; line-height:1.15; margin:0; }
+.fila-flechas{ display:flex; gap:6px; }
+.fila-flechas button{
+  width:40px; height:40px; border-radius:50%; border:1px solid var(--border); background:#fff; color:var(--orbis);
+  font-size:1.4rem; line-height:1; cursor:pointer; transition:background .15s, color .15s;
+}
+.fila-flechas button:hover{ background:var(--orbis); color:#fff; }
+@media (hover:none){ .fila-flechas{ display:none; } }
+.fila-borrar{ border:0; background:none; cursor:pointer; font:inherit; font-size:.82rem; color:var(--text-3); text-decoration:underline; }
+.fila-borrar:hover{ color:var(--danger); }
+.fila{
+  display:grid; grid-auto-flow:column; grid-auto-columns:minmax(170px, 200px); gap:12px;
+  overflow-x:auto; scroll-snap-type:x mandatory; padding:4px 2px 14px; scrollbar-width:thin;
+}
+.fila > *{ scroll-snap-align:start; }
+.fila-pie{ margin-top:10px; display:flex; justify-content:center; }
+
+.mini{
+  display:flex; flex-direction:column; gap:5px; text-align:left; padding:0 0 12px; overflow:hidden;
+  border:1px solid var(--border); border-radius:12px; background:#fff; cursor:pointer; font:inherit; color:var(--text);
+  transition:border-color .15s, box-shadow .2s;
+}
+.mini:hover{ border-color:#BAC3E2; box-shadow:0 10px 24px -16px rgba(21,30,107,.45); }
+.mini__media{ display:block; aspect-ratio:1/1; background:#fff; border-bottom:1px solid #ECEFF6; }
+.mini__media img{ width:100%; height:100%; object-fit:contain; padding:12px; }
+.mini__sinfoto{ width:100%; height:100%; display:grid; place-items:center; background:#F3F5FA; color:#C3CADF; }
+.mini__sinfoto svg{ width:38%; height:38%; stroke-width:1.1; }
+.mini__marca{ padding:0 12px; font-size:.72rem; font-weight:700; color:var(--orbis); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mini__nombre{
+  padding:0 12px; font-size:.84rem; font-weight:600; line-height:1.3; min-height:2.6em;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.mini__pie{ padding:0 12px; display:flex; align-items:baseline; justify-content:space-between; gap:6px; font-size:.8rem; }
+.mini__pie strong{ font-family:var(--font-display); font-size:1rem; color:var(--orbis-deep); }
+.mini__pie em{ font-style:normal; font-size:.72rem; font-weight:600; color:var(--danger); }
+.mini__lock{ font-size:.74rem; color:var(--text-3); }
+
+.pr-banda{
+  display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
+  padding:28px 32px; border-radius:18px; border:1px solid var(--border);
+  background:linear-gradient(120deg, #fff 0%, var(--orbis-light) 100%);
+}
+.pr-banda__txt{ max-width:620px; }
+.pr-banda__txt p{ margin:10px 0 0; color:var(--text-2); line-height:1.6; font-size:.95rem; }
+.pr-banda__acc{ display:flex; gap:10px; flex-wrap:wrap; }
+@media (max-width:640px){ .pr-banda{ padding:22px 18px; } .pr-banda__acc > *{ flex:1 1 100%; justify-content:center; } }
+
+/* ── Quick view: variantes, favoritos, relacionados ── */
+.qv-var{ margin:-6px 0 16px; }
+.qv-var[hidden]{ display:none !important; }
+.qv-var__tit{ font-size:.82rem; color:var(--text-2); margin-bottom:8px; }
+.qv-var__tit strong{ color:var(--text); }
+.qv-var__ops{ display:flex; flex-wrap:wrap; gap:6px; }
+.qv-var__op{
+  min-width:44px; height:38px; padding:0 12px; border-radius:9px; border:1.5px solid var(--border); background:#fff;
+  font:inherit; font-size:.84rem; font-weight:600; color:var(--text); cursor:pointer; transition:border-color .15s, background .15s;
+}
+.qv-var__op:hover{ border-color:var(--orbis); }
+.qv-var__op.is-actual{ border-color:var(--orbis); background:var(--orbis-light); color:var(--orbis-deep); box-shadow:inset 0 0 0 1px var(--orbis); }
+.qv-var__op.is-agotado{ color:#A6ADC4; text-decoration:line-through; background:#F7F8FB; }
+.qv-mini-acc{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#qv-fav-btn .fav-on{ display:none; }
+#qv-fav-btn[aria-pressed="true"]{ border-style:solid; border-color:#F7C4D6; background:#FFF0F5; color:#C2255C; }
+#qv-fav-btn[aria-pressed="true"] .fav-on{ display:inline; }
+#qv-fav-btn[aria-pressed="true"] .fav-off{ display:none; }
+.qv-rel{ margin-top:18px; padding-top:16px; border-top:1px solid var(--border); }
+.qv-rel[hidden]{ display:none !important; }
+.qv-rel__tit{ font-family:var(--font-body); font-size:.95rem; font-weight:700; color:var(--orbis-deep); margin:0 0 10px; }
+.qv-rel__fila{ display:grid; grid-auto-flow:column; grid-auto-columns:150px; gap:10px; overflow-x:auto; padding-bottom:8px; scrollbar-width:thin; }
+.qv-rel__fila .mini__nombre{ font-size:.78rem; }
+.qv-product-desc{ white-space:pre-line; }
+
+/* ── Carrito ── */
+.cart-total-iva{ order:-2; margin:-4px 0 8px; text-align:right; font-family:var(--font-mono); font-size:.7rem; color:var(--text-3); }
+.cart-total-iva:empty{ display:none; }
+.cart-nota-wrap{ order:0; margin:0 0 12px; font-size:.82rem; }
+.cart-nota-wrap summary{ cursor:pointer; color:var(--orbis); font-weight:600; padding:4px 0; list-style:none; }
+.cart-nota-wrap summary::before{ content:'＋ '; }
+.cart-nota-wrap[open] summary::before{ content:'－ '; }
+.cart-nota-wrap textarea{
+  width:100%; margin-top:6px; padding:10px 12px; border:1px solid var(--border); border-radius:var(--r-sm);
+  font:inherit; font-size:16px; resize:vertical; min-height:60px; background:var(--surface2);
+}
+.cart-nota-wrap textarea:focus{ outline:none; border-color:var(--orbis); background:#fff; }
+.cart-extra{ order:3; display:flex; justify-content:center; flex-wrap:wrap; gap:4px 10px; margin-top:10px; }
+.cart-extra button{
+  border:0; background:transparent; cursor:pointer; padding:6px 8px; border-radius:var(--r-sm);
+  font-family:var(--font-body); font-size:.78rem; font-weight:600; color:var(--orbis);
+}
+.cart-extra button:hover{ background:var(--orbis-light); }
+.cart-extra .is-peligro{ color:var(--text-3); }
+.cart-extra .is-peligro:hover{ color:var(--danger); background:#FEE2E2; }
+input.qty-val{
+  width:48px; height:28px; border:1px solid var(--border); border-radius:6px; text-align:center;
+  font-family:var(--font-mono); font-size:.85rem; font-weight:600; color:var(--text); background:#fff; -moz-appearance:textfield;
+}
+input.qty-val::-webkit-outer-spin-button, input.qty-val::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+@media (max-width:768px){ input.qty-val{ font-size:16px !important; } }
+
+/* ── Popup del catálogo (celular) ── */
+.cp-extra{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+.cp-extra button{
+  border:1px solid var(--border); background:#fff; border-radius:var(--r-sm); padding:12px 8px; cursor:pointer;
+  font-family:var(--font-body); font-size:.85rem; font-weight:700; color:var(--orbis);
+}
+
+/* ── Navbar: favoritos ── */
+.nav-fav-btn{ padding:8px 12px !important; }
+.nav-fav-btn:hover svg{ fill:currentColor; }
+
+/* ── Buscador ── */
+.search-sug{ padding:14px 22px 18px; }
+.search-sug__tit{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--text-3); margin:6px 0 8px; }
+.search-sug__chips{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.search-chip{
+  border:1px solid var(--border); background:#fff; border-radius:999px; padding:7px 12px; cursor:pointer;
+  font-family:var(--font-body); font-size:.82rem; font-weight:600; color:var(--text-2); transition:all .15s;
+}
+.search-chip:hover{ border-color:var(--orbis); color:var(--orbis); background:var(--orbis-light); }
+.search-sug__tip{ font-size:.82rem; color:var(--text-2); line-height:1.6; margin:4px 0 0; }
+.search-sug__tip a{ color:var(--orbis); font-weight:700; }
+.search-ver-todos{
+  display:block; width:calc(100% - 24px); margin:10px 12px 4px; padding:12px; border:0; border-radius:var(--r);
+  background:var(--orbis); color:#fff; font-family:var(--font-body); font-weight:700; font-size:.9rem; cursor:pointer;
+}
+.search-ver-todos:hover{ background:var(--orbis-dark); }
+.sri-var{ display:inline-block; margin:4px 0 0 6px; font-size:.68rem; font-weight:700; color:var(--orbis); }
+
+/* ── Favoritos ── */
+.fav-lista{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+.fav-item{ display:grid; grid-template-columns:64px 1fr auto; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); }
+.fav-item:last-child{ border-bottom:0; }
+.fav-item__media{ width:64px; height:64px; border:1px solid var(--border); border-radius:10px; background:#fff; padding:6px; cursor:pointer; display:grid; place-items:center; color:#C3CADF; }
+.fav-item__media img{ width:100%; height:100%; object-fit:contain; }
+.fav-item__media svg{ width:30px; height:30px; }
+.fav-item__info{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.fav-item__nombre{ border:0; background:none; padding:0; text-align:left; cursor:pointer; font:inherit; font-size:.9rem; font-weight:600; color:var(--text); line-height:1.3; }
+.fav-item__nombre:hover{ color:var(--orbis); text-decoration:underline; }
+.fav-item__meta{ font-size:.76rem; color:var(--text-3); }
+.fav-item__acc{ display:flex; align-items:center; gap:6px; }
+.fav-item__acc .oc-btn{ height:38px; padding:0 14px; font-size:.82rem; }
+.fav-item__quitar{ width:34px; height:34px; border-radius:50%; border:0; background:transparent; color:var(--text-3); cursor:pointer; }
+.fav-item__quitar:hover{ background:#FEE2E2; color:var(--danger); }
+@media (max-width:520px){
+  .fav-item{ grid-template-columns:52px 1fr; }
+  .fav-item__media{ width:52px; height:52px; }
+  .fav-item__acc{ grid-column:2; }
+}
+.vacio-suave{ text-align:center; padding:28px 12px; color:var(--text-2); }
+.vacio-suave svg{ width:42px; height:42px; color:#E3A3BA; margin:0 auto 10px; display:block; }
+.vacio-suave p{ max-width:36ch; margin:0 auto; line-height:1.6; font-size:.9rem; }
+
+/* ── Pedido rápido ── */
+.pr-aviso{ background:var(--safety-light); border:1px solid rgba(245,158,11,.35); color:#7A4B05; padding:10px 12px; border-radius:var(--r-sm); font-size:.85rem; margin:0 0 12px; }
+.pr-ayuda{ font-size:.86rem; color:var(--text-2); line-height:1.6; margin:0 0 10px; }
+.pr-texto{
+  width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:var(--r); background:var(--surface2);
+  font-family:var(--font-mono); font-size:14px; line-height:1.6; resize:vertical; min-height:140px; color:var(--text);
+}
+.pr-texto:focus{ outline:none; border-color:var(--orbis); background:#fff; box-shadow:0 0 0 3px rgba(47,59,162,.1); }
+@media (max-width:768px){ .pr-texto{ font-size:16px !important; } }
+.pr-resultado:empty{ display:none; }
+.pr-resumen{ margin:14px 0 8px; font-size:.86rem; color:var(--text-2); }
+.pr-lista{ list-style:none; margin:0; padding:0; border:1px solid var(--border); border-radius:var(--r); max-height:260px; overflow-y:auto; }
+.pr-fila{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center; padding:9px 12px; border-bottom:1px solid #EEF1F8; font-size:.84rem; }
+.pr-fila:last-child{ border-bottom:0; }
+.pr-fila.is-mal{ background:#FFF7F7; grid-template-columns:auto 1fr; }
+.pr-cod{ font-family:var(--font-mono); font-size:.76rem; color:var(--text-2); white-space:nowrap; }
+.pr-nom{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pr-fila.is-mal .pr-nom{ white-space:normal; color:var(--danger); }
+.pr-qty{ font-family:var(--font-mono); font-weight:700; color:var(--orbis-deep); }
+.pr-mal{ color:var(--danger); font-style:normal; font-weight:600; font-size:.76rem; }
+.pr-warn{ color:var(--safety-dark); font-style:normal; font-weight:600; font-size:.76rem; }
+@media (max-width:520px){ .pr-fila{ grid-template-columns:1fr auto; } .pr-cod{ grid-column:1 / -1; } }
+
+/* Los últimos menús del navbar se abren hacia la izquierda: antes se salían
+   de la pantalla y generaban scroll horizontal en laptops */
+.nav-links > li.nav-dropdown:nth-last-child(-n+2) .dropdown-menu{ left:auto; right:0; }
+
+/* Con el botón de favoritos el navbar ya no cabía en laptops de 1366 px */
+@media (max-width:1440px) and (min-width:769px){ .nav-cta{ display:none; } }
+@media (max-width:1180px) and (min-width:769px){
+  .nav-right .nav-auth-btn:not(#nav-client-auth){ font-size:0; gap:0; padding:8px 10px; }
+  .nav-right .btn-cart > span:not(.cart-badge){ display:none; }
+  .nav-links a{ padding:8px 10px; }
+}
+
+/* Variables del catálogo disponibles en toda la página (botones .oc-btn en
+   modales e inicio se veían transparentes fuera de la vista de categoría) */
+:root{
+  --oc-tinta:#151E6B; --oc-azul:#2F3BA2; --oc-azul-hover:#232D8C; --oc-azul-suave:#E9ECFA;
+  --oc-linea:#DDE3F0; --oc-linea-suave:#ECEFF6; --oc-texto:#1A1F3C; --oc-texto2:#475070; --oc-texto3:#666E8C;
+  --oc-verde:#0B8A5F; --oc-naranja:#B45309; --oc-rojo:#C62828;
+}
+/* Vista rápida en escritorio: la columna de detalles hace scroll y la foto
+   queda fija arriba (antes se iba hasta abajo con descripciones largas) */
+@media (min-width:601px){
+  .qv-panel{ grid-template-rows:minmax(0, 1fr); }
+  .qv-image-col{ min-height:0 !important; }
+}
+
 </style>
 </head>
 <body>
@@ -3775,6 +4054,7 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
         <span>OrbisCORP</span><span class="qv-breadcrumb-sep" aria-hidden="true">›</span><span id="qv-breadcrumb-cat">—</span>
       </div>
       <h2 class="qv-product-name" id="qv-product-name-el">—</h2>
+      <div class="qv-var" id="qv-variantes" hidden></div>
       <div class="qv-price-block" role="region" aria-label="Precio del producto">
         <div class="qv-price-label-small">Precio por unidad</div>
         <div class="qv-price-display">
@@ -3811,7 +4091,10 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
 
         <button class="btn-qv-add ripple-host" id="qv-atc-btn">🛒 Agregar al Carrito</button>
         <button class="btn-qv-whatsapp ripple-host" id="qv-wa-btn">💬 Consultar por WhatsApp</button>
-        <button class="btn-qv-share" id="qv-share-btn" type="button">🔗 Compartir este producto</button>
+        <div class="qv-mini-acc">
+          <button class="btn-qv-share" id="qv-fav-btn" type="button" aria-pressed="false"><span class="fav-off">♡ Guardar</span><span class="fav-on">♥ En favoritos</span></button>
+          <button class="btn-qv-share" id="qv-share-btn" type="button">🔗 Compartir</button>
+        </div>
       </div>
       
       <div class="qv-trust-row" aria-label="Garantías OrbisCORP">
@@ -3819,6 +4102,7 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
         <span class="qv-trust-item">🚚 Envíos · Hidalgo, MX</span>
         <span class="qv-trust-item">✓ Distribuidores autorizados</span>
       </div>
+      <div class="qv-rel" id="qv-relacionados" hidden></div>
     </div>
   </div>
 </div>
@@ -3827,10 +4111,10 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
   <div class="search-panel">
     <div class="search-input-wrap">
       <span class="search-icon" aria-hidden="true">🔍</span>
-      <input type="search" id="search-input" placeholder="Buscar productos..." autocomplete="off" aria-label="Campo de búsqueda">
+      <input type="search" id="search-input" placeholder="Buscar por nombre, marca o código…" autocomplete="off" enterkeyhint="search" aria-label="Campo de búsqueda">
       <button class="search-cancel" onclick="closeSearch()">Cancelar</button>
     </div>
-    <div id="search-results" role="listbox"><div class="search-empty">Escribe para buscar productos</div></div>
+    <div id="search-results" role="listbox"></div>
   </div>
 </div>
 <div id="catalog-popup-backdrop" onclick="closeCatalogPopup()"></div>
@@ -3842,6 +4126,11 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
     <a onclick="navigate('soldadura'); closeCatalogPopup()">⚡ Soldadura</a>
     <a onclick="navigate('herramientas'); closeCatalogPopup()">🔧 Herramientas</a>
     <a onclick="navigate('ferreteria'); closeCatalogPopup()">🔩 Ferretería</a>
+    <a onclick="navigate('buscar'); closeCatalogPopup()">📚 Todo el catálogo</a>
+  </div>
+  <div class="cp-extra">
+    <button type="button" onclick="abrirFavoritos()">♥ Favoritos</button>
+    <button type="button" onclick="abrirPedidoRapido()">⚡ Pedido por código</button>
   </div>
 </div>
 <!-- MOBILE BOTTOM NAV -->
@@ -3996,11 +4285,20 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
       <span class="cart-subtotal-label">Total estimado + IVA</span>
       <span class="cart-subtotal-val" id="cart-total">$0.00</span>
     </div>
+    <p class="cart-total-iva" id="cart-total-iva"></p>
     <p class="cart-pendientes" id="cart-pendientes" style="display:none"></p>
     <p class="cart-note">Precio orientativo. El vendedor confirmará el precio final.</p>
+    <details class="cart-nota-wrap">
+      <summary>Agregar nota al pedido</summary>
+      <textarea id="cart-nota" rows="2" maxlength="500" placeholder="Ej. entrega en planta, facturar a otra razón social, urgente…" oninput="guardarNotaPedido(this.value)"></textarea>
+    </details>
     <button class="btn-checkout cotizacion ripple-host" onclick="abrirModalCotizacion()">📄 Generar Cotización PDF</button>
     <button class="btn-checkout whatsapp ripple-host" onclick="checkoutWhatsApp()">💬 Pedir por WhatsApp</button>
-    <button class="cart-clear-btn" type="button" onclick="vaciarCarrito()">Vaciar carrito</button>
+    <div class="cart-extra">
+      <button type="button" onclick="compartirCarrito()">🔗 Compartir lista</button>
+      <button type="button" onclick="abrirPedidoRapido()">⚡ Agregar por código</button>
+      <button type="button" class="is-peligro" onclick="vaciarCarrito()">Vaciar</button>
+    </div>
   </div>
 </aside>
 
@@ -4078,6 +4376,10 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       </button>
 
+      <button class="btn-cart ripple-host nav-fav-btn" onclick="abrirFavoritos()" aria-label="Mis favoritos" title="Mis favoritos">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+        <span class="cart-badge" id="fav-badge" style="display:none" aria-live="polite">0</span>
+      </button>
       <button class="btn-cart ripple-host" onclick="openCart()" aria-label="Abrir carrito de compras">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg> <span>Carrito</span>
         <span class="cart-badge" id="cart-badge" style="display:none" aria-live="polite">0</span>
@@ -4100,6 +4402,9 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
   <a data-route="herramientas" onclick="navigate('herramientas');closeDrawer()">🔧 Herramientas</a>
   <a data-route="ferreteria"   onclick="navigate('ferreteria');closeDrawer()">🔩 Ferretería</a>
   <a onclick="handleMobileAuthNav();closeDrawer()">👤 Mi Cuenta</a>
+  <a data-route="buscar"       onclick="navigate('buscar');closeDrawer()">📚 Todo el catálogo</a>
+  <a onclick="abrirFavoritos()">♥ Mis favoritos</a>
+  <a onclick="abrirPedidoRapido()">⚡ Pedido rápido por código</a>
   <a id="drawer-link-consignacion" onclick="verInventarioConsignacion();closeDrawer()" style="display:none">📦 Inventario Consignado</a>
 </div>
 
@@ -4145,6 +4450,61 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
       <h2 class="section-heading reveal" id="catalogo-heading">Explora por categoría,<br><em>compra al instante</em></h2>
       <p class="section-sub reveal">Selecciona una categoría para ver el catálogo completo. Agrega al carrito y confirma tu pedido por WhatsApp o genera tu cotización en PDF.</p>
       <div id="showroom-grid" class="showroom-grid reveal stagger"></div>
+    </div>
+  </section>
+
+  <section id="home-necesidades" class="section home-sec" aria-labelledby="nec-heading">
+    <div class="section-inner">
+      <div class="section-label">Compra por necesidad</div>
+      <h2 class="section-heading reveal" id="nec-heading">¿Qué trabajo<br><em>vas a hacer?</em></h2>
+      <p class="section-sub reveal">Elige el riesgo y te mostramos todo lo que necesitas, de todas las categorías, en un solo lugar.</p>
+      <div class="nec-grid" id="home-necesidades-grid"></div>
+    </div>
+  </section>
+
+  <section id="home-destacados" class="section home-sec home-sec--alt" aria-labelledby="dest-heading">
+    <div class="section-inner">
+      <div class="fila-cab">
+        <div>
+          <div class="section-label">Con existencia hoy</div>
+          <h2 class="fila-tit" id="dest-heading">Productos destacados</h2>
+        </div>
+        <div class="fila-flechas">
+          <button type="button" onclick="moverFila('home-destacados-fila',-1)" aria-label="Anteriores">‹</button>
+          <button type="button" onclick="moverFila('home-destacados-fila',1)" aria-label="Siguientes">›</button>
+        </div>
+      </div>
+      <div class="fila" id="home-destacados-fila"></div>
+      <div class="fila-pie"><button type="button" class="oc-btn oc-btn--sec" onclick="navigate('buscar',{stock:true})">Ver todo lo que hay en existencia →</button></div>
+    </div>
+  </section>
+
+  <section id="home-recientes" class="section home-sec" aria-labelledby="rec-heading" hidden>
+    <div class="section-inner">
+      <div class="fila-cab">
+        <div>
+          <div class="section-label">Tu historial</div>
+          <h2 class="fila-tit" id="rec-heading">Vistos recientemente</h2>
+        </div>
+        <button type="button" class="fila-borrar" onclick="borrarVistos()">Borrar historial</button>
+      </div>
+      <div class="fila" id="home-recientes-fila"></div>
+    </div>
+  </section>
+
+  <section class="section home-sec" aria-labelledby="pr-heading">
+    <div class="section-inner">
+      <div class="pr-banda">
+        <div class="pr-banda__txt">
+          <div class="section-label">Para compradores</div>
+          <h2 class="fila-tit" id="pr-heading">¿Ya tienes tu lista? Pídela por código</h2>
+          <p>Pega los códigos y cantidades (o cópialos de Excel) y armamos tu carrito en segundos. Después lo mandas por WhatsApp o pides tu cotización en PDF.</p>
+        </div>
+        <div class="pr-banda__acc">
+          <button type="button" class="btn-hero-primary ripple-host" onclick="abrirPedidoRapido()">⚡ Pedido rápido</button>
+          <button type="button" class="oc-btn oc-btn--sec" onclick="abrirFavoritos()">♥ Mis favoritos</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -4274,7 +4634,7 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
           <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">📍</div><div><div class="cdata-label">Sucursal Principal</div><div class="cdata-val">Carr. Cdad. Sahagún-Pachuca 190-Local D, El Saucillo, Hgo.</div></div></div>
           <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">📞</div><div><div class="cdata-label">Teléfono</div><div class="cdata-val"><a href="tel:+527711450476">+52 771 145 0476</a></div></div></div>
           <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">✉️</div><div><div class="cdata-label">Correo Electrónico</div><div class="cdata-val"><a href="mailto:ventas@orbiscorp.com.mx">ventas@orbiscorp.com.mx</a></div></div></div>
-          <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">🕐</div><div><div class="cdata-label">Horario de Atención</div><div class="cdata-val">Lun – Vie · 08:00 – 18:00</div></div></div>
+          <div class="cdata-item"><div class="cdata-icon" aria-hidden="true">🕐</div><div><div class="cdata-label">Horario de Atención</div><div class="cdata-val">Lun – Vie · 08:30 – 18:30</div></div></div>
         </div>
       </div>
       <div class="contact-form reveal">
@@ -4322,6 +4682,9 @@ button, .filtro-chip, .page-num-btn{ -webkit-tap-highlight-color:transparent; }
         <ul class="footer-links">
           <li><a onclick="navigate('home')">Inicio</a></li>
           <li><a onclick="scrollToCatalog()">Tienda</a></li>
+          <li><a onclick="navigate('buscar')">Todo el catálogo</a></li>
+          <li><a onclick="abrirPedidoRapido()">Pedido rápido por código</a></li>
+          <li><a onclick="abrirFavoritos()">Mis favoritos</a></li>
           <li><a onclick="scrollToContact()">Contacto</a></li>
         </ul>
       </div>
