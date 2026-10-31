@@ -3998,6 +3998,91 @@ input.qty-val::-webkit-outer-spin-button, input.qty-val::-webkit-inner-spin-butt
   .qv-image-col{ min-height:0 !important; }
 }
 
+/* ═══ ASISTENTE v2 ═══ */
+#chatbot-window{ z-index:2100; width:380px; height:min(620px, calc(100dvh - 130px)); }
+#chatbot-window.detras{ z-index:1000; }
+
+.chat-header{ padding:12px 12px 12px 14px; gap:10px; }
+.chat-header__id{ display:flex; align-items:center; gap:10px; min-width:0; }
+.chat-header__id strong{ display:block; font-size:.95rem; line-height:1.2; }
+.chat-header__id small{ display:flex; align-items:center; gap:6px; font-size:.7rem; opacity:.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chat-avatar{ width:36px; height:36px; flex:0 0 36px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.3); font-size:1.05rem; }
+.chat-dot{ width:7px; height:7px; border-radius:50%; background:#34D399; box-shadow:0 0 0 3px rgba(52,211,153,.25); flex:0 0 7px; }
+.chat-header__acc{ display:flex; gap:4px; }
+.chat-header__acc button{ width:34px; height:34px; border-radius:50%; font-size:1.05rem !important; display:grid; place-items:center; transition:background .15s; }
+.chat-header__acc button:hover{ background:rgba(255,255,255,.15) !important; }
+.chat-messages{ padding:14px 12px; gap:8px; scroll-behavior:smooth; }
+.chat-messages .msg.bot{ max-width:94%; }
+.chat-texto{ line-height:1.5; }
+.chat-texto strong{ color:var(--orbis-deep, var(--orbis)); }
+.msg.user{ max-width:82%; }
+.chat-pensando{ display:flex; align-items:center; gap:10px; }
+.chat-pensando__txt{ font-size:.75rem; color:var(--text-3); }
+.chat-cards{ display:flex; flex-direction:column; gap:8px; margin-top:10px; }
+.chat-card{
+  display:grid; grid-template-columns:64px 1fr; gap:10px; padding:10px; border:1px solid var(--border);
+  border-radius:12px; background:var(--surface); animation:chatCardIn .35s var(--ease-spring) both; animation-delay:calc(var(--i) * 70ms);
+}
+@keyframes chatCardIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+.chat-card__img{ width:64px; height:64px; border-radius:10px; border:1px solid var(--border); background:#fff; padding:0; cursor:pointer; display:grid; place-items:center; overflow:hidden; }
+.chat-card__img img{ width:100%; height:100%; object-fit:contain; }
+.chat-card__ico{ font-size:1.6rem; }
+.chat-card__body{ min-width:0; display:flex; flex-direction:column; gap:3px; }
+.chat-card__nombre{
+  all:unset; cursor:pointer; font-weight:700; font-size:.8rem; line-height:1.25; color:var(--text);
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.chat-card__nombre:hover{ color:var(--orbis); text-decoration:underline; }
+.chat-card__motivo{ margin:0; font-size:.72rem; color:var(--text-2); line-height:1.35; }
+.chat-card__meta{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin-top:1px; }
+.chat-card__precio{ font-family:var(--font-display); font-weight:700; font-size:.82rem; color:var(--orbis); }
+.chat-card__precio small{ font-size:.62rem; color:var(--text-3); font-weight:500; }
+.chat-card__login{ all:unset; cursor:pointer; font-size:.68rem; font-weight:700; color:var(--orbis); }
+.chat-card__stock{ font-size:.66rem; font-weight:700; color:#0B8A5F; }
+.chat-card__stock.low{ color:#B45309; }
+.chat-card__stock.out{ color:var(--danger, #C62828); }
+.chat-card__var{ all:unset; cursor:pointer; font-size:.68rem; color:var(--orbis); font-weight:600; text-decoration:underline; text-underline-offset:2px; }
+.chat-card__add{
+  margin-top:5px; align-self:flex-start; border:none; border-radius:8px; padding:7px 12px; cursor:pointer;
+  background:var(--grad-orbis, var(--orbis)); color:#fff; font-weight:700; font-size:.72rem; transition:filter .15s, transform .15s;
+}
+.chat-card__add:hover:not(:disabled){ filter:brightness(1.1); transform:translateY(-1px); }
+.chat-card__add:disabled{ opacity:.45; cursor:not-allowed; }
+.chat-kit, .chat-asesor{
+  width:100%; margin-top:8px; padding:10px; border-radius:10px; cursor:pointer; font-weight:700; font-size:.78rem;
+  font-family:var(--font-body); transition:filter .15s, transform .15s;
+}
+.chat-kit{ border:none; background:linear-gradient(135deg, #F59E0B, #EA580C); color:#fff; box-shadow:0 6px 14px -6px rgba(234,88,12,.6); }
+.chat-asesor{ border:1.5px solid #25D366; background:#F0FDF4; color:#15803D; }
+.chat-kit:hover, .chat-asesor:hover{ filter:brightness(1.05); transform:translateY(-1px); }
+.chat-ver-mas{
+  width:100%; margin-top:8px; padding:9px; border-radius:10px; cursor:pointer; font-family:var(--font-body);
+  background:var(--orbis-light) !important; color:var(--orbis) !important; border:1.5px solid var(--orbis-mid) !important;
+  font-size:.78rem; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.chat-nota{ margin-top:8px; font-size:.64rem; color:var(--text-3); font-family:var(--font-mono); letter-spacing:.02em; }
+.chat-sugerencias{ padding-left:2px; }
+.chat-input-area{ gap:8px; padding:10px 12px 6px; margin:0; }
+.chat-input-area button{ margin-left:0 !important; flex:0 0 40px; }
+.chat-legal{ margin:0; padding:0 12px 8px; font-size:.6rem; color:var(--text-3); text-align:center; background:var(--surface); }
+.qv-ask{ grid-column:1 / -1; border-style:solid !important; border-color:var(--orbis-mid) !important; color:var(--orbis) !important; background:var(--orbis-light) !important; font-weight:700 !important; }
+#chat-nudge{
+  position:fixed; left:16px; bottom:calc(var(--mobile-nav-h) + 140px + var(--safe-bottom)); z-index:998;
+  background:#fff; color:var(--text); border:1px solid var(--border); border-radius:14px 14px 14px 4px; padding:10px 14px;
+  font-family:var(--font-body); font-size:.8rem; font-weight:600; box-shadow:var(--shadow-xl); cursor:pointer;
+  animation:chatCardIn .4s var(--ease-spring) both;
+}
+@media(min-width:769px){ #chat-nudge{ left:24px; bottom:88px; } }
+@media(max-width:600px){
+  #chatbot-window{
+    left:8px; right:8px; width:auto; max-width:none;
+    bottom:calc(var(--mobile-nav-h) + 8px + var(--safe-bottom));
+    height:calc(100dvh - var(--mobile-nav-h) - var(--safe-bottom) - 72px);
+  }
+  #chatbot-window.open ~ #chatbot-fab, body:has(#chatbot-window.open) #chatbot-fab{ opacity:0; pointer-events:none; }
+  #chat-input{ font-size:16px; }   /* evita el zoom automático de iOS */
+}
+
 </style>
 </head>
 <body>
@@ -4005,24 +4090,25 @@ input.qty-val::-webkit-outer-spin-button, input.qty-val::-webkit-inner-spin-butt
 <!-- ── OVERLAYS FIJOS ── -->
 <div id="toast-container" role="status" aria-live="polite"></div>
 <button id="chatbot-fab" class="ripple-host" onclick="toggleChatbot()" aria-label="Asistente Virtual" aria-controls="chatbot-window" aria-expanded="false">✨</button>
-<div id="chatbot-window" role="dialog" aria-label="Asistente virtual OrbisCORP">
+<div id="chatbot-window" role="dialog" aria-label="Asesor virtual OrbisCORP">
   <div class="chat-header">
-    <div><strong>Asistente OrbisCORP</strong><br><small style="opacity:0.8">En línea</small></div>
-    <button onclick="toggleChatbot()" aria-label="Cerrar asistente">✕</button>
-  </div>
-  <div class="chat-messages" id="chat-messages" aria-live="polite">
-    <div class="msg bot">¡Hola! 👋 Soy el asistente de OrbisCORP. Cuéntame qué trabajo vas a hacer y te recomiendo el equipo adecuado.</div>
-    <div class="chat-sugerencias" id="chat-sugerencias">
-      <button type="button" onclick="enviarMensajeChat('Necesito equipo de protección para soldar')">🔥 Equipo para soldar</button>
-      <button type="button" onclick="enviarMensajeChat('Busco protección para trabajo en altura')">🪢 Trabajo en altura</button>
-      <button type="button" onclick="enviarMensajeChat('Discos de corte para metal de 4 1/2')">⚙️ Discos de corte</button>
-      <button type="button" onclick="enviarMensajeChat('Protección respiratoria contra polvo')">😷 Respiradores</button>
+    <div class="chat-header__id">
+      <span class="chat-avatar" aria-hidden="true">✨</span>
+      <div><strong>Asesor OrbisCORP</strong><small><i class="chat-dot" aria-hidden="true"></i>Seguridad industrial · responde al instante</small></div>
+    </div>
+    <div class="chat-header__acc">
+      <button type="button" onclick="nuevaConversacionChat()" aria-label="Nueva conversación" title="Nueva conversación">↺</button>
+      <button type="button" onclick="toggleChatbot(false)" aria-label="Cerrar asistente">✕</button>
     </div>
   </div>
-  <div class="chat-input-area">
-    <input type="text" id="chat-input" placeholder="Ej. guantes para soldar…" maxlength="500" autocomplete="off" aria-label="Escribe tu pregunta" onkeydown="if(event.key==='Enter')enviarMensajeChat()">
-    <button class="ripple-host" onclick="enviarMensajeChat()" aria-label="Enviar">➤</button>
+  <div class="chat-messages" id="chat-messages" aria-live="polite">
+    <div class="msg bot"><div class="chat-texto">¡Hola! 👋 Soy el asesor virtual de OrbisCORP. Cuéntame <strong>qué trabajo vas a hacer</strong> y te armo el equipo adecuado.</div></div>
   </div>
+  <form class="chat-input-area" onsubmit="event.preventDefault(); enviarMensajeChat()">
+    <input type="text" id="chat-input" placeholder="Escribe tu pregunta…" maxlength="500" autocomplete="off" enterkeyhint="send" aria-label="Escribe tu pregunta">
+    <button type="submit" class="ripple-host" aria-label="Enviar">➤</button>
+  </form>
+  <p class="chat-legal">Respuestas generadas con IA. Confirma con un asesor antes de comprar equipo crítico.</p>
 </div>
 
 <button id="wa-fab" onclick="waFabClick()" aria-label="Contactar por WhatsApp">
@@ -4094,6 +4180,7 @@ input.qty-val::-webkit-outer-spin-button, input.qty-val::-webkit-inner-spin-butt
         <div class="qv-mini-acc">
           <button class="btn-qv-share" id="qv-fav-btn" type="button" aria-pressed="false"><span class="fav-off">♡ Guardar</span><span class="fav-on">♥ En favoritos</span></button>
           <button class="btn-qv-share" id="qv-share-btn" type="button">🔗 Compartir</button>
+          <button class="btn-qv-share qv-ask" type="button" onclick="preguntarAlAsistente()">✨ Pregúntale al asistente sobre este producto</button>
         </div>
       </div>
       

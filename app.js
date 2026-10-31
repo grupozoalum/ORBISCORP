@@ -4113,131 +4113,380 @@ if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded
 else _iniciarTienda();
 
 /* ══════════════════════════════════════════════
-   ASISTENTE VIRTUAL GEMINI (CON LÍMITE DE CRÉDITOS)
+   ASISTENTE VIRTUAL (v2)
+   · El servidor busca en el catálogo real y Gemini arma la recomendación.
+   · Respuesta en JSON: texto + productos (con motivo y cantidad) +
+     sugerencias + "ver más" + aviso de asesor.
+   · La conversación sobrevive a recargas (sessionStorage).
+   · Si el servidor falla, responde con la búsqueda local del catálogo.
 ═══════════════════════════════════════════════ */
 const chatAsistenteCall = httpsCallable(functionsClient, 'chatAsistente');
-
-window.historialChat    = [];   // memoria corta del bot
-window.mensajesEnviados = 0;
-const MAX_MENSAJES = 12;        // el límite real lo pone el servidor
+const CHAT_KEY = 'orbis_chat_v2';
+const CHAT_MAX_SESION = 40;          // tope suave del navegador; el real lo pone el servidor
+let _chat = { mensajes: [], enviados: 0 };
 let _chatOcupado = false;
+let _chatPintado = false;
 
-window.toggleChatbot = () => {
+try {
+  const guardado = JSON.parse(sessionStorage.getItem(CHAT_KEY) || 'null');
+  if (guardado && Array.isArray(guardado.mensajes)) _chat = { mensajes: guardado.mensajes.slice(-40), enviados: Number(guardado.enviados) || 0 };
+} catch (_) { /* almacenamiento bloqueado: la conversación vive solo en memoria */ }
+function _chatGuardar() {
+  try { sessionStorage.setItem(CHAT_KEY, JSON.stringify({ mensajes: _chat.mensajes.slice(-40), enviados: _chat.enviados })); } catch (_) {}
+}
+
+const _chatAbierto = () => document.getElementById('chatbot-window')?.classList.contains('open');
+const _qvAbierto = () => document.getElementById('quick-view-modal')?.classList.contains('open');
+
+window.toggleChatbot = (forzar) => {
   const win = document.getElementById('chatbot-window');
-  win.classList.toggle('open');
-  document.getElementById('chatbot-fab')?.setAttribute('aria-expanded', String(win.classList.contains('open')));
-  if (win.classList.contains('open')) {
-    setTimeout(() => document.getElementById('chat-input')?.focus(), 100);
+  if (!win) return;
+  const abrir = typeof forzar === 'boolean' ? forzar : !win.classList.contains('open');
+  win.classList.toggle('open', abrir);
+  if (abrir) win.classList.remove('detras');
+  document.getElementById('chatbot-fab')?.setAttribute('aria-expanded', String(abrir));
+  document.getElementById('chat-nudge')?.remove();
+  if (abrir) {
+    if (!_chatPintado || !_chat.mensajes.length) _chatRender();
+    setTimeout(() => document.getElementById('chat-input')?.focus({ preventScroll: true }), 120);
   }
 };
 
-function _chatAgregar(tipo, html, extraClass = '') {
-  const msgsDiv = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = `msg ${tipo}${extraClass ? ' ' + extraClass : ''}`;
-  div.innerHTML = html;
-  msgsDiv.appendChild(div);
-  msgsDiv.scrollTop = msgsDiv.scrollHeight;
-  return div;
+/* ── Sugerencias según dónde está el cliente ── */
+const _CHIPS_CAT = {
+  epp:          ['Equipo completo para soldar', 'Protección para trabajo en altura', 'Guantes para químicos', 'Respirador para polvo'],
+  soldadura:    ['Equipo completo para soldar', 'Careta para soldar', 'Guantes de carnaza'],
+  abrasivos:    ['Disco para cortar metal de 4 1/2', '¿Qué disco uso para desbaste?', 'Lijas para madera'],
+  herramientas: ['Esmeriladora para uso rudo', 'Brocas para concreto', 'Carbones para mi herramienta'],
+  ferreteria:   ['Material para instalación eléctrica', 'Selladores para fugas', 'Tornillería y taquetes'],
+};
+const _CHIPS_INICIO = ['Equipo completo para soldar', 'Protección para trabajo en altura', 'Discos de corte para metal', 'Respirador contra polvo'];
+
+function _chipsContexto() {
+  if (_qvAbierto() && currentQvProductId) {
+    const p = allProducts.find(x => x.id === currentQvProductId);
+    if (p) return [
+      p._tipoVariante === 'tallas' || p._tipoVariante === 'opciones' ? '¿Qué talla me recomiendas?' : '¿Para qué trabajos sirve?',
+      '¿Qué más necesito con este producto?',
+      '¿Tienen existencia suficiente?'
+    ];
+  }
+  return _CHIPS_CAT[window._currentCat] || _CHIPS_INICIO;
 }
 
-/* La respuesta del modelo se ESCAPA primero y luego se convierten solo
-   nuestras etiquetas. Así la IA no puede meter HTML en la página. */
-function _formatearRespuestaBot(texto) {
-  let html = escHTML(texto)
-    .replace(/\n/g, '<br>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+/* ── Pintado ── */
+function _chatTexto(t) {
+  return escHTML(t)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|\n)\s*[-•]\s+/g, '$1• ')
+    .replace(/\n/g, '<br>');
+}
 
-  html = html.replace(/\[PRODUCTO:([^\]]+)\]/g, (m, idRaw) => {
-    const p = allProducts.find(x => escHTML(x.id) === idRaw.trim());
-    if (!p) return '';
-    const id  = escJS(p.id);
-    const pd  = getPrecioData(p.precio);
-    const { label, cls, out } = getStockInfo(p);
-    const precio = !hayUsuarioLogueado()
-      ? '🔒 Inicia sesión para ver precio'
-      : pd.sinPrecio ? 'Consultar precio'
-      : `${fmtPrice(pd.final)} <span style="font-size:.65rem;color:var(--text-3);font-weight:400;">MXN</span>`;
-    const img = p.imageUrl
-      ? `<img src="${escHTML(p.imageUrl)}" alt="" loading="lazy" style="width:50px;height:50px;object-fit:contain;border-radius:8px;background:#fff;border:1px solid var(--border);flex-shrink:0;">`
-      : `<div style="width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border-radius:8px;background:var(--orbis-light);flex-shrink:0;">${(CAT_META[p.categoria] || { icon: '📦' }).icon}</div>`;
+function _chatTarjeta(item, i) {
+  const p = allProducts.find(x => x.id === item.id);
+  if (!p) return '';
+  const id = escJS(p.id);
+  const pd = getPrecioData(p.precio);
+  const { inv, out } = getStockInfo(p);
+  const qty = Math.max(1, Number(item.cantidad) || 1);
+  const precio = !hayUsuarioLogueado()
+    ? `<button type="button" class="chat-card__login" onclick="openLoginCliente()">🔒 Inicia sesión para ver precio</button>`
+    : pd.sinPrecio ? '<span class="chat-card__precio">Precio a cotizar</span>'
+    : `<span class="chat-card__precio">${fmtPrice(pd.final)} <small>+ IVA</small></span>`;
+  const stock = inv === null ? '' : out
+    ? '<span class="chat-card__stock out">Agotado</span>'
+    : `<span class="chat-card__stock${inv <= 5 ? ' low' : ''}">${inv <= 5 ? `¡Solo ${inv}!` : `${inv} disponibles`}</span>`;
+  const variantes = p._grupo && _grupos.get(p._grupo)?.length > 1
+    ? `<button type="button" class="chat-card__var" onclick="chatVerProducto('${id}')">${p._variante ? escHTML(p._variante) + ' · ' : ''}ver ${_grupos.get(p._grupo).length} ${p._tipoVariante === 'colores' ? 'colores' : p._tipoVariante === 'tallas' ? 'tallas' : 'opciones'}</button>` : '';
+  const img = p.imageUrl
+    ? `<img src="${escHTML(p.imageUrl)}" alt="" loading="lazy">`
+    : `<span class="chat-card__ico" aria-hidden="true">${CAT_META[p.categoria]?.icon || '📦'}</span>`;
+  return `<article class="chat-card" style="--i:${i}">
+      <button type="button" class="chat-card__img" onclick="chatVerProducto('${id}')" aria-label="Ver ${escHTML(p.nombre)}">${img}</button>
+      <div class="chat-card__body">
+        <button type="button" class="chat-card__nombre" onclick="chatVerProducto('${id}')">${escHTML(p.nombre)}</button>
+        ${item.motivo ? `<p class="chat-card__motivo">${escHTML(item.motivo)}</p>` : ''}
+        <div class="chat-card__meta">${precio}${stock}</div>
+        ${variantes}
+        <button type="button" class="chat-card__add" onclick="chatAgregar('${id}', ${qty})" ${out ? 'disabled' : ''}>
+          ${out ? 'Sin existencia' : qty > 1 ? `+ Agregar ${qty}` : '+ Agregar al carrito'}
+        </button>
+      </div>
+    </article>`;
+}
 
-    return `<div class="chat-prod-card">
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;cursor:pointer;" onclick="openQV('${id}')">
-          ${img}
-          <div style="flex:1;min-width:0;">
-            <div class="chat-prod-name">${escHTML(p.nombre)}</div>
-            <div class="chat-prod-price">${precio}</div>
-            ${label ? `<div class="sri-stock ${cls}">${label}</div>` : ''}
-          </div>
-        </div>
-        <div style="display:flex;gap:6px;">
-          <button class="chat-prod-btn ghost" onclick="openQV('${id}')">Ver</button>
-          <button class="chat-prod-btn" onclick="addToCart('${id}')" ${out ? 'disabled' : ''}>${out ? 'Sin stock' : '+ Agregar'}</button>
-        </div>
-      </div>`;
+function _chatBot(m, idx, esUltimo) {
+  const prods = (m.productos || []).filter(x => allProducts.some(p => p.id === x.id));
+  const disponibles = prods.filter(x => !getStockInfo(allProducts.find(p => p.id === x.id)).out);
+  let html = '';
+  if (m.texto) html += `<div class="chat-texto">${_chatTexto(m.texto)}</div>`;
+  if (prods.length) html += `<div class="chat-cards">${prods.map(_chatTarjeta).join('')}</div>`;
+  if (disponibles.length >= 2) {
+    html += `<button type="button" class="chat-kit" onclick="chatAgregarTodo(${idx})">🛒 Agregar ${disponibles.length === prods.length ? `los ${disponibles.length}` : `los ${disponibles.length} disponibles`} al carrito</button>`;
+  }
+  if (m.verMas) {
+    const etiqueta = m.verMas.busqueda ? `Ver más: ${escHTML(m.verMas.busqueda)}` : 'Ver más opciones';
+    html += `<button type="button" class="chat-ver-mas" onclick="chatVerMas(${idx})">${etiqueta} <span aria-hidden="true">→</span></button>`;
+  }
+  if (m.asesor) {
+    html += `<button type="button" class="chat-asesor" onclick="chatWhatsApp()">💬 Seguir con un asesor por WhatsApp</button>`;
+  }
+  if (m.modo === 'respaldo' || m.modo === 'local') {
+    html += `<div class="chat-nota">Búsqueda rápida en el catálogo</div>`;
+  }
+  const chips = esUltimo ? (m.sugerencias || []) : [];
+  const chipsHTML = chips.length
+    ? `<div class="chat-sugerencias">${chips.map(c => `<button type="button" onclick="enviarMensajeChat('${escJS(c)}')">${escHTML(c)}</button>`).join('')}</div>` : '';
+  return `<div class="msg bot${m.error ? ' chat-error' : ''}${m.tipo === 'local' ? ' chat-aviso' : ''}">${html}</div>${chipsHTML}`;
+}
+
+function _chatRender() {
+  const cont = document.getElementById('chat-messages');
+  if (!cont) return;
+  const bienvenida = `<div class="msg bot"><div class="chat-texto">¡Hola! 👋 Soy el asesor virtual de OrbisCORP. Cuéntame <strong>qué trabajo vas a hacer</strong> y te armo el equipo adecuado, o pregúntame por cualquier producto, talla o existencia.</div></div>`;
+  const ultimoBot = _chat.mensajes.map(m => m.tipo).lastIndexOf('bot') ;
+  const ultimoAny = _chat.mensajes.length - 1;
+  let html = bienvenida;
+  if (!_chat.mensajes.length) {
+    html += `<div class="chat-sugerencias">${_chipsContexto().map(c => `<button type="button" onclick="enviarMensajeChat('${escJS(c)}')">${escHTML(c)}</button>`).join('')}</div>`;
+  }
+  _chat.mensajes.forEach((m, i) => {
+    if (m.tipo === 'user') html += `<div class="msg user">${escHTML(m.texto)}</div>`;
+    else html += _chatBot(m, i, i === ultimoAny && (i === ultimoBot || m.tipo === 'local'));
   });
+  cont.innerHTML = html;
+  _chatPintado = true;
+  cont.scrollTop = cont.scrollHeight;
+  _chatEstadoInput();
+}
 
-  html = html.replace(/\[VER_MAS:([^:\]]+):([^\]]+)\]/g, (m, cat, palabra) => {
-    const slug = normTxt(cat).trim();
-    if (!VIEWS_CONFIG[slug]) return '';
-    const limpia = palabra.replace(/&[#a-z0-9]+;/gi, ' ').replace(/[^\p{L}\p{N} \-]/gu, '').trim().slice(0, 40);
-    const filtro = limpia ? `{ q: '${limpia}' }` : 'null';
-    return `<button class="sc-cta ripple-host chat-ver-mas" onclick="navigate('${slug}', ${filtro}); toggleChatbot();">Ver ${limpia ? 'más sobre ' + limpia : 'la categoría'} <span>→</span></button>`;
+function _chatEstadoInput() {
+  const input = document.getElementById('chat-input');
+  const btn = document.querySelector('.chat-input-area button');
+  const agotado = _chat.enviados >= CHAT_MAX_SESION;
+  if (input) {
+    input.disabled = agotado;
+    input.placeholder = agotado ? 'Límite de esta sesión: sigue por WhatsApp' : 'Escribe tu pregunta…';
+  }
+  if (btn) btn.disabled = agotado || _chatOcupado;
+}
+
+/* ── Acciones de las tarjetas ── */
+window.chatVerProducto = (id) => {
+  if (window.matchMedia('(max-width: 900px)').matches) toggleChatbot(false);
+  else document.getElementById('chatbot-window')?.classList.add('detras');
+  openQV(id);
+};
+window.chatAgregar = (id, qty = 1) => {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  const inv = p.inventario != null ? Number(p.inventario) : null;
+  if (inv !== null && inv <= 0) { showToast('Producto sin existencia', '⚠️'); return; }
+  const item = cart.find(c => c.id === id);
+  const actual = item ? item.qty : 0;
+  let nueva = actual + Math.max(1, Number(qty) || 1);
+  let tope = false;
+  if (inv !== null && nueva > inv) { nueva = inv; tope = true; }
+  if (nueva === actual) { showToast('Ya tienes toda la existencia en tu carrito', '⚠️'); return; }
+  if (item) item.qty = nueva; else cart.push(_itemCarrito(p, nueva));
+  persistCart(); updateCartUI(); _refreshProductCardBtn(id);
+  showToast(tope ? `Solo hay ${inv}: agregamos ${nueva - actual} de "${p.nombre}"` : `"${p.nombre}" añadido (${nueva - actual})`, tope ? '⚠️' : '✅');
+};
+window.chatAgregarTodo = (idx) => {
+  const m = _chat.mensajes[idx];
+  if (!m) return;
+  let n = 0;
+  (m.productos || []).forEach(x => {
+    const p = allProducts.find(q => q.id === x.id);
+    if (!p || getStockInfo(p).out) return;
+    const item = cart.find(c => c.id === p.id);
+    const inv = p.inventario != null ? Number(p.inventario) : Infinity;
+    const nueva = Math.min((item ? item.qty : 0) + Math.max(1, Number(x.cantidad) || 1), inv);
+    if (item) item.qty = nueva; else cart.push(_itemCarrito(p, nueva));
+    _refreshProductCardBtn(p.id);
+    n++;
   });
+  if (!n) return;
+  persistCart(); updateCartUI();
+  showToast(`${n} productos agregados a tu carrito`, '🛒');
+};
+window.chatVerMas = (idx) => {
+  const vm = _chat.mensajes[idx]?.verMas;
+  if (!vm) return;
+  const q = vm.busqueda || '';
+  if (vm.categoria && vm.categoria !== 'todas' && VIEWS_CONFIG[vm.categoria]) navigate(vm.categoria, q ? { q } : null);
+  else navigate('buscar', q ? { q } : null);
+  if (window.matchMedia('(max-width: 900px)').matches) toggleChatbot(false);
+};
+window.chatWhatsApp = () => {
+  const ultimaPregunta = [..._chat.mensajes].reverse().find(m => m.tipo === 'user')?.texto || '';
+  const ids = [];
+  _chat.mensajes.forEach(m => (m.productos || []).forEach(x => { if (!ids.some(y => y.id === x.id)) ids.push(x); }));
+  const lineas = ids.slice(-6).map(x => {
+    const p = allProducts.find(q => q.id === x.id);
+    return p ? `• ${p.nombre} (cód. ${p.sku})${x.cantidad > 1 ? ` × ${x.cantidad}` : ''}` : '';
+  }).filter(Boolean);
+  const msg = `Hola OrbisCORP, vengo del asistente de la tienda en línea.` +
+    (ultimaPregunta ? `\n\nMi consulta: ${ultimaPregunta}` : '') +
+    (lineas.length ? `\n\nProductos que me recomendaron:\n${lineas.join('\n')}` : '');
+  window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+};
+window.nuevaConversacionChat = () => {
+  _chat = { mensajes: [], enviados: _chat.enviados };
+  _chatGuardar();
+  _chatRender();
+  document.getElementById('chat-input')?.focus();
+};
+/* Botón de la vista rápida: abre el asistente con preguntas de ese producto */
+window.preguntarAlAsistente = () => {
+  const p = allProducts.find(x => x.id === currentQvProductId);
+  if (!p) return;
+  const ultimo = _chat.mensajes[_chat.mensajes.length - 1];
+  if (!(ultimo && ultimo.tipo === 'local' && ultimo.productoId === p.id)) {
+    _chat.mensajes.push({ tipo: 'local', productoId: p.id, texto: `Estás viendo **${p.nombre.replace(/[.\s]+$/, '')}**. ¿Qué quieres saber?`, sugerencias: _chipsContexto() });
+    _chatGuardar();
+  }
+  _chatRender();
+  toggleChatbot(true);
+};
 
-  return html.replace(/\[(PRODUCTO|VER_MAS)[^\]]*\]/g, '');
+/* ── Respaldo sin servidor: búsqueda local ── */
+const _CHAT_RELLENO = new Set('necesito ocupo busco quiero tienen tienes hay venden manejan algo algun alguna que cual como donde cuanto me mi se por favor hola buenas gracias precio cuesta para trabajo hacer usar recomiendas sirve'.split(' '));
+function _chatBusquedaLocal(texto) {
+  const terminos = prepararConsulta(texto).filter(a => !_CHAT_RELLENO.has(a[0]));
+  if (!terminos.length) return [];
+  const minimo = terminos.length <= 2 ? 1 : Math.ceil(terminos.length / 2);
+  const txt = p => textoBusqueda(p);
+  const vistos = new Set();
+  return allProducts
+    .map(p => [terminos.filter(alts => alts.some(a => txt(p).includes(a))).length, p])
+    .filter(([n]) => n >= minimo)
+    .sort((a, b) => b[0] - a[0] || puntaje(b[1], texto, terminos) - puntaje(a[1], texto, terminos))
+    .map(([, p]) => p)
+    .filter(p => { const k = p._grupo || p.id; if (vistos.has(k)) return false; vistos.add(k); return true; })
+    .slice(0, 4);
+}
+
+/* ── Envío ── */
+function _chatHistorial() {
+  return _chat.mensajes.filter(m => m.tipo === 'user' || (m.tipo === 'bot' && !m.error)).slice(-8).map(m => {
+    if (m.tipo === 'user') return { rol: 'user', texto: m.texto };
+    const nombres = (m.productos || []).map(x => allProducts.find(p => p.id === x.id)?.nombre).filter(Boolean);
+    return { rol: 'model', texto: `${m.texto || ''}${nombres.length ? `\n(Productos mostrados: ${nombres.join('; ')})` : ''}` };
+  });
+}
+function _chatContexto() {
+  const mostrados = [];
+  [..._chat.mensajes].reverse().forEach(m => (m.productos || []).forEach(x => { if (!mostrados.includes(x.id)) mostrados.push(x.id); }));
+  return {
+    vista: window._currentCat || 'home',
+    productoId: _qvAbierto() ? currentQvProductId : null,
+    carrito: cart.slice(0, 15).map(c => ({ id: c.id, cantidad: c.qty })),
+    mostrados: mostrados.slice(0, 8)
+  };
 }
 
 window.enviarMensajeChat = async (textoDirecto) => {
-  if (_chatOcupado || window.mensajesEnviados >= MAX_MENSAJES) return;
-
+  if (_chatOcupado || _chat.enviados >= CHAT_MAX_SESION) return;
   const input = document.getElementById('chat-input');
-  const texto = (typeof textoDirecto === 'string' ? textoDirecto : input.value).trim().slice(0, 500);
+  const texto = (typeof textoDirecto === 'string' ? textoDirecto : input?.value || '').trim().slice(0, 500);
   if (!texto) return;
+  if (!_chatAbierto()) toggleChatbot(true);
 
+  const historial = _chatHistorial();
+  const contexto = _chatContexto();
   _chatOcupado = true;
-  window.mensajesEnviados++;
-  document.getElementById('chat-sugerencias')?.remove();
-  const sendBtn = document.querySelector('.chat-input-area button');
-  if (sendBtn) sendBtn.disabled = true;
+  _chat.enviados++;
+  _chat.mensajes.push({ tipo: 'user', texto });
+  if (input) input.value = '';
+  _chatRender();
 
-  _chatAgregar('user', escHTML(texto));
-  input.value = '';
-  const typing = _chatAgregar('bot', '<span class="chat-typing" aria-label="Escribiendo"><i></i><i></i><i></i></span>');
+  const cont = document.getElementById('chat-messages');
+  const typing = document.createElement('div');
+  typing.className = 'msg bot chat-pensando';
+  typing.innerHTML = '<span class="chat-typing" aria-hidden="true"><i></i><i></i><i></i></span><span class="chat-pensando__txt">Pensando…</span>';
+  cont.appendChild(typing);
+  cont.scrollTop = cont.scrollHeight;
+  const fases = ['Buscando en el catálogo…', 'Revisando existencias…', 'Armando tu recomendación…'];
+  let f = 0;
+  const reloj = setInterval(() => { const t = typing.querySelector('.chat-pensando__txt'); if (t) t.textContent = fases[Math.min(f++, fases.length - 1)]; }, 1400);
 
+  let respuesta;
   try {
-    /* El inventario ya no se manda desde el navegador: el servidor lo busca
-       en Firestore (más preciso y nadie puede inyectarle productos falsos). */
-    const result = await chatAsistenteCall({
-      mensaje: texto,
-      historial: window.historialChat.slice(-6)
-    });
-    const respuestaBot = String(result.data?.respuesta || '').trim();
-
-    typing.remove();
-    _chatAgregar('bot', _formatearRespuestaBot(respuestaBot) || 'No tengo una respuesta para eso. ¿Me das más detalles de tu trabajo?');
-
-    window.historialChat.push({ role: 'user',  parts: [{ text: texto }] });
-    window.historialChat.push({ role: 'model', parts: [{ text: respuestaBot }] });
-
-    if (window.mensajesEnviados >= MAX_MENSAJES) {
-      input.disabled = true;
-      input.placeholder = 'Límite de consultas alcanzado.';
-      _chatAgregar('bot', `Has alcanzado el límite de consultas de esta sesión. Para atención personalizada y tomar tu pedido, habla con un asesor.
-        <br><br>
-        <button class="btn-qv-whatsapp ripple-host" style="width:100%; font-size: 0.75rem; padding: 8px; min-height: auto;" onclick="waFabClick()">💬 Hablar por WhatsApp</button>`, 'chat-aviso');
+    const { data } = await chatAsistenteCall({ mensaje: texto, historial, contexto });
+    if (data && data.version >= 2) {
+      respuesta = {
+        tipo: 'bot',
+        texto: String(data.respuesta || ''),
+        productos: (data.productos || []).filter(x => x && allProducts.some(p => p.id === x.id)),
+        verMas: data.verMas || null,
+        sugerencias: Array.isArray(data.sugerencias) ? data.sugerencias.slice(0, 3) : [],
+        asesor: !!data.asesor,
+        modo: data.modo || 'ia'
+      };
+    } else {
+      // Servidor viejo (etiquetas [PRODUCTO:ID]): se convierte al formato nuevo
+      const crudo = String(data?.respuesta || '');
+      const productos = [...crudo.matchAll(/\[PRODUCTO:([^\]]+)\]/g)].map(x => ({ id: x[1].trim(), cantidad: 1 })).filter(x => allProducts.some(p => p.id === x.id));
+      const vm = crudo.match(/\[VER_MAS:([^:\]]+):([^\]]+)\]/);
+      respuesta = { tipo: 'bot', texto: crudo.replace(/\[(PRODUCTO|VER_MAS)[^\]]*\]/g, '').trim(), productos,
+        verMas: vm ? { categoria: normTxt(vm[1]).trim(), busqueda: vm[2].trim().slice(0, 40) } : null, sugerencias: [], asesor: false, modo: 'ia' };
     }
+    if (!respuesta.texto && !respuesta.productos.length) respuesta.texto = '¿Me das más detalles de tu trabajo para recomendarte bien?';
   } catch (error) {
-    console.error('Error en Chat:', error);
-    typing.remove();
-    window.mensajesEnviados--;   // un error no cuenta como consulta
-    const msg = error?.code === 'functions/resource-exhausted' && error.message
-      ? error.message
-      : '⚠ Tuvimos un error de conexión, intenta de nuevo en un momento.';
-    _chatAgregar('bot', escHTML(msg), 'chat-error');
+    console.error('Error en el asistente:', error);
+    if (error?.code === 'functions/resource-exhausted') {
+      respuesta = { tipo: 'bot', texto: error.message || 'Alcanzaste el límite de mensajes por ahora.', productos: [], asesor: true, modo: 'limite' };
+    } else {
+      _chat.enviados--;   // un error no cuenta como consulta
+      const locales = _chatBusquedaLocal(texto);
+      respuesta = {
+        tipo: 'bot',
+        texto: locales.length
+          ? 'Tuve un problema para conectarme, pero esto encontré en el catálogo:'
+          : '⚠ Tuve un problema de conexión. Intenta de nuevo en un momento o escríbenos por WhatsApp.',
+        productos: locales.map(p => ({ id: p.id, cantidad: 1 })),
+        asesor: true,
+        modo: 'local',
+        sugerencias: [texto.slice(0, 60)]
+      };
+    }
   } finally {
+    clearInterval(reloj);
     _chatOcupado = false;
-    if (sendBtn && !input.disabled) sendBtn.disabled = false;
   }
+  _chat.mensajes.push(respuesta);
+  _chatGuardar();
+  _chatRender();
+  // Que se vea el inicio de la respuesta, no el final de las tarjetas
+  const burbujas = cont.querySelectorAll('.msg.bot');
+  const ultima = burbujas[burbujas.length - 1];
+  if (ultima && ultima.offsetHeight > cont.clientHeight * 0.6) {
+    cont.style.scrollBehavior = 'auto';
+    cont.scrollTop += ultima.getBoundingClientRect().top - cont.getBoundingClientRect().top - 12;
+    cont.style.scrollBehavior = '';
+  }
+};
+
+/* Invitación discreta, una sola vez por navegador */
+setTimeout(() => {
+  try {
+    if (localStorage.getItem('orbis_chat_nudge') || _chatAbierto() || _chat.mensajes.length) return;
+    localStorage.setItem('orbis_chat_nudge', '1');
+  } catch (_) { return; }
+  const fab = document.getElementById('chatbot-fab');
+  if (!fab) return;
+  const n = document.createElement('button');
+  n.id = 'chat-nudge'; n.type = 'button';
+  n.innerHTML = '¿Te ayudo a elegir tu equipo? <span aria-hidden="true">✨</span>';
+  n.onclick = () => toggleChatbot(true);
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 9000);
+}, 25000);
+
+/* Al cerrar la vista rápida, el asistente vuelve al frente */
+const _closeQVBase = window.closeQV;
+window.closeQV = (...args) => {
+  _closeQVBase(...args);
+  document.getElementById('chatbot-window')?.classList.remove('detras');
 };
