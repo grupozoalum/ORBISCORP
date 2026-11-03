@@ -4301,6 +4301,40 @@ body.nav-n4 #drawer-backdrop{ z-index:794; }
 /* En monitores anchos hay espacio para el botón "Ver Catálogo" */
 @media (min-width:1500px){ #main-nav .nav-inner{ max-width:1440px; } }
 
+/* ── 12 · Celular con sesión iniciada ──
+   El botón de cuenta de escritorio ("👤 Nombre") tenía display:inline-block
+   y aparecía también en el celular, empujando el menú y el carrito fuera de
+   la pantalla. En celular la cuenta vive en el ícono 👤 de la derecha. */
+@media (max-width:768px){
+  #nav-client-auth, #nav-client-auth.logged-in{ display:none !important; }
+  .nav-user-wrap{ width:0; min-width:0; }
+}
+/* Pantallas muy angostas (Galaxy Fold cerrado, 280–340 px) */
+@media (max-width:340px){
+  .nav-inner{ padding:0 8px; gap:4px; }
+  .btn-cart, .mobile-profile-icon, .hamburger{ width:36px !important; min-width:36px !important; height:36px !important; }
+  .mbn-item{ margin:4px 0 !important; padding:0 !important; min-width:0; }
+  .mbn-label{ font-size:9.5px !important; letter-spacing:0 !important; }
+  .mbn-icon{ font-size:1.1rem !important; }
+}
+@media (max-width:340px){
+  .oc-toolbar{ margin:0 -8px 10px !important; padding:10px 8px !important; }
+  .oc-toolbar > *{ min-width:0; }
+  .oc-btn-filtros, .oc-orden{ flex:1 1 0; }
+  .oc-orden select{ padding:0 26px 0 8px; font-size:15px; }
+  .oc-wrap{ padding:0 8px; }
+}
+@media (max-width:340px){ .oc-cat-tabs{ margin:0 -8px !important; padding:0 4px !important; } }
+
+/* ── 13 · Menú de cuenta en el celular ──
+   El "blur" del encabezado convertía al encabezado en el marco de los
+   elementos fijos: la hoja de "Mi cuenta" se abría fuera de la pantalla. */
+@media (max-width:768px){
+  nav#main-nav{ -webkit-backdrop-filter:none !important; backdrop-filter:none !important; background:rgba(255,255,255,.98) !important; }
+  /* En el inicio, el botón del asistente no tapa los botones del hero */
+  body.fab-hero #chatbot-fab{ opacity:0; pointer-events:none; transform:translateY(calc(100% + 90px)); }
+}
+
 </style>
 </head>
 <body>

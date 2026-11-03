@@ -483,6 +483,7 @@ function _applyRoute(route, filtro = null) {
   }
 
   window.scrollTo(0, 0);
+  document.body.classList.toggle('fab-hero', route === 'home');
   setTimeout(initReveal, 120);
 }
 
@@ -4044,6 +4045,7 @@ window.addEventListener('scroll', () => {
     document.body.classList.toggle('fab-fuera', y > _yPrev && y > 240);
     _yPrev = y;
   }
+  document.body.classList.toggle('fab-hero', !window._currentCat && y < 260);
 }, { passive: true });
 
 /* ── Barra de navegación: compacta por pasos hasta que todo quepa ──
