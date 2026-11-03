@@ -1786,6 +1786,8 @@ window.openQV = function(productId) {
     if (ivaEl) ivaEl.textContent = ivaTxt(1);
   }
 
+  document.querySelector('#quick-view-modal .qv-price-display')?.classList.toggle('sin-precio', !hayUsuarioLogueado() || pData.sinPrecio);
+
   const stockPill = document.getElementById('qv-stock-pill');
   const stockText = document.getElementById('qv-stock-text');
   const atcBtn = document.getElementById('qv-atc-btn');
@@ -2368,6 +2370,7 @@ function _prellenarContacto(c) {
 ═══════════════════════════════════════════════ */
 
 function updateCustomerNavBtn(customer) {
+  setTimeout(() => window._ajustarNav?.(), 0);
   const btn = document.getElementById('nav-client-auth');
   const mobBtn = document.getElementById('nav-mobile-auth'); // El nuevo botón móvil
   if (!btn) return;
@@ -4031,10 +4034,51 @@ document.addEventListener('click', e => {
 }, true);
 
 /* ── Scroll handlers ── */
+let _yPrev = 0;
 window.addEventListener('scroll', () => {
-  document.getElementById('back-to-top')?.classList.toggle('show', window.scrollY > 400);
-  document.getElementById('main-nav')?.classList.toggle('scrolled', window.scrollY > 40);
+  const y = window.scrollY;
+  document.getElementById('back-to-top')?.classList.toggle('show', y > 400);
+  document.getElementById('main-nav')?.classList.toggle('scrolled', y > 40);
+  // En el celular el botón del asistente se aparta al bajar y vuelve al subir (ver CSS)
+  if (Math.abs(y - _yPrev) > 8) {
+    document.body.classList.toggle('fab-fuera', y > _yPrev && y > 240);
+    _yPrev = y;
+  }
 }, { passive: true });
+
+/* ── Barra de navegación: compacta por pasos hasta que todo quepa ──
+   Funciona con cualquier ancho, zoom del sistema (125 %, 150 %…), nombre
+   largo del cliente o fuente que tarde en cargar. Ver CSS "nav-n1…n4". */
+let _navRaf = 0;
+function _ajustarNav() {
+  _navRaf = 0;
+  const inner = document.querySelector('#main-nav .nav-inner');
+  const b = document.body;
+  const quitar = () => b.classList.remove('nav-n1', 'nav-n2', 'nav-n3', 'nav-n4');
+  quitar();
+  if (!inner || window.innerWidth <= 768) return;
+  const cabe = () => {
+    if (inner.scrollWidth > inner.clientWidth + 1) return false;
+    const der = inner.getBoundingClientRect().right;
+    return [...inner.children].every(el => el.getBoundingClientRect().right <= der + 1);
+  };
+  for (let n = 1; n <= 4 && !cabe(); n++) b.classList.add(`nav-n${n}`);
+}
+window._ajustarNav = () => { if (!_navRaf) _navRaf = requestAnimationFrame(_ajustarNav); };
+window.addEventListener('resize', window._ajustarNav, { passive: true });
+window.addEventListener('load', window._ajustarNav);
+try { document.fonts?.ready.then(window._ajustarNav); } catch (_) {}
+try {
+  const nr = document.querySelector('#main-nav .nav-right');
+  if (nr && 'ResizeObserver' in window) {
+    let ancho = 0;
+    new ResizeObserver(([e]) => {
+      const w = Math.round(e.contentRect.width);
+      if (Math.abs(w - ancho) > 2) { ancho = w; window._ajustarNav(); }
+    }).observe(nr);
+  }
+} catch (_) {}
+window._ajustarNav();
 
 /* ── Keyboard shortcuts ── */
 document.addEventListener('keydown', e => {

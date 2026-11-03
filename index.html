@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#2F3BA2">
+<!-- Evita que el "modo oscuro forzado" de Samsung Internet, Xiaomi, etc. invierta los colores -->
+<meta name="color-scheme" content="light only">
+<meta name="format-detection" content="telephone=no">
 <title>OrbisCORP — Tienda en Línea de Seguridad Industrial</title>
 <meta name="description" content="Tienda en línea de Seguridad Industrial. EPP, Abrasivos, Soldadura, Herramientas y Ferretería. Distribuidores autorizados en Hidalgo, México.">
 <meta name="robots" content="index, follow">
@@ -4083,6 +4086,221 @@ input.qty-val::-webkit-outer-spin-button, input.qty-val::-webkit-inner-spin-butt
   #chat-input{ font-size:16px; }   /* evita el zoom automático de iOS */
 }
 
+
+/* ═══════════════════════════════════════════════════════════════════
+   ★ CAPA RESPONSIVA v7 — mismo diseño, ahora en cualquier pantalla,
+   navegador y marca de teléfono (iPhone, Samsung, Xiaomi, Motorola…).
+   Solo corrige; no cambia colores, tipografías ni el hero.
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · Base para todos los navegadores ── */
+:root{ color-scheme:light; }
+html{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+/* Safari < 16 no entiende "clip": sin esto el iPhone deja mover la página
+   de lado y se asoma el carrito escondido. "hidden" en body se aplica a
+   la ventana, así que el encabezado fijo sigue funcionando. */
+body{ overflow-x:hidden; }
+@supports (overflow:clip){ body{ overflow-x:clip; } }
+img, svg, video{ max-width:100%; }
+/* "inset" no existe en Safari 14: posiciones explícitas de respaldo */
+.modal, #quick-view-modal, .cart-overlay, .mobile-search-bar, #catalog-popup-backdrop,
+.nud-backdrop, .oc-filtros-fondo{ top:0; right:0; bottom:0; left:0; }
+.cart-overlay, #quick-view-modal{ -webkit-backdrop-filter:blur(4px); }
+.modal{ -webkit-backdrop-filter:blur(6px); }
+
+/* El carrito cerrado ya no se queda "colgado" a la derecha de la página */
+.cart-sidebar{ right:0 !important; transform:translateX(105%); visibility:hidden;
+  transition:transform .4s var(--ease-smooth), visibility 0s .4s; }
+.cart-sidebar.open{ transform:none; visibility:visible; transition:transform .4s var(--ease-smooth), visibility 0s; }
+.cart-sidebar{ height:100vh; height:100dvh; }
+
+/* En pantallas táctiles el "hover" se queda pegado después de tocar */
+@media (hover:none){
+  .showcase-card:hover, .oc-card:hover, .mini:hover, .nec:hover, .prod-card:hover,
+  .btn-hero-primary:hover, .btn-hero-secondary:hover, .cdata-item:hover, .hero-stat:hover{ transform:none !important; }
+}
+
+/* El botón del asistente se oculta cuando su ventana está abierta (sin :has, para Safari/Firefox viejos) */
+#chatbot-fab[aria-expanded="true"]{ opacity:0; pointer-events:none; }
+
+/* ── 2 · Encabezado: siempre cabe, desde 320 px ── */
+.nav-inner{ min-width:0; }
+.nav-logo{ min-width:0; }
+.nav-right{ flex-shrink:0; }
+@media (max-width:768px){
+  .nav-inner{ padding:0 12px; gap:8px; }
+  .nav-right{ gap:6px; }
+  .btn-cart, .mobile-profile-icon{ min-width:40px; width:40px; height:40px; padding:0 !important; }
+  .hamburger{ width:40px; height:40px; flex-shrink:0; }
+}
+@media (max-width:400px){
+  .nav-fav-btn{ display:none !important; }          /* favoritos siguen en el menú y en "Catálogo" */
+  .nav-logo-mark{ width:30px; height:30px; }
+}
+@media (max-width:350px){
+  .nav-logo-mark{ display:none; }
+  .nav-logo-name{ font-size:1rem !important; letter-spacing:.04em; }
+  .nav-right{ gap:4px; }
+}
+
+/* Laptops chicas, tablets acostadas y teléfonos en horizontal (769–1099 px):
+   el menú completo no cabe, así que se usa el menú lateral */
+@media (min-width:769px) and (max-width:1099px){
+  .nav-links{ display:none !important; }
+  .hamburger{ display:flex; }
+  #mobile-drawer{ display:flex; }
+  .nav-right{ gap:6px; }
+  .nav-right .nav-auth-btn:not(#nav-client-auth){ font-size:0; gap:0; padding:8px 10px; }
+  .nav-cta{ display:none !important; }
+}
+
+/* ── 3 · Textos y botones al tamaño del dedo ── */
+.mbn-label{ font-size:11px !important; letter-spacing:.02em !important; }
+.chat-legal{ font-size:11px; }
+.qv-cat-badge-name, .qv-sku-tag{ font-size:11px !important; }
+.search-count, .sri-cat, .sri-stock, .cp-title, #cart-sync-txt, .cart-sync-chip{ font-size:11px !important; }
+.qv-breadcrumb, .qv-price-label-small, .qv-price-unit-label, .qv-iva-note, .sri-var,
+.cart-subtotal-label, .cart-note, .cart-item-sku, .cart-item-info > div[style*="font-mono"]{ font-size:11px !important; }
+@media (pointer:coarse){
+  .qty-btn{ width:40px; height:40px; font-size:1.15rem; }
+  input.qty-val{ width:52px; height:40px; }
+  .cart-extra button{ min-height:44px; padding:10px 12px; }
+  .toast-close{ width:32px; height:32px; }
+  .search-cancel{ min-height:40px; }
+  .oc-migas a{ display:inline-block; padding:8px 0; margin:-8px 0; }
+  .oc-card__var{ padding:8px 0; margin:-8px 0; }
+  .cart-item-remove{ width:44px; height:44px; }
+  .forgot-pass-btn{ padding:10px 0; margin:0 0 4px; }
+}
+
+/* ── 4 · Catálogo ── */
+@media (min-width:600px) and (max-width:900px){
+  .oc-grid:not(.es-lista){ grid-template-columns:repeat(3, minmax(0,1fr)); }
+}
+@media (max-width:900px){
+  .oc-cat-titular h1{ font-size:clamp(1.35rem, 6vw, 1.6rem); overflow-wrap:anywhere; }
+}
+.oc-card__nombre, .mini__nombre, .chat-card__nombre, .cart-item-name, .sri-name{ overflow-wrap:anywhere; }
+
+/* ── 5 · Vista rápida en el celular: la barra de compra ya no tapa la ficha ── */
+.qv-mini-acc{ margin-bottom:16px; }
+@media (max-width:768px){
+  .qv-scroll-hint{ display:none !important; }
+  /* La barra se pega justo al borde de abajo (antes se veía texto por debajo) */
+  .qv-details-col{ padding-bottom:0 !important; }
+  .qv-actions-stack{ bottom:0 !important; margin-bottom:0 !important; }
+  .qv-actions-stack::before{ display:none !important; }
+  .qv-rel{ padding-bottom:20px; }
+  .qv-actions-stack{
+    display:grid !important; grid-template-columns:auto minmax(0,1fr) 50px; align-items:center; gap:8px !important;
+    padding:10px 16px calc(10px + var(--safe-bottom)) !important;
+  }
+  .qv-actions-stack .qv-qty-section{ padding:0 !important; margin:0 !important; border:none !important; gap:0 !important; }
+  .qv-actions-stack .qv-qty-label, .qv-actions-stack .qv-qty-total{ display:none !important; }
+  .qv-actions-stack .qv-qty-dec, .qv-actions-stack .qv-qty-inc{ width:40px; height:48px; }
+  .qv-actions-stack .qv-qty-number{ min-width:38px; height:48px; line-height:48px; }
+  .qv-actions-stack .btn-qv-add{ min-height:50px !important; padding:8px 10px !important; font-size:.72rem; line-height:1.2; }
+  .qv-actions-stack .btn-qv-whatsapp{ width:50px; min-height:50px !important; padding:0 !important; font-size:1.25rem; }
+  .qv-actions-stack .qv-wa-txt{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .qv-mini-acc{ margin-top:14px; }
+  /* El texto "Inicia sesión para ver el precio" ya no se dibuja gigante */
+  .qv-price-number > span{ font-family:var(--font-body) !important; font-size:1rem !important; font-weight:700;
+    -webkit-text-fill-color:var(--orbis); letter-spacing:0; display:inline-block; line-height:1.3; }
+}
+.qv-price-number > span{ white-space:normal; }
+@media (min-width:769px){
+  .qv-price-number > span{ font-family:var(--font-body) !important; font-size:1rem !important; font-weight:700;
+    -webkit-text-fill-color:var(--orbis); letter-spacing:0; line-height:1.3; }
+}
+/* Teléfono acostado: la ficha cabe a lo alto */
+@media (max-height:500px) and (min-width:601px){
+  .qv-panel{ max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px); }
+  #quick-view-modal{ padding:12px; }
+  .qv-img-stage{ width:calc(100% - 40px); max-height:70%; }
+}
+
+/* ── 6 · Buscador en el celular ── */
+@media (max-width:600px){
+  .search-result-item{ display:grid !important; grid-template-columns:44px minmax(0,1fr); column-gap:12px; row-gap:4px; align-items:start; padding:12px; }
+  .search-result-item .sri-img{ grid-row:1 / span 2; }
+  .sri-name{ white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.3; }
+  .sri-cat{ white-space:normal; overflow-wrap:anywhere; letter-spacing:.02em; }
+  .search-result-item .sri-price{ grid-column:2; text-align:left !important; font-size:.85rem; }
+  .search-result-item .sri-price span{ font-size:.8rem !important; }
+}
+
+/* ── 7 · Avisos y botones flotantes ── */
+@media (max-width:768px){
+  /* Los avisos salen arriba: abajo tapaban los botones del carrito */
+  #toast-container{ bottom:auto; top:calc(var(--toolbar-h) + var(--nav-h) + 8px); }
+  #drawer-backdrop{ z-index:794; }
+  #mobile-drawer{ z-index:795; }
+}
+@media (min-width:769px) and (max-width:1099px){
+  #drawer-backdrop{ z-index:794; }
+  #mobile-drawer{ z-index:795; padding-bottom:24px; }
+}
+
+/* Botones flotantes: se apartan al bajar (no tapan "Agregar") y regresan al subir.
+   También en teléfonos acostados, donde la pantalla es muy baja. */
+#chatbot-fab{ z-index:790; }
+@media (max-width:768px), (max-height:500px){
+  #chatbot-fab, #wa-fab{ transition:transform .25s ease, opacity .25s ease; }
+  body.fab-fuera #chatbot-fab, body.fab-fuera #wa-fab{ transform:translateY(calc(100% + 90px)); opacity:0; pointer-events:none; }
+}
+/* Sin sesión no se muestra el "$" ni "MXN" junto a "Inicia sesión" */
+.qv-price-display.sin-precio .qv-price-currency, .qv-price-display.sin-precio .qv-price-unit-label{ display:none; }
+
+/* ── 8 · Ventanas (modales) en pantallas bajas o muy angostas ── */
+@media (max-width:420px){
+  .modal{ padding:10px; }
+  .modal-body{ padding:18px 16px; }
+  .modal-foot{ padding:12px 16px; flex-wrap:wrap; }
+  .modal-foot > *{ flex:1 1 140px; }
+  #modal-consignacion .modal-panel > div:first-child{ padding:20px 18px 14px !important; flex-direction:column; gap:12px; }
+  #modal-consignacion .modal-body{ padding:18px !important; }
+  #modal-consignacion .modal-body > div:first-child{ grid-template-columns:1fr !important; }
+}
+@media (max-height:520px){
+  .modal-panel{ max-height:calc(100vh - 16px); max-height:calc(100dvh - 16px); }
+  .modal{ padding:8px; align-items:flex-start; }
+}
+
+/* ── 9 · Pantallas grandes (2K / 4K) ── */
+@media (min-width:1700px){
+  .oc-wrap{ max-width:1480px; }
+  .oc-grid{ grid-template-columns:repeat(auto-fill, minmax(232px, 1fr)); }
+}
+
+/* ── 10 · Impresión (lista o carrito en papel) ── */
+@media print{
+  #mobile-bottom-nav, #chatbot-fab, #chatbot-window, #wa-fab, #back-to-top, .cart-overlay, #toast-container, #loader{ display:none !important; }
+  body{ padding:0 !important; background:#fff !important; }
+}
+
+/* Teléfonos de pantalla baja (iPhone SE, Android chicos): la foto ocupa menos */
+@media (max-width:600px) and (max-height:700px){
+  .qv-image-col{ height:170px !important; min-height:170px !important; max-height:170px !important; }
+  .qv-panel{ height:92vh !important; height:92dvh !important; max-height:92dvh !important; }
+}
+
+/* ── 11 · Barra de navegación de escritorio que se acomoda sola ──
+   app.js mide si todo cabe (según ancho, zoom de Windows, nombre del
+   cliente, fuentes) y va compactando por pasos hasta que cabe. */
+body.nav-n1 .nav-cta{ display:none !important; }
+body.nav-n2 .nav-right .nav-auth-btn:not(#nav-client-auth){ font-size:0; gap:0; padding:8px 10px; }
+body.nav-n2 .nav-right .btn-cart > span:not(.cart-badge){ display:none; }
+body.nav-n2 .nav-auth-btn.logged-in{ max-width:130px; }
+body.nav-n3 .nav-links a{ padding:8px 10px !important; }
+body.nav-n3 .nav-links{ gap:0; }
+body.nav-n3 .nav-inner{ gap:8px; }
+body.nav-n4 .nav-links{ display:none !important; }
+body.nav-n4 .hamburger{ display:flex; }
+body.nav-n4 #mobile-drawer{ display:flex; z-index:795; }
+body.nav-n4 #drawer-backdrop{ z-index:794; }
+/* En monitores anchos hay espacio para el botón "Ver Catálogo" */
+@media (min-width:1500px){ #main-nav .nav-inner{ max-width:1440px; } }
+
 </style>
 </head>
 <body>
@@ -4176,12 +4394,12 @@ input.qty-val::-webkit-outer-spin-button, input.qty-val::-webkit-inner-spin-butt
         </div>
 
         <button class="btn-qv-add ripple-host" id="qv-atc-btn">🛒 Agregar al Carrito</button>
-        <button class="btn-qv-whatsapp ripple-host" id="qv-wa-btn">💬 Consultar por WhatsApp</button>
-        <div class="qv-mini-acc">
-          <button class="btn-qv-share" id="qv-fav-btn" type="button" aria-pressed="false"><span class="fav-off">♡ Guardar</span><span class="fav-on">♥ En favoritos</span></button>
-          <button class="btn-qv-share" id="qv-share-btn" type="button">🔗 Compartir</button>
-          <button class="btn-qv-share qv-ask" type="button" onclick="preguntarAlAsistente()">✨ Pregúntale al asistente sobre este producto</button>
-        </div>
+        <button class="btn-qv-whatsapp ripple-host" id="qv-wa-btn" aria-label="Consultar por WhatsApp"><span aria-hidden="true">💬</span><span class="qv-wa-txt">Consultar por WhatsApp</span></button>
+      </div>
+      <div class="qv-mini-acc">
+        <button class="btn-qv-share" id="qv-fav-btn" type="button" aria-pressed="false"><span class="fav-off">♡ Guardar</span><span class="fav-on">♥ En favoritos</span></button>
+        <button class="btn-qv-share" id="qv-share-btn" type="button">🔗 Compartir</button>
+        <button class="btn-qv-share qv-ask" type="button" onclick="preguntarAlAsistente()">✨ Pregúntale al asistente sobre este producto</button>
       </div>
       
       <div class="qv-trust-row" aria-label="Garantías OrbisCORP">
